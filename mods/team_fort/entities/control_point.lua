@@ -1,0 +1,109 @@
+local control_point_textures = {
+	[TEAM_COLOR.NEUTRAL] = get_res("cp_neutral.png"),
+	[TEAM_COLOR.RED]     = get_res("cp_red.png"),
+	[TEAM_COLOR.BLUE]    = get_res("cp_blue.png")
+}
+
+local control_point = {
+	collisionbox = {-2.5, 0.0, -2.5, 2.5, 0.25, 2.5},
+	visual = "mesh",
+	mesh = get_res("control_point.b3d"),
+	textures = {get_res("cp_neutral.png")},
+	visual_size = {x=10,y=10},
+
+	color = TEAM_COLOR.NEUTRAL,
+	pcolor = 4,
+	original_color = TEAM_COLOR.NEUTRAL
+};
+
+function control_point.on_activate(self, staticdata)
+	if staticdata then
+		local data = string.split(staticdata, ",");
+		self.color = tonumber(data[1]);
+		self.original_color = tonumber(data[2]);
+		self.pcolor = 4;
+		print("Activating point: ", data[1], data[2]);
+	end
+end
+
+function control_point.get_staticdata(self)
+	local data = {self.color, self.original_color};
+	local ret = table.concat(data, ",");
+	print("Saving point: " .. ret);
+	return ret;
+end
+
+function control_point.on_step(self, dtime)
+	if self.color ~= self.pcolor then
+		self.pcolor = self.color;
+		self.object:set_properties({textures = {control_point_textures[self.color]}})
+	end
+end
+
+minetest.register_entity(get_name("control_point"), control_point);
+
+minetest.register_craftitem(get_name("control_point"), {
+	description = "Control point",
+	inventory_image = get_res("cp_neutral_item.png"),
+	wield_image = get_res("cp_neutral_item.png"),
+
+	on_place = function(itemstack, placer, pointed_thing)
+		if pointed_thing.type ~= "node" then
+			return
+		end
+
+		pointed_thing.under.y = pointed_thing.under.y + 0.5
+		local entity = minetest.add_entity(pointed_thing.under, get_name("control_point"));
+		entity:get_luaentity().color = TEAM_COLOR.NEUTRAL;
+		entity:get_luaentity().original_color = TEAM_COLOR.NEUTRAL;
+
+		if not minetest.setting_getbool("creative_mode") then
+			itemstack:take_item()
+		end
+		return itemstack
+	end,
+})
+
+minetest.register_craftitem(get_name("control_point_blue"), {
+	description = "Blu control point",
+	inventory_image = get_res("cp_blue_item.png"),
+	wield_image = get_res("cp_blue_item.png"),
+
+	on_place = function(itemstack, placer, pointed_thing)
+		if pointed_thing.type ~= "node" then
+			return
+		end
+
+		pointed_thing.under.y = pointed_thing.under.y + 0.5
+		local entity = minetest.add_entity(pointed_thing.under, get_name("control_point"));
+		entity:get_luaentity().color = TEAM_COLOR.BLU;
+		entity:get_luaentity().original_color = TEAM_COLOR.BLU;
+
+		if not minetest.setting_getbool("creative_mode") then
+			itemstack:take_item()
+		end
+		return itemstack
+	end,
+})
+
+minetest.register_craftitem(get_name("control_point_red"), {
+	description = "Red control point",
+	inventory_image = get_res("cp_red_item.png"),
+	wield_image = get_res("cp_red_item.png"),
+
+	on_place = function(itemstack, placer, pointed_thing)
+		if pointed_thing.type ~= "node" then
+			return
+		end
+
+		pointed_thing.under.y = pointed_thing.under.y + 0.5
+		local entity = minetest.add_entity(pointed_thing.under, get_name("control_point"));
+		entity:get_luaentity().color = TEAM_COLOR.RED;
+		entity:get_luaentity().original_color = TEAM_COLOR.RED;
+
+		if not minetest.setting_getbool("creative_mode") then
+			itemstack:take_item()
+		end
+		return itemstack
+	end,
+})
