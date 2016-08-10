@@ -1,14 +1,14 @@
 local control_point_textures = {
-	[TEAM_COLOR.NEUTRAL] = get_res("cp_neutral.png"),
-	[TEAM_COLOR.RED]     = get_res("cp_red.png"),
-	[TEAM_COLOR.BLUE]    = get_res("cp_blue.png")
+	[TEAM_COLOR.NEUTRAL] = "teamf_cp_neutral.png",
+	[TEAM_COLOR.RED]     = "teamf_cp_red.png",
+	[TEAM_COLOR.BLUE]    = "teamf_cp_blue.png"
 }
 
 local control_point = {
 	collisionbox = {-2.5, 0.0, -2.5, 2.5, 0.25, 2.5},
 	visual = "mesh",
-	mesh = get_res("control_point.b3d"),
-	textures = {get_res("cp_neutral.png")},
+	mesh = "teamf_control_point.b3d",
+	textures = {"teamf_cp_neutral.png"},
 	visual_size = {x=10,y=10},
 
 	color = TEAM_COLOR.NEUTRAL,
@@ -40,12 +40,12 @@ function control_point.on_step(self, dtime)
 	end
 end
 
-minetest.register_entity(get_name("control_point"), control_point);
+minetest.register_entity("team_fort:control_point", control_point);
 
-minetest.register_craftitem(get_name("control_point"), {
+minetest.register_craftitem("team_fort:control_point", {
 	description = "Control point",
-	inventory_image = get_res("cp_neutral_item.png"),
-	wield_image = get_res("cp_neutral_item.png"),
+	inventory_image = "teamf_cp_neutral_item.png",
+	wield_image = "teamf_cp_neutral_item.png",
 
 	on_place = function(itemstack, placer, pointed_thing)
 		if pointed_thing.type ~= "node" then
@@ -53,7 +53,7 @@ minetest.register_craftitem(get_name("control_point"), {
 		end
 
 		pointed_thing.under.y = pointed_thing.under.y + 0.5
-		local entity = minetest.add_entity(pointed_thing.under, get_name("control_point"));
+		local entity = minetest.add_entity(pointed_thing.under, "team_fort:control_point");
 		entity:get_luaentity().color = TEAM_COLOR.NEUTRAL;
 		entity:get_luaentity().original_color = TEAM_COLOR.NEUTRAL;
 
@@ -64,10 +64,10 @@ minetest.register_craftitem(get_name("control_point"), {
 	end,
 })
 
-minetest.register_craftitem(get_name("control_point_blue"), {
+minetest.register_craftitem("team_fort:control_point_blue", {
 	description = "Blu control point",
-	inventory_image = get_res("cp_blue_item.png"),
-	wield_image = get_res("cp_blue_item.png"),
+	inventory_image = "teamf_cp_blue_item.png",
+	wield_image = "teamf_cp_blue_item.png",
 
 	on_place = function(itemstack, placer, pointed_thing)
 		if pointed_thing.type ~= "node" then
@@ -75,7 +75,7 @@ minetest.register_craftitem(get_name("control_point_blue"), {
 		end
 
 		pointed_thing.under.y = pointed_thing.under.y + 0.5
-		local entity = minetest.add_entity(pointed_thing.under, get_name("control_point"));
+		local entity = minetest.add_entity(pointed_thing.under, "team_fort:control_point");
 		entity:get_luaentity().color = TEAM_COLOR.BLU;
 		entity:get_luaentity().original_color = TEAM_COLOR.BLU;
 
@@ -86,10 +86,10 @@ minetest.register_craftitem(get_name("control_point_blue"), {
 	end,
 })
 
-minetest.register_craftitem(get_name("control_point_red"), {
+minetest.register_craftitem("team_fort:control_point_red", {
 	description = "Red control point",
-	inventory_image = get_res("cp_red_item.png"),
-	wield_image = get_res("cp_red_item.png"),
+	inventory_image = "teamf_cp_red_item.png",
+	wield_image = "teamf_cp_red_item.png",
 
 	on_place = function(itemstack, placer, pointed_thing)
 		if pointed_thing.type ~= "node" then
@@ -97,7 +97,7 @@ minetest.register_craftitem(get_name("control_point_red"), {
 		end
 
 		pointed_thing.under.y = pointed_thing.under.y + 0.5
-		local entity = minetest.add_entity(pointed_thing.under, get_name("control_point"));
+		local entity = minetest.add_entity(pointed_thing.under, "team_fort:control_point");
 		entity:get_luaentity().color = TEAM_COLOR.RED;
 		entity:get_luaentity().original_color = TEAM_COLOR.RED;
 

@@ -62,7 +62,7 @@ function util.check_node(name, x, y, z)
 		};
 	end
 	local node = minetest.get_node(x);
-	if type(name) == table then
+	if type(name) == "table" then
 		for k,v in pairs(name) do
 			if v == node.name then
 				return true, node;
@@ -100,4 +100,4 @@ function util.deserialize_to(str, obj)
 	end
 end
 
-dofile(get_file("direction.lua"));
+dofile(minetest.get_modpath("team_fort") .. "/direction.lua");

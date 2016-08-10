@@ -1,6 +1,3 @@
-MOD_NAME = "team_fort"
-TEXTURE_PREFIX = "teamf_"
-
 TEAM_COLOR = {
 	NEUTRAL = 1,
 	RED = 2,
@@ -8,21 +5,8 @@ TEAM_COLOR = {
 	BLUE = 3, -- just in case
 }
 
--- Basic functions
-function get_file(...)
-	return minetest.get_modpath(MOD_NAME) .. "/" .. table.concat({...}, '/');
-end
-
-function get_res(name)
-	return TEXTURE_PREFIX .. name;
-end
-
-function get_name(...)
-	return string.format("%s:%s", MOD_NAME, table.concat({...}, ' '));
-end
-
 -- Load extra utilities
-dofile(get_file("util.lua"));
+dofile(minetest.get_modpath("team_fort") .. "/util.lua");
 
 -- register some basic teams
 Scoreboard.Teams.register_team("red", {nametag_color = 0xFFFF0000})
@@ -35,15 +19,15 @@ local entities_to_load = {"control_point", "payload"};
 
 function init()
 	for _,name in pairs(nodes_to_load) do
-		dofile(get_file("nodes", name .. ".lua"));
+		dofile(minetest.get_modpath("team_fort") .. "/nodes/" .. name .. ".lua");
 	end
 	for _,name in pairs(items_to_load) do
-		dofile(get_file("items", name .. ".lua"));
+		dofile(minetest.get_modpath("team_fort") .. "/items/" .. name .. ".lua");
 	end
 	for _,name in pairs(entities_to_load) do
-		dofile(get_file("entities", name .. ".lua"));
+		dofile(minetest.get_modpath("team_fort") .. "/entities/" .. name .. ".lua");
 	end
-	dofile(get_file("commands.lua"));
+	dofile(minetest.get_modpath("team_fort") .. "/commands.lua");
 end
 
 init();

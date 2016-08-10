@@ -1,1 +1,3 @@
 For organization purposes, all default mods copied from minetest_game go here
+There are a few modifications to the core game though, including:
+ - Slight texture modifications

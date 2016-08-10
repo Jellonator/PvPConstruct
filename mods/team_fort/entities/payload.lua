@@ -9,8 +9,8 @@ local PAYLOAD_MAXFALL = 12.0;
 local payload = {
 	collisionbox = {-0.45, 0.0, -0.45, 0.45, 1.0, 0.45},
 	visual = "mesh",
-	mesh = get_res("kart.b3d"),
-	textures = {get_res("kart.png")},
+	mesh = "teamf_kart.b3d",
+	textures = {"teamf_kart.png"},
 	visual_size = {x=4,y=4},
 	physical = true,
 	check_time = 0,
@@ -217,12 +217,12 @@ function payload.on_step(self, dtime)
 	end
 end
 
-minetest.register_entity(get_name("payload"), payload);
+minetest.register_entity("team_fort:payload", payload);
 
-minetest.register_craftitem(get_name("payload"), {
+minetest.register_craftitem("team_fort:payload", {
 	description = "Payload cart",
-	inventory_image = get_res("kart_item.png"),
-	wield_image = get_res("kart_item.png"),
+	inventory_image = "teamf_kart_item.png",
+	wield_image = "teamf_kart_item.png",
 
 	on_place = function(itemstack, placer, pointed_thing)
 		if pointed_thing.type ~= "node" then
@@ -235,7 +235,7 @@ minetest.register_craftitem(get_name("payload"), {
 
 		local to_pos = pointed_thing.under;
 		to_pos.y = to_pos.y - 0.5
-		local object = minetest.add_entity(to_pos, get_name("payload"));
+		local object = minetest.add_entity(to_pos, "team_fort:payload");
 		object:setyaw(util.get_player_yaw(placer));
 		if not minetest.setting_getbool("creative_mode") then
 			itemstack:take_item()

@@ -23,3 +23,14 @@ health packs, ammo boxes, payloads, etc.
 
 ### clicky_signs
 Adds signs that can be clicked to activate commands on a player
+
+TODO
+----
+As with any mod, there is so much to do and so much to see. Here I will compile
+a list of generally what and where this mod is going.
+
+ - Team spawns/respawning (scoreboard/team_fort)
+ - Healthpacks (team_fort)
+ - Ammo packs (team_fort)
+ - Classes
+ - Class selection formspec

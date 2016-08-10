@@ -1,11 +1,11 @@
 --nothing here
 local function has_clicky_privelege(meta, player)
 	local name = ""
-	if player then
-		if minetest.check_player_privs(player, "protection_bypass") then
+	if player and player:is_player() then
+		name = player:get_player_name()
+		if minetest.check_player_privs(name, "protection_bypass") then
 			return true
 		end
-		name = player:get_player_name()
 	end
 	if name ~= meta:get_string("owner") then
 		return false
