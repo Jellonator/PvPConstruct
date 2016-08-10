@@ -1,4 +1,4 @@
-direction = {}
+local direction = {}
 
 direction.NORTH = 1
 direction.EAST = 2
@@ -10,7 +10,7 @@ local function _mod(a, n)
 end
 
 function direction.from_yaw(yaw)
-	yaw = util.mod(yaw, math.pi * 2);
+	yaw = jutil.mod(yaw, math.pi * 2);
 	yaw = yaw + math.pi / 4;
 	if yaw < math.pi / 2 then
 		return direction.NORTH;

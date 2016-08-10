@@ -5,9 +5,6 @@ TEAM_COLOR = {
 	BLUE = 3, -- just in case
 }
 
--- Load extra utilities
-dofile(minetest.get_modpath("team_fort") .. "/util.lua");
-
 -- register some basic teams
 Scoreboard.Teams.register_team("red", {nametag_color = 0xFFFF0000})
 Scoreboard.Teams.register_team("blue", {nametag_color = 0xFF0000FF})

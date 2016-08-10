@@ -1,4 +1,4 @@
-CommandMaker = {}
+local cmd = {}
 
 local function get_param_next(param, type_name)
 	local space_start, space_end = string.find(param, "%s");
@@ -44,7 +44,7 @@ local function do_command(name, param, cmd, full_cmd)
 	return false, "Invalid command '/" .. string.trim(full_cmd) .. "'"
 end
 
-function CommandMaker.register(name, def, cmd)
+function cmd.register(name, def, cmd)
 	local full_cmd = name;
 	def.func = function(name, param)
 		print("Starting a command");
@@ -68,7 +68,7 @@ local function full_cmd_fmt(full_cmd, def)
 	);
 end
 
-function CommandMaker.command(def, func)
+function cmd.command(def, func)
 	local is_optional = false;
 	local minimum_argn = 0;
 	for i, v in ipairs(def) do
@@ -116,18 +116,20 @@ end
 
 --[[
 example:
-CommandMaker.register("cmd",
+cmd.register("cmd",
 	{
 		description = "whatever",
 		privs = { interact = true }
 	},
 	{
-		foo = CommandMaker.command({"number"}, function(name, value)
+		foo = cmd.command({"number"}, function(name, value)
 			return true, "Number: " .. value
 		end),
-		bar = CommandMaker.command({"string", "?number"}, function(name, a, b)
+		bar = cmd.command({"string", "?number"}, function(name, a, b)
 			return true, "Player <" .. name .. "> called bar with args: " .. a .. " " .. tostring(b)
 		end)
 	}
 )
 ]]
+
+return cmd;

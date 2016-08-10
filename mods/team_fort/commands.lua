@@ -10,17 +10,17 @@ minetest.register_privilege("tfadmin", {
 	give_to_singleplayer = true
 })
 
-CommandMaker.register("tf",
+jutil.cmd.register("tf",
 	{
 		description = "Team Fort commands",
 		privs = { interact = true }
 	}, {
-		join = CommandMaker.command({"string", "?string"},
+		join = jutil.cmd.command({"string", "?string"},
 		function (name, team_name, player_name)
 			local name = player_name or name;
 			return Scoreboard.Teams.player_join(team_name, name);
 		end),
-		leave = CommandMaker.command({"?string"},
+		leave = jutil.cmd.command({"?string"},
 		function (name, player_name)
 			local name = player_name or name;
 			return Scoreboard.Teams.player_leave(name);

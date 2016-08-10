@@ -1,19 +1,21 @@
-util = {};
+jutil = {}
+jutil.cmd = dofile(minetest.get_modpath("jutil") .. "/cmd.lua");
+jutil.direction = dofile(minetest.get_modpath("jutil") .. "/direction.lua");
 
 function math.round(num, mult)
 	local mult = mult or 1;
-  return math.floor(num / mult + 0.5) * mult
+	return math.floor(num / mult + 0.5) * mult
 end
 
-function util.get_player_yaw(player)
+function jutil.get_player_yaw(player)
 	local value = player:get_look_yaw() - math.pi/2;
 	return math.round(value, math.pi/2);
 end
 
-function util.recipe_format(t, lookup)
+function jutil.recipe_format(t, lookup)
 	for k,v in pairs(t) do
 		if type(v) == "table" then
-			util.recipe_format(v, lookup);
+			jutil.recipe_format(v, lookup);
 		else
 			t[k] = lookup[v] or '';
 		end
@@ -22,25 +24,25 @@ function util.recipe_format(t, lookup)
 	return t;
 end
 
-function util.mod(a, n)
+function jutil.mod(a, n)
 	return a - math.floor(a/n) * n
 end
 
-function util.angle_diff(a, b)
+function jutil.angle_diff(a, b)
 	local ret = a - b;
-	ret = util.mod(ret + math.pi, math.pi*2) - math.pi
+	ret = jutil.mod(ret + math.pi, math.pi*2) - math.pi
 	return ret;
 end
 
-function util.angle_to(from, to, speed)
-	local diff = util.angle_diff(to, from);
+function jutil.angle_to(from, to, speed)
+	local diff = jutil.angle_diff(to, from);
 	if math.abs(diff) < speed then return to end
 	diff = diff * speed / math.abs(diff);
 	from = from + diff;
-	return util.mod(from, math.pi*2);
+	return jutil.mod(from, math.pi*2);
 end
 
-function util.check_node_property(property, value, x, y, z)
+function jutil.check_node_property(property, value, x, y, z)
 	if y and z then
 		x = {
 			x = x,
@@ -53,7 +55,7 @@ function util.check_node_property(property, value, x, y, z)
 	return def[property] == value, node;
 end
 
-function util.check_node(name, x, y, z)
+function jutil.check_node(name, x, y, z)
 	if y and z then
 		x = {
 			x = x,
@@ -73,7 +75,7 @@ function util.check_node(name, x, y, z)
 	return node.name == name, node;
 end
 
-function util.serialize_safe(obj, ignore)
+function jutil.serialize_safe(obj, ignore)
 	local val = {}
 	for k,v in pairs(obj) do
 		if type(v) ~= "userdata" then
@@ -92,12 +94,10 @@ function util.serialize_safe(obj, ignore)
 	return minetest.serialize(val);
 end
 
-function util.deserialize_to(str, obj)
+function jutil.deserialize_to(str, obj)
 	if str == "" then return end;
 	local data = minetest.deserialize(str);
 	for k,v in pairs(data) do
 		obj[k] = v
 	end
 end
-
-dofile(minetest.get_modpath("team_fort") .. "/direction.lua");

@@ -23,13 +23,13 @@ local payload = {
 
 function payload.on_activate(self, staticdata)
 	if staticdata then
-		util.deserialize_to(staticdata, self);
+		jutil.deserialize_to(staticdata, self);
 		print("S", self.self_pos);
 	end
 end
 
 function payload.get_staticdata(self)
-	return util.serialize_safe(self, {"self_pos", "check_time", "move_speed"});
+	return jutil.serialize_safe(self, {"self_pos", "check_time", "move_speed"});
 end
 
 local function filter_player(t)
@@ -76,8 +76,8 @@ function payload.on_step(self, dtime)
 	end
 
 	if (self.move_speed > 0 or self.falling >= 0) and not self.target_pos then
-		local dir = direction.from_yaw(self.object:getyaw());
-		local dirx, dirz = direction.decompose(dir);
+		local dir = jutil.direction.from_yaw(self.object:getyaw());
+		local dirx, dirz = jutil.direction.decompose(dir);
 		self.target_yaw = self.object:getyaw();
 		local current_pos = self.self_pos;
 		local current_node = minetest.get_node(current_pos);
@@ -94,9 +94,9 @@ function payload.on_step(self, dtime)
 					math.round(current_pos.z);
 
 			local potential_directions = {
-				direction.to_pos(dir),
-				direction.to_pos(direction.left(dir)),
-				direction.to_pos(direction.right(dir)),
+				jutil.direction.to_pos(dir),
+				jutil.direction.to_pos(jutil.direction.left(dir)),
+				jutil.direction.to_pos(jutil.direction.right(dir)),
 			};
 
 			for k, v in ipairs(potential_directions) do
@@ -129,10 +129,10 @@ function payload.on_step(self, dtime)
 				v.z = v.z + base_z;
 
 				local move_by_down = false;
-				local can_move = util.check_node("default:rail", v);
+				local can_move = jutil.check_node("default:rail", v);
 				if not can_move and self.falling < 0 then
-					can_move = util.check_node("default:rail", down_check_a) or
-							util.check_node("default:rail", down_check_b);
+					can_move = jutil.check_node("default:rail", down_check_a) or
+							jutil.check_node("default:rail", down_check_b);
 					move_by_down = true;
 				end
 				if can_move then
@@ -140,12 +140,12 @@ function payload.on_step(self, dtime)
 					self.target_yaw = target_yaw;
 					local target_pitch = 0;
 					if self.falling < 0 then
-						if util.check_node("default:rail", up_check) then
+						if jutil.check_node("default:rail", up_check) then
 							self.target_pos.y = self.target_pos.y + 1.0;
 							target_pitch = math.pi/4;
 						end
 						if current_node.name == "air" and move_by_down and
-								util.check_node("default:rail", under_pos) then
+								jutil.check_node("default:rail", under_pos) then
 							self.target_pos.y = self.target_pos.y - 1.0
 							target_pitch = -math.pi/4;
 						end
@@ -155,7 +155,7 @@ function payload.on_step(self, dtime)
 			end
 		end
 
-		if not self.target_pos and util.check_node_property(
+		if not self.target_pos and jutil.check_node_property(
 				"walkable", false, under_pos) then
 			-- fall in air
 			self.target_pos = under_pos;
@@ -171,7 +171,7 @@ function payload.on_step(self, dtime)
 				y = math.round(current_pos.y),
 				z = math.round(current_pos.z) + dirz
 			};
-			if util.check_node_property("walkable", false, next_pos) then
+			if jutil.check_node_property("walkable", false, next_pos) then
 				self.target_pos = next_pos;
 			end
 		end
@@ -211,7 +211,7 @@ function payload.on_step(self, dtime)
 			self.self_pos.z = self.self_pos.z + diff.z * mspeed;
 			self.object:setpos(self.self_pos);
 
-			self.object:setyaw(util.angle_to(self.object:getyaw(),
+			self.object:setyaw(jutil.angle_to(self.object:getyaw(),
 					self.target_yaw, dtime * YAW_CHANGE_SPEED))
 		end
 	end
@@ -236,7 +236,7 @@ minetest.register_craftitem("team_fort:payload", {
 		local to_pos = pointed_thing.under;
 		to_pos.y = to_pos.y - 0.5
 		local object = minetest.add_entity(to_pos, "team_fort:payload");
-		object:setyaw(util.get_player_yaw(placer));
+		object:setyaw(jutil.get_player_yaw(placer));
 		if not minetest.setting_getbool("creative_mode") then
 			itemstack:take_item()
 		end
