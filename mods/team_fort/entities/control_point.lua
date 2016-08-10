@@ -42,68 +42,30 @@ end
 
 minetest.register_entity("team_fort:control_point", control_point);
 
-minetest.register_craftitem("team_fort:control_point", {
-	description = "Control point",
-	inventory_image = "teamf_cp_neutral_item.png",
-	wield_image = "teamf_cp_neutral_item.png",
+local function register_control_point_item(name, texture, color)
+	minetest.register_craftitem("team_fort:control_point_" .. name, {
+		description = "Control point " .. name,
+		inventory_image = texture,
+		wield_image = texture,
 
-	on_place = function(itemstack, placer, pointed_thing)
-		if pointed_thing.type ~= "node" then
-			return
-		end
+		on_place = function(itemstack, placer, pointed_thing)
+			if pointed_thing.type ~= "node" then
+				return
+			end
 
-		pointed_thing.under.y = pointed_thing.under.y + 0.5
-		local entity = minetest.add_entity(pointed_thing.under, "team_fort:control_point");
-		entity:get_luaentity().color = TEAM_COLOR.NEUTRAL;
-		entity:get_luaentity().original_color = TEAM_COLOR.NEUTRAL;
+			pointed_thing.under.y = pointed_thing.under.y + 0.5
+			local entity = minetest.add_entity(pointed_thing.under, "team_fort:control_point");
+			entity:get_luaentity().color = color;
+			entity:get_luaentity().original_color = color;
 
-		if not minetest.setting_getbool("creative_mode") then
-			itemstack:take_item()
-		end
-		return itemstack
-	end,
-})
+			if not minetest.setting_getbool("creative_mode") then
+				itemstack:take_item()
+			end
+			return itemstack
+		end,
+	})
+end
 
-minetest.register_craftitem("team_fort:control_point_blue", {
-	description = "Blu control point",
-	inventory_image = "teamf_cp_blue_item.png",
-	wield_image = "teamf_cp_blue_item.png",
-
-	on_place = function(itemstack, placer, pointed_thing)
-		if pointed_thing.type ~= "node" then
-			return
-		end
-
-		pointed_thing.under.y = pointed_thing.under.y + 0.5
-		local entity = minetest.add_entity(pointed_thing.under, "team_fort:control_point");
-		entity:get_luaentity().color = TEAM_COLOR.BLU;
-		entity:get_luaentity().original_color = TEAM_COLOR.BLU;
-
-		if not minetest.setting_getbool("creative_mode") then
-			itemstack:take_item()
-		end
-		return itemstack
-	end,
-})
-
-minetest.register_craftitem("team_fort:control_point_red", {
-	description = "Red control point",
-	inventory_image = "teamf_cp_red_item.png",
-	wield_image = "teamf_cp_red_item.png",
-
-	on_place = function(itemstack, placer, pointed_thing)
-		if pointed_thing.type ~= "node" then
-			return
-		end
-
-		pointed_thing.under.y = pointed_thing.under.y + 0.5
-		local entity = minetest.add_entity(pointed_thing.under, "team_fort:control_point");
-		entity:get_luaentity().color = TEAM_COLOR.RED;
-		entity:get_luaentity().original_color = TEAM_COLOR.RED;
-
-		if not minetest.setting_getbool("creative_mode") then
-			itemstack:take_item()
-		end
-		return itemstack
-	end,
-})
+register_control_point_item("neutral", "teamf_cp_neutral_item.png", TEAM_COLOR.NEUTRAL)
+register_control_point_item("red", "teamf_cp_red_item.png", TEAM_COLOR.RED)
+register_control_point_item("blue", "teamf_cp_blue_item.png", TEAM_COLOR.BLUE)
