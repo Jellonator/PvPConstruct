@@ -9,6 +9,25 @@ local team_data = {}
 local incremental_id = 0;
 local prev_incremental_id = incremental_id;
 
+local function get_team_spawn(team)
+	local teamdata = Teams.get_team(team);
+	if teamdata.spawn then
+		if teamdata.spawn.r then
+			local spawn = teamdata.spawn;
+			local newpos = {
+				x = spawn.x + math.random(-spawn.r, spawn.r),
+				y = spawn.y,
+				z = spawn.z + math.random(-spawn.r, spawn.r),
+			}
+			return newpos;
+		else
+			return teamdata.spawn;
+		end
+	end
+
+	return nil;
+end
+
 local function increment_id()
 	incremental_id = incremental_id + 1;
 end
@@ -77,33 +96,41 @@ local function saveteams_timer()
 	minetest.after(10, saveteams_timer);
 end
 
-minetest.register_on_shutdown(saveteams);
-minetest.after(10, saveteams_timer);
-
 local function set_player_nametag_color(player, team)
 	local properties = {}
 	if team then
 		local teamdef = Teams.get_team(team);
 		print(teamdef);
-		properties.nametag_color = teamdef and teamdef.nametag_color or {};
+		properties.color = teamdef and teamdef.color or {};
 	else
-		properties.nametag_color = {}
+		properties.color = {}
 	end
-	if type(properties.nametag_color) == "table" then
-		properties.nametag_color.r = properties.nametag_color.r or 255;
-		properties.nametag_color.g = properties.nametag_color.g or 255;
-		properties.nametag_color.b = properties.nametag_color.b or 255;
-		properties.nametag_color.a = properties.nametag_color.a or 255;
+	if type(properties.color) == "table" then
+		-- properties.color.r = properties.color.r or 255;
+		-- properties.color.g = properties.color.g or 255;
+		-- properties.color.b = properties.color.b or 255;
+		properties.color.a = properties.color.a or 255;
 	end
 	player:set_properties(properties)
 end
 
-minetest.register_on_joinplayer(function(player)
-	local team = Teams.player_get_team(player:get_player_name());
-	if team then
-		set_player_nametag_color(player, team);
+function Teams.set_color(team, color)
+	if not Teams.team_exists(team) then
+		return false, string.format("Team %s does not exist!", team);
 	end
-end)
+	Teams.get_team(team).color = color;
+	increment_id();
+	return true, "Successfully set team color!";
+end
+
+function Teams.set_spawn(team, pos)
+	if not Teams.team_exists(team) then
+		return false, string.format("Team %s does not exist!", team);
+	end
+	Teams.get_team(team).spawn = pos;
+	increment_id();
+	return true, "Successfully set team spawn!";
+end
 
 function Teams.team_exists(team)
 	return team_data[team] and true or false;
@@ -145,6 +172,10 @@ function Teams.player_join(team, player)
 	team_players[player] = team;
 	local playerent = minetest.get_player_by_name(player);
 	if playerent then
+		local spawn = get_team_spawn(team);
+		if spawn then
+			playerent:setpos(spawn)
+		end
 		set_player_nametag_color(playerent, team);
 	end
 	minetest.chat_send_all(string.format("Player %s joined team %s!", player, team));
@@ -159,7 +190,7 @@ function Teams.register_team(team, def)
 	if Teams.get_team(team) then
 		return false, "Team " .. team .. " already exists!"
 	end
-	def.nametag_color = def.nametag_color or {r=0,g=0,b=0,a=255};
+	def.color = def.color or {r=0,g=0,b=0,a=255};
 	team_data[team] = def;
 	increment_id()
 	return def;
@@ -178,6 +209,37 @@ function Teams.remove_team(team)
 	increment_id()
 	return true;
 end
+
+minetest.register_on_joinplayer(function(player)
+	local team = Teams.player_get_team(player:get_player_name());
+	if team then
+		if not Teams.team_exists(team) then
+			Teams.player_leave(player:get_player_name());
+		else
+			-- treat it as a respawn
+			local spawn = get_team_spawn(team);
+			if spawn then
+				player:setpos(spawn);
+				return true;
+			end
+			set_player_nametag_color(player, team);
+		end
+	end
+end)
+minetest.register_on_shutdown(saveteams);
+minetest.register_on_respawnplayer(function(player)
+	if not player:is_player() then return false end
+	local player_name = player:get_player_name();
+	local player_team = Teams.player_get_team(player_name);
+	-- local teamdata = Teams.get_team(player_team);
+	local spawn = get_team_spawn(player_team);
+	if spawn then
+		player:setpos(spawn);
+		return true;
+	end
+	return false;
+end)
+minetest.after(10, saveteams_timer);
 
 loadteams();
 return Teams;

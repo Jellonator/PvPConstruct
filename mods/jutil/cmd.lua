@@ -1,6 +1,17 @@
 local cmd = {}
 
-local function get_param_next(param, type_name)
+--[[
+Type names:
+string - string with no spaces
+text   - string that can contain spaces, no arguments can come after
+number - represents a number
+color  - represents a color
+x   - x position
+y   - y position
+z   - z position
+--]]
+
+local function get_param_next(param, type_name, player_name)
 	local space_start, space_end = string.find(param, "%s");
 	if space_end == nil then
 		space_end = space_start
@@ -18,8 +29,25 @@ local function get_param_next(param, type_name)
 		ret = ret
 	elseif type_name == "number" then
 		ret = tonumber(ret)
+	elseif type_name == "x" or type_name == "y" or type_name == "z" then
+		local relative = false;
+		if ret:sub(1, 1) == "~" then
+			relative = true;
+		end
+		ret = ret:sub(2);
+		ret = ret == "" and 0 or tonumber(ret);
+		if relative then
+			local playerref = minetest.get_player_by_name(player_name);
+			if not playerref then return nil, new_param end
+			local playerpos = playerref:getpos();
+			if     type_name == 'x' then ret = ret + playerpos.x
+			elseif type_name == 'y' then ret = ret + playerpos.y
+			elseif type_name == 'z' then ret = ret + playerpos.z end
+		end
 	elseif type_name == "text" then
 		return param, "";
+	elseif type_name == "color" then
+		ret = jutil.color[ret] or tonumber(ret)
 	else
 		error("No such type name of '" .. type_name .. "'!");
 	end
@@ -30,6 +58,7 @@ end
 local function do_command(name, param, cmd, full_cmd)
 	param = string.trim(param);
 	local argname, new_param = get_param_next(param, "string");
+	local prev_cmd = full_cmd
 	full_cmd = full_cmd .. " " .. argname;
 	for k, v in pairs(cmd) do
 		if k == argname then
@@ -41,7 +70,7 @@ local function do_command(name, param, cmd, full_cmd)
 		end
 	end
 
-	return false, "Invalid command '/" .. string.trim(full_cmd) .. "'"
+	return false, "/" .. string.trim(prev_cmd) .. ": Invalid command '/" .. string.trim(full_cmd) .. "'"
 end
 
 function cmd.register(name, def, cmd)
@@ -63,14 +92,19 @@ local function full_cmd_fmt(full_cmd, def)
 		def_str = def_str .. "{" .. tostring(v) .. "}"
 
 	end
+	local errstr = "";
+	for i, v in ipairs(def) do
+		if i ~= 1 then errstr = errstr .. " "; end
+		errstr = errstr .. "{" .. tostring(v) .. "}"
+	end
 	return string.format("Invalid arguments to '/%s'! Expected: '/%s %s'",
-		full_cmd, full_cmd, table.concat(def, " ")
+		full_cmd, full_cmd, errstr
 	);
 end
 
 function cmd.command(def, func)
 	local is_optional = false;
-	local minimum_argn = 0;
+	local minimum_argn = #def;
 	for i, v in ipairs(def) do
 		local new_optional = v:sub(1, 1) == "?";
 		if not is_optional and new_optional then
@@ -81,7 +115,7 @@ function cmd.command(def, func)
 		end
 	end
 	return function(name, param, full_cmd)
-		print("Doing a command thing!");
+		-- print("Doing a command thing!");
 		local args = {}
 		local expected_argn = #def;
 
@@ -97,7 +131,7 @@ function cmd.command(def, func)
 				is_optional = true;
 				param_type = param_type:sub(2);
 			end
-			next_arg, param = get_param_next(param, param_type);
+			next_arg, param = get_param_next(param, param_type, name);
 			if next_arg == nil then
 				if is_optional then break end
 				return false, full_cmd_fmt(full_cmd, def)
@@ -109,7 +143,7 @@ function cmd.command(def, func)
 		if actual_argn < minimum_argn or actual_argn > expected_argn then
 			return false, full_cmd_fmt(full_cmd, def)
 		end
-
+		print("func", name, #args, minimum_argn, expected_argn)
 		return func(name, unpack(args));
 	end
 end

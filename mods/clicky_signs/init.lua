@@ -1,4 +1,3 @@
---nothing here
 local function has_clicky_privelege(meta, player)
 	local name = ""
 	if player and player:is_player() then

@@ -1,6 +1,21 @@
 jutil = {}
 jutil.cmd = dofile(minetest.get_modpath("jutil") .. "/cmd.lua");
 jutil.direction = dofile(minetest.get_modpath("jutil") .. "/direction.lua");
+jutil.color = {
+	red     = 0xffff0000,
+	green   = 0xff00ff00,
+	blue    = 0xff0000ff,
+	yellow  = 0xffff0000,
+	magenta = 0xffff00ff,
+	cyan    = 0xff00ffff,
+	orange  = 0xffff8000,
+	brown   = 0xff996633,
+	white   = 0xffffffff,
+	black   = 0xff000000,
+	purple  = 0xffac00e6,
+	pink    = 0xffff3399,
+	grey    = 0xff666666,
+}
 
 function math.round(num, mult)
 	local mult = mult or 1;
