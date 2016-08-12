@@ -22,7 +22,7 @@ function math.round(num, mult)
 	return math.floor(num / mult + 0.5) * mult
 end
 
-local sanatize_badchars = {";", ","}
+local sanatize_badchars = {";", ",", "[", "]"}
 function string.sanatize(str)
 	str = str:gsub("\\", "\\\\");
 	for k,v in pairs(sanatize_badchars) do
@@ -155,4 +155,63 @@ function jutil.run_command(player, command, owner)
 	end
 
 	command_table.func(player, cmd_value);
+end
+
+local function _block_iter(state, prev_var)
+	if state.first then
+		state.first = false;
+		return state.start;
+	end
+	local x_diff = state.stop.x - state.var.x;
+	local y_diff = state.stop.y - state.var.y;
+	local z_diff = state.stop.z - state.var.z;
+
+	if x_diff == 0 and y_diff == 0 and z_diff == 0 then
+		return nil
+	end
+
+	local len = math.sqrt(x_diff^2 + y_diff^2 + z_diff^2);
+	if len < state.step then
+		state.var.x = state.stop.x;
+		state.var.y = state.stop.y;
+		state.var.z = state.stop.z;
+		local ret = state.var;
+		if ret.x == prev_var.x and ret.y == prev_var.y and ret.z == prev_var.z then
+			return nil;
+		end
+		return ret;
+	end
+	local nx = x_diff / len;
+	local ny = y_diff / len;
+	local nz = z_diff / len;
+	state.var.x = state.var.x + nx * state.step;
+	state.var.y = state.var.y + ny * state.step;
+	state.var.z = state.var.z + nz * state.step;
+	local ret = {
+		x = math.round(state.var.x),
+		y = math.round(state.var.y),
+		z = math.round(state.var.z),
+	}
+	if ret.x == prev_var.x and ret.y == prev_var.y and ret.z == prev_var.z then
+		return _block_iter(state, prev_var);
+	end
+	return ret;
+end
+
+function jutil.block_iter(pos1, pos2, step, skip_first)
+	if skip_first == nil then skip_first = false end
+	local step = step or 1;
+	local pos1 = {
+		x = math.round(pos1.x),
+		y = math.round(pos1.y),
+		z = math.round(pos1.z),
+	}
+	local pos2 = {
+		x = math.round(pos2.x),
+		y = math.round(pos2.y),
+		z = math.round(pos2.z),
+	}
+	return _block_iter, {start = pos1, stop = pos2, step = step,
+			first = not skip_first, var = {x=pos1.x,y=pos1.y,z=pos1.z}},
+			{x=pos1.x,y=pos1.y,z=pos1.z};
 end
