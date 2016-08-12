@@ -22,7 +22,7 @@ function math.round(num, mult)
 	return math.floor(num / mult + 0.5) * mult
 end
 
-local sanatize_badchars = {";"}
+local sanatize_badchars = {";", ","}
 function string.sanatize(str)
 	str = str:gsub("\\", "\\\\");
 	for k,v in pairs(sanatize_badchars) do
