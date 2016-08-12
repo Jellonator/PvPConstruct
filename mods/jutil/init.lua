@@ -22,6 +22,15 @@ function math.round(num, mult)
 	return math.floor(num / mult + 0.5) * mult
 end
 
+local sanatize_badchars = {";"}
+function string.sanatize(str)
+	str = str:gsub("\\", "\\\\");
+	for k,v in pairs(sanatize_badchars) do
+		str = str:gsub(v, "\\%1");
+	end
+	return str;
+end
+
 function jutil.get_player_yaw(player)
 	local value = player:get_look_yaw() - math.pi/2;
 	return math.round(value, math.pi/2);
@@ -115,4 +124,35 @@ function jutil.deserialize_to(str, obj)
 	for k,v in pairs(data) do
 		obj[k] = v
 	end
+end
+
+function jutil.run_command(player, command, owner)
+	command = string.trim(command)
+	command = command:gsub("@", player)
+	if command:sub(1, 1) == '/' then
+		command = command:sub(2);
+	end
+
+	local owner = owner or player;
+	local cmd_name, cmd_value;
+	local space_s, space_e = command:find("%s");
+	if space_s and space_e then
+		cmd_name = command:sub(1, space_s - 1);
+		cmd_value = command:sub(space_e + 1) or "";
+	else
+		cmd_name = command;
+		cmd_value = "";
+	end
+
+	local command_table = minetest.chatcommands[cmd_name];
+	if not command_table then
+		print("No such command of name " .. cmd_name .. "!");
+		return
+	end
+	if not minetest.check_player_privs(owner, command_table.privs) then
+		print("Owner, " .. owner .. ", does not have the necessary priveleges to run this command.");
+		return
+	end
+
+	command_table.func(player, cmd_value);
 end

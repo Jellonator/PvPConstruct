@@ -53,8 +53,8 @@ minetest.register_node(clicky_sign_name, {
 			minetest.show_formspec(
 				clicker:get_player_name(),
 				clicky_sign_name .. pos.x .. ',' .. pos.y .. ',' .. pos.z,
-				"field[text;Command;"..meta:get_string("cmd").."]" ..
-				"field[info;Infotext;"..meta:get_string("infotext").."]"
+				"field[text;Command;"..string.sanatize(meta:get_string("cmd")).."]" ..
+				"field[info;Infotext;"..string.sanatize(meta:get_string("infotext")).."]"
 			)
 		end
 	end,
@@ -66,33 +66,11 @@ minetest.register_node(clicky_sign_name, {
 		local owner_name = meta:get_string("owner");
 
 		local cmd = meta:get_string("cmd");
-		if cmd:sub(1, 1) == '/' then
-			cmd = cmd:sub(2);
-		end
-		cmd = cmd:gsub("@", player_name)
 		print("Running command: ", cmd)
 
-		local cmd_name, cmd_value;
-		local space_s, space_e = cmd:find("%s");
-		if space_s and space_e then
-			cmd_name = cmd:sub(1, space_s - 1);
-			cmd_value = cmd:sub(space_e + 1);
-		else
-			cmd_name = cmd;
-			cmd_value = "";
+		for i,value in ipairs(string.split(cmd, ';')) do
+			jutil.run_command(player_name, value, owner_name);
 		end
-
-		local command_table = minetest.chatcommands[cmd_name];
-		if not command_table then
-			print("No such command of name " .. cmd_name .. "!");
-			return
-		end
-		if not minetest.check_player_privs(owner_name, command_table.privs) then
-			print("Owner of this sign, " .. owner_name .. ", does not have the necessary priveleges to run this command.");
-			return;
-		end
-
-		command_table.func(player_name, cmd_value);
 	end
 })
 

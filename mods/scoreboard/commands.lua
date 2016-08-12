@@ -16,27 +16,26 @@ jutil.cmd.register("scoreadmin",
 		privs = { scoreboard_admin = 1 }
 	}, {
 		team = {
-			new = jutil.cmd.command({"string"},
+			new = jutil.cmd.command({"team:string"},
 			function(player_name, team_name)
 				return Scoreboard.Teams.register_team(team_name, {});
-			end),
+			end, "Creates a new team"),
 
-			setspawn = jutil.cmd.command({"string", "x", "y", "z", "?number", "?yaw"},
+			setspawn = jutil.cmd.command({"team:string", "x", "y", "z", "radius:?number", "rotation:?yaw"},
 			function(player_name, team, x, y, z, r, yaw)
-				print("YAW: ", yaw)
 				return Scoreboard.Teams.set_spawn(team, {
 					x=x,y=y,z=z,r=r or 0,yaw=yaw or 0});
-			end),
+			end, "Sets a team's spawn"),
 
-			resetspawn = jutil.cmd.command({"string"},
+			resetspawn = jutil.cmd.command({"team:string"},
 			function(player_name, team)
 				return Scoreboard.Teams.set_spawn(team, nil);
-			end),
+			end, "Disables spawning at a set location"),
 
-			color = jutil.cmd.command({"string", "color"},
+			color = jutil.cmd.command({"team:string", "color"},
 			function(player_name, team, color)
 				return Scoreboard.Teams.set_color(team, color);
-			end),
+			end, "Sets a team's color"),
 		}
 	}
 )
@@ -47,17 +46,17 @@ jutil.cmd.register("scoreboard",
 		privs = { interact = true }
 	}, {
 		team = {
-			join = jutil.cmd.command({"string", "?string"},
+			join = jutil.cmd.command({"team:string", "player:?string"},
 			function (name, team_name, player_name)
 				local name = player_name or name;
 				return Scoreboard.Teams.player_join(team_name, name);
-			end),
+			end, "Join a team"),
 
-			leave = jutil.cmd.command({"?string"},
+			leave = jutil.cmd.command({"player:?string"},
 			function (name, player_name)
 				local name = player_name or name;
 				return Scoreboard.Teams.player_leave(name);
-			end),
+			end, "Leave a team"),
 		}
 	}
 )

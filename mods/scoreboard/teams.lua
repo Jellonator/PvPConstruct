@@ -177,7 +177,7 @@ function Teams.player_join(team, player)
 			playerent:setpos(spawn)
 		end
 		if yaw then
-			playerent:set_look_yaw(yaw)
+			playerent:set_look_yaw(math.rad(yaw))
 		end
 		set_player_nametag_color(playerent, team);
 	end
@@ -225,7 +225,7 @@ minetest.register_on_joinplayer(function(player)
 				player:setpos(spawn);
 			end
 			if yaw then
-				player:set_look_yaw(yaw);
+				player:set_look_yaw(math.rad(yaw));
 			end
 			set_player_nametag_color(player, team);
 		end
@@ -239,7 +239,7 @@ minetest.register_on_respawnplayer(function(player)
 	-- local teamdata = Teams.get_team(player_team);
 	local spawn, yaw = get_team_spawn(player_team);
 	if yaw then
-		player:set_look_yaw(yaw);
+		player:set_look_yaw(math.rad(yaw));
 	end
 	if spawn then
 		player:setpos(spawn);

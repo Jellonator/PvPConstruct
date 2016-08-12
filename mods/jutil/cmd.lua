@@ -77,38 +77,85 @@ local function do_command(name, param, cmd, full_cmd)
 	return false, "/" .. string.trim(prev_cmd) .. ": Invalid command '/" .. string.trim(full_cmd) .. "'"
 end
 
+local function cmd_fmt(full_cmd, def)
+	full_cmd = string.trim(full_cmd);
+	local def_str = "";
+	for i, v in pairs(def) do
+		if i ~= 1 then def_str = def_str .. " "; end
+		def_str = def_str .. "{" .. tostring(v) .. "}"
+	end
+
+	return string.format("/%s %s",
+		full_cmd, def_str
+	);
+end
+
+local function err_cmd_fmt(full_cmd, def)
+	full_cmd = string.trim(full_cmd);
+	return string.format("Invalid arguments to '/%s'! Expected: '%s'",
+		full_cmd, cmd_fmt(full_cmd, def)
+	);
+end
+
+local function gen_description(def, cmd, full_cmd)
+	for k,v in pairs(cmd) do
+		local next_cmd = full_cmd .. ' ' .. k;
+		if type(v) == "function" then
+			local cmd_str, desc = v();
+			def.description = def.description .. "\n\t/" ..
+				next_cmd .. cmd_str;
+			if desc then
+				def.description = def.description .. " - " .. desc;
+			end
+		else
+			gen_description(def, v, next_cmd)
+		end
+	end
+end
+
 function cmd.register(name, def, cmd)
 	local full_cmd = name;
+	def.description = def.description or ""
 	def.func = function(name, param)
 		print("Starting a command");
 		return do_command(name, param, cmd, full_cmd);
 	end
+
+	gen_description(def, cmd, name);
+
 	minetest.register_chatcommand(name, def);
 end
 
-local function full_cmd_fmt(full_cmd, def)
-	full_cmd = string.trim(full_cmd);
-	local def_str = "";
-	for i, v in pairs(def) do
-		if i ~= 1 then
-			def_str = def_str .. " "
-		end
-		def_str = def_str .. "{" .. tostring(v) .. "}"
-
-	end
-	local errstr = "";
-	for i, v in ipairs(def) do
-		if i ~= 1 then errstr = errstr .. " "; end
-		errstr = errstr .. "{" .. tostring(v) .. "}"
-	end
-	return string.format("Invalid arguments to '/%s'! Expected: '/%s %s'",
-		full_cmd, full_cmd, errstr
-	);
-end
-
-function cmd.command(def, func)
+function cmd.command(def, func, desc)
 	local is_optional = false;
 	local minimum_argn = #def;
+
+	local cmd_str = "";
+	for i, v in ipairs(def) do
+		cmd_str = cmd_str .. ' ';
+
+		local colon_loc = v:find(":");
+		local name;
+		if colon_loc then
+			name = v:sub(1, colon_loc - 1);
+			def[i] = v:sub(colon_loc+1);
+			v = def[i];
+		else
+			name = v;
+		end
+
+		local optional = v:sub(1,1) == "?";
+		if optional and not colon_loc then
+			name = v:sub(2)
+		end
+
+		if optional then
+			cmd_str = cmd_str .. '{' .. name .. '}';
+		else
+			cmd_str = cmd_str .. '[' .. name .. ']';
+		end
+	end
+
 	for i, v in ipairs(def) do
 		local new_optional = v:sub(1, 1) == "?";
 		if not is_optional and new_optional then
@@ -119,6 +166,11 @@ function cmd.command(def, func)
 		end
 	end
 	return function(name, param, full_cmd)
+		-- Welp, there's no other way to get it from a function other than this
+		if name == nil and param == nil and full_cmd == nil then
+			return cmd_str, desc;
+		end
+
 		-- print("Doing a command thing!");
 		local args = {}
 		local expected_argn = #def;
@@ -138,14 +190,14 @@ function cmd.command(def, func)
 			next_arg, param = get_param_next(param, param_type, name);
 			if next_arg == nil then
 				if is_optional then break end
-				return false, full_cmd_fmt(full_cmd, def)
+				return false, err_cmd_fmt(full_cmd, def)
 			end
 			table.insert(args, next_arg);
 		end
 
 		local actual_argn = #args;
 		if actual_argn < minimum_argn or actual_argn > expected_argn then
-			return false, full_cmd_fmt(full_cmd, def)
+			return false, err_cmd_fmt(full_cmd, def)
 		end
 		print("func", name, #args, minimum_argn, expected_argn)
 		return func(name, unpack(args));
