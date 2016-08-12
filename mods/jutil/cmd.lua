@@ -9,6 +9,7 @@ color  - represents a color
 x   - x position
 y   - y position
 z   - z position
+yaw - yaw rotation
 --]]
 
 local function get_param_next(param, type_name, player_name)
@@ -29,20 +30,23 @@ local function get_param_next(param, type_name, player_name)
 		ret = ret
 	elseif type_name == "number" then
 		ret = tonumber(ret)
-	elseif type_name == "x" or type_name == "y" or type_name == "z" then
+	elseif type_name == "x" or type_name == "y" or type_name == "z" or
+	 		type_name == "yaw" then
 		local relative = false;
 		if ret:sub(1, 1) == "~" then
 			relative = true;
 		end
 		ret = ret:sub(2);
 		ret = ret == "" and 0 or tonumber(ret);
-		if relative then
+		if relative and ret then
 			local playerref = minetest.get_player_by_name(player_name);
 			if not playerref then return nil, new_param end
 			local playerpos = playerref:getpos();
+
 			if     type_name == 'x' then ret = ret + playerpos.x
 			elseif type_name == 'y' then ret = ret + playerpos.y
-			elseif type_name == 'z' then ret = ret + playerpos.z end
+			elseif type_name == 'z' then ret = ret + playerpos.z
+			elseif type_name == 'yaw' then ret = ret + playerref:get_look_yaw() end
 		end
 	elseif type_name == "text" then
 		return param, "";

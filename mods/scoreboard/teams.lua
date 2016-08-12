@@ -19,9 +19,9 @@ local function get_team_spawn(team)
 				y = spawn.y,
 				z = spawn.z + math.random(-spawn.r, spawn.r),
 			}
-			return newpos;
+			return newpos, spawn.yaw;
 		else
-			return teamdata.spawn;
+			return teamdata.spawn, teamdata.spawn.yaw;
 		end
 	end
 
@@ -172,9 +172,12 @@ function Teams.player_join(team, player)
 	team_players[player] = team;
 	local playerent = minetest.get_player_by_name(player);
 	if playerent then
-		local spawn = get_team_spawn(team);
+		local spawn, yaw = get_team_spawn(team);
 		if spawn then
 			playerent:setpos(spawn)
+		end
+		if yaw then
+			playerent:set_look_yaw(yaw)
 		end
 		set_player_nametag_color(playerent, team);
 	end
@@ -217,10 +220,12 @@ minetest.register_on_joinplayer(function(player)
 			Teams.player_leave(player:get_player_name());
 		else
 			-- treat it as a respawn
-			local spawn = get_team_spawn(team);
+			local spawn, yaw = get_team_spawn(team);
 			if spawn then
 				player:setpos(spawn);
-				return true;
+			end
+			if yaw then
+				player:set_look_yaw(yaw);
 			end
 			set_player_nametag_color(player, team);
 		end
@@ -232,7 +237,10 @@ minetest.register_on_respawnplayer(function(player)
 	local player_name = player:get_player_name();
 	local player_team = Teams.player_get_team(player_name);
 	-- local teamdata = Teams.get_team(player_team);
-	local spawn = get_team_spawn(player_team);
+	local spawn, yaw = get_team_spawn(player_team);
+	if yaw then
+		player:set_look_yaw(yaw);
+	end
 	if spawn then
 		player:setpos(spawn);
 		return true;

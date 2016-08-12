@@ -21,9 +21,11 @@ jutil.cmd.register("scoreadmin",
 				return Scoreboard.Teams.register_team(team_name, {});
 			end),
 
-			setspawn = jutil.cmd.command({"string", "x", "y", "z", "?number"},
-			function(player_name, team, x, y, z, r)
-				return Scoreboard.Teams.set_spawn(team, {x=x,y=y,z=z,r=r or 0});
+			setspawn = jutil.cmd.command({"string", "x", "y", "z", "?number", "?yaw"},
+			function(player_name, team, x, y, z, r, yaw)
+				print("YAW: ", yaw)
+				return Scoreboard.Teams.set_spawn(team, {
+					x=x,y=y,z=z,r=r or 0,yaw=yaw or 0});
 			end),
 
 			resetspawn = jutil.cmd.command({"string"},
