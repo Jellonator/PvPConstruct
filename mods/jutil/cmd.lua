@@ -35,8 +35,8 @@ local function get_param_next(param, type_name, player_name)
 		local relative = false;
 		if ret:sub(1, 1) == "~" then
 			relative = true;
+			ret = ret:sub(2);
 		end
-		ret = ret:sub(2);
 		ret = ret == "" and 0 or tonumber(ret);
 		if relative and ret then
 			local playerref = minetest.get_player_by_name(player_name);
