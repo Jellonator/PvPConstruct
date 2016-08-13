@@ -24,6 +24,7 @@ function control_point.on_activate(self, staticdata)
 		self.pcolor = 4;
 		print("Activating point: ", data[1], data[2]);
 	end
+	self.object:set_armor_groups({immortal=1})
 end
 
 function control_point.get_staticdata(self)

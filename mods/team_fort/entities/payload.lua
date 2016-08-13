@@ -24,8 +24,8 @@ local payload = {
 function payload.on_activate(self, staticdata)
 	if staticdata then
 		jutil.deserialize_to(staticdata, self);
-		print("S", self.self_pos);
 	end
+	self.object:set_armor_groups({immortal=1})
 end
 
 function payload.get_staticdata(self)

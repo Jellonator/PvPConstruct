@@ -104,6 +104,7 @@ function jutil.check_node(name, x, y, z)
 end
 
 function jutil.serialize_safe(obj, ignore)
+	local ignore = ignore or {}
 	local val = {}
 	for k,v in pairs(obj) do
 		if type(v) ~= "userdata" then
@@ -277,7 +278,13 @@ function jutil.check_line_box(B1, B2, L1, L2)
 	return false;
 end
 
-local function get_entity_box(entity)
+function jutil.check_box_box(A1, A2, B1, B2)
+	return A1.x <= B2.x and A2.x >= B1.x and
+	       A1.y <= B2.y and A2.y >= B1.y and
+	       A1.z <= B2.z and A2.z >= B1.z;
+end
+
+function jutil.get_entity_box(entity)
 	local b1, b2;
 	if entity:is_player() then
 		-- assuming player is 0.8x1.8x0.8
@@ -287,7 +294,7 @@ local function get_entity_box(entity)
 		local lua_entity = entity:get_luaentity();
 		if lua_entity then
 			local ent_name = lua_entity.name;
-			print(ent_name);
+			-- print(ent_name);
 			local ent_name = lua_entity.name;
 			local ent_def = minetest.registered_entities[ent_name];
 			local ent_col = ent_def.collisionbox;
@@ -333,18 +340,45 @@ function jutil.raytrace_entity(a, b, filter)
 			end
 		end
 
-		local b1, b2 = get_entity_box(entity);
+		local b1, b2 = jutil.get_entity_box(entity);
 		if b1 and b2 and can_check then
-			print("Doing check!")
 			local did_collide, pos = jutil.check_line_box(b1, b2, a, b)
 			if did_collide then
-				print("Check succeed!")
 				if not ret_pos or vector.distance(a, pos) <
 						vector.distance(a, ret_pos) then
-					print("Yay!")
 					ret_ent = entity;
 					ret_pos = pos;
 				end
+			end
+		end
+	end
+	return ret_ent, ret_pos;
+end
+
+function jutil.get_nearest_entity(list, pos, filter)
+	local ret_ent, ret_pos;
+	-- print("Near: " .. tostring(#list))
+	for _,entity in pairs(list) do
+		local can_check = true;
+		if filter then
+			if type(filter) == "table" then
+				for k,v in pairs(filter) do
+					if v == entity then
+						can_check = false;
+						break;
+					end
+				end
+			else
+				can_check = filter(entity);
+			end
+		end
+
+		if can_check then
+			local new_pos = entity:getpos();
+			if not ret_pos or vector.distance(pos, new_pos) <
+					vector.distance(pos, ret_pos) then
+				ret_ent = entity;
+				ret_pos = new_pos;
 			end
 		end
 	end
