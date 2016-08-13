@@ -1,23 +1,40 @@
-designer_weapons = {}
+designer_weapons = {
+	registered_weapons = {},
+	registered_projectiles = {}
+}
 
-function designer_weapons.register_weapon()
+designer_weapons.TYPES = {
+	"gun",
+	"bow",
+	"sword"
+}
+
+function designer_weapons.register_weapon(name, def)
 
 end
 
-minetest.register_tool("designer_weapons:gahbage", {
-	description = "Does something I guess",
-	inventory_image = "creative_trash_icon.png",
-	on_use = function(itemstack, user, pointed_thing)
-		local pos1 = user:getpos();
-		local pos2 = pointed_thing.above;
-		if pos2 and pos1 then
-			pos1.y = pos1.y + 1;
-			print("Doing block iter!")
-			for pos in jutil.block_iter(pos1, pos2) do
-				minetest.set_node(pos, {name="default:mese"});
-			end
+function designer_weapons.register_projectile(name, def)
+	def.gravity = def.gravity or 0; -- no gravity
+	def.speed = def.speed or 1; -- 1 m/s
+	def.life = def.life or 10; -- 10 second life span
+	def.damage = def.damage or 1; -- half heart
+end
 
-		end
-		return itemstack;
-	end
-})
+-- minetest.register_tool("designer_weapons:gahbage", {
+-- 	description = "Does something I guess",
+-- 	inventory_image = "creative_trash_icon.png",
+-- 	on_use = function(itemstack, user, pointed_thing)
+-- 		local pos1 = user:getpos();
+-- 		local view = vector.multiply(user:get_look_dir(), 100);
+-- 		pos1.y = pos1.y + 1.6;
+-- 		print(string.format("Thing: %f, %f, %f", view.x, view.y, view.z))
+-- 		local pos2 = vector.add(pos1, view);
+--
+-- 		local entity, entity_pos = jutil.raytrace_entity(pos1, pos2, {user});
+-- 		if entity then
+-- 			entity:remove();
+-- 		end
+--
+-- 		return itemstack;
+-- 	end
+-- })

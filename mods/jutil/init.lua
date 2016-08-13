@@ -22,6 +22,10 @@ function math.round(num, mult)
 	return math.floor(num / mult + 0.5) * mult
 end
 
+function math.minmax(...)
+	return math.min(...), math.max(...);
+end
+
 local sanatize_badchars = {";", ",", "[", "]"}
 function string.sanatize(str)
 	str = str:gsub("\\", "\\\\");
@@ -214,4 +218,135 @@ function jutil.block_iter(pos1, pos2, step, skip_first)
 	return _block_iter, {start = pos1, stop = pos2, step = step,
 			first = not skip_first, var = {x=pos1.x,y=pos1.y,z=pos1.z}},
 			{x=pos1.x,y=pos1.y,z=pos1.z};
+end
+
+local function get_intersection(fDst1, fDst2, P1, P2)
+	if (fDst1 * fDst2) >= 0.0 then
+		return false
+	end
+	if fDst1 == fDst2 then
+		return false
+	end
+	local hit = vector.add(P1, vector.multiply(
+			vector.subtract(P2, P1), ( -fDst1/(fDst2-fDst1) )));
+	return true, hit;
+end
+
+local function in_box(hit, B1, B2, Axis)
+	if Axis == 1 then
+		return hit.z > B1.z and hit.z < B2.z and hit.y > B1.y and hit.y < B2.y
+	elseif Axis == 2 then
+		return hit.z > B1.z and hit.z < B2.z and hit.x > B1.x and hit.x < B2.x
+	elseif Axis == 3 then
+		return hit.x > B1.x and hit.x < B2.x and hit.y > B1.y and hit.y < B2.y
+	end
+	return false
+end
+
+-- returns true if line (L1, L2) intersects with the box (B1, B2)
+function jutil.check_line_box(B1, B2, L1, L2)
+	if (L2.x < B1.x and L1.x < B1.x) then return false end
+	if (L2.x > B2.x and L1.x > B2.x) then return false end
+	if (L2.y < B1.y and L1.y < B1.y) then return false end
+	if (L2.y > B2.y and L1.y > B2.y) then return false end
+	if (L2.z < B1.z and L1.z < B1.z) then return false end
+	if (L2.z > B2.z and L1.z > B2.z) then return false end
+
+	-- line is inside of box
+	if (L1.x > B1.x and L1.x < B2.x and
+			L1.y > B1.y and L1.y < B2.y and
+			L1.z > B1.z and L1.z < B2.z) then
+		return true, L1
+	end
+
+	-- check each face
+	for axis, name in pairs({'x', 'y', 'z'}) do
+		local did_hit_a, ret_a = get_intersection(
+				L1[name]-B1[name], L2[name]-B1[name], L1, L2)
+		if did_hit_a and in_box(ret_a, B1, B2, axis) then
+			return true, ret_a;
+		end
+
+		local did_hit_b, ret_b = get_intersection(
+				L1[name]-B2[name], L2[name]-B2[name], L1, L2)
+		if did_hit_b and in_box(ret_b, B1, B2, axis) then
+			return true, ret_b;
+		end
+	end
+
+	return false;
+end
+
+local function get_entity_box(entity)
+	local b1, b2;
+	if entity:is_player() then
+		-- assuming player is 0.8x1.8x0.8
+		b1 = {x = -0.4, y = 0.0, z = -0.4}
+		b2 = {x =  0.4, y = 1.8, z =  0.4}
+	else
+		local lua_entity = entity:get_luaentity();
+		if lua_entity then
+			local ent_name = lua_entity.name;
+			print(ent_name);
+			local ent_name = lua_entity.name;
+			local ent_def = minetest.registered_entities[ent_name];
+			local ent_col = ent_def.collisionbox;
+			b1 = {x = ent_col[1], y = ent_col[2], z = ent_col[3]}
+			b2 = {x = ent_col[4], y = ent_col[5], z = ent_col[6]}
+		end
+	end
+
+	b1, b2 = vector.add(b1, entity:getpos()), vector.add(b2, entity:getpos())
+	b1.x, b2.x = math.minmax(b1.x, b2.x);
+	b1.y, b2.y = math.minmax(b1.y, b2.y);
+	b1.z, b2.z = math.minmax(b1.z, b2.z);
+	return b1, b2
+end
+
+function jutil.raytrace_entity(a, b, filter)
+	--make sure that view isn't blocked
+	--maybe replace line_of_sight with something a little better...?
+	local is_blocked, new_pos = minetest.line_of_sight(a, b);
+	if new_pos and not is_blocked then
+		-- reposition newpos along line
+		local diff = vector.normalize(vector.subtract(b, a));
+		local len = vector.distance(new_pos, a);
+		b = vector.add(a, vector.multiply(diff, len))
+	end
+
+	local len = vector.distance(a, b);
+	local mid = vector.divide(vector.add(a, b), 2);
+	local all_objects = minetest.get_objects_inside_radius(mid, len/2);
+	local ret_ent, ret_pos;
+	for _,entity in pairs(all_objects) do
+		local can_check = true;
+		if filter then
+			if type(filter) == "table" then
+				for k,v in pairs(filter) do
+					if v == entity then
+						can_check = false;
+						break;
+					end
+				end
+			else
+				can_check = filter(entity);
+			end
+		end
+
+		local b1, b2 = get_entity_box(entity);
+		if b1 and b2 and can_check then
+			print("Doing check!")
+			local did_collide, pos = jutil.check_line_box(b1, b2, a, b)
+			if did_collide then
+				print("Check succeed!")
+				if not ret_pos or vector.distance(a, pos) <
+						vector.distance(a, ret_pos) then
+					print("Yay!")
+					ret_ent = entity;
+					ret_pos = pos;
+				end
+			end
+		end
+	end
+	return ret_ent, ret_pos;
 end

@@ -34,8 +34,8 @@ health packs, ammo boxes, payloads, etc.
 Adds signs that can be clicked to activate commands on a player
 
 ### designer_weapons
-Mod that adds functions for defining weapons, does not define any weapons on its
-own. This mod is intended for use by other mods for defining weapons.
+Mod that adds functions for defining weapons. This mod is intended for use by
+other mods for defining weapons. It defines a small set of default weapons.
 
 TODO
 ----
