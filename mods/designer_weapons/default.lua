@@ -15,3 +15,10 @@ designer_weapons.register_weapon("designer_weapons:bow", "projectile", {
 	inventory_image = "dweapon_bow.png",
 	delay = 0.4,
 })
+
+designer_weapons.register_weapon("designer_weapons:gun", "hitscan", {
+	description = "Basic pistol",
+	inventory_image = "dweapon_pistol.png",
+	delay = 0.4,
+	damage = 6
+})

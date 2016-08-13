@@ -4,15 +4,15 @@ designer_weapons = {
 }
 
 designer_weapons.TYPES = {
-	"raytrace",
-	"projectile",
-	"melee"
+	hitscan = "hitscan",
+	projectile = "projectile",
+	melee = "melee"
 }
 
-function designer_weapons.register_weapon(name, weapon_type, def)
-	-- def.on_use = function() end
-	def.delay = def.delay or 0.1;
-	def.on_secondary_use = function (itemstack, user, pointed_thing, digparams)
+local designer_weapon_funcs = {
+	projectile = function (itemstack, user, pointed_thing, digparams)
+		local def = designer_weapons.registered_weapons[itemstack:get_name()];
+
 		local can_use = true;
 		local meta = itemstack:get_metadata();
 		local curtime = os.time();
@@ -38,8 +38,61 @@ function designer_weapons.register_weapon(name, weapon_type, def)
 			itemstack:set_metadata(tostring(curtime))
 		end
 		return itemstack;
+	end,
+
+	hitscan = function (itemstack, user, pointed_thing, digparams)
+		local def = designer_weapons.registered_weapons[itemstack:get_name()];
+		
+		local can_use = true;
+		local meta = itemstack:get_metadata();
+		local curtime = os.time();
+		if meta == "" then
+			can_use = true;
+		else
+			can_use = tonumber(meta) + def.delay < curtime;
+		end
+
+		if can_use then
+			local dir;
+			local from = user:getpos();
+			from.y = from.y + 1.6;
+			if user:is_player() then
+				dir = user:get_look_dir();
+			else
+				local yaw = user:getyaw();
+				dir = vector.new(math.cos(yaw), 0, math.sin(yaw));
+			end
+			local to = vector.add(from, vector.multiply(dir, 120));
+
+			local entity, entity_pos = jutil.raytrace_entity(from, to, {user});
+			if entity then
+				entity:punch(user, 10, {damage_groups={fleshy=def.damage}});
+			end
+
+			itemstack:set_metadata(tostring(curtime))
+		end
+		return itemstack;
+	end,
+
+	melee = nil -- use default punching mechanic
+}
+
+function designer_weapons.register_weapon(name, weapon_type, def)
+	-- def.on_use = function() end
+	def.delay = def.delay or 0.1;
+	def.on_use = designer_weapon_funcs[weapon_type];
+	def.damage = def.damage or 1;
+
+	if weapon_type == "melee" then
+		def.tool_capabilities = def.tool_capabilities or {
+			groupcaps={
+				snappy={times={[1]=1.0, [2]=1.0, [3]=0.4}, uses=25, maxlevel=3},
+			},
+			damage_groups = {fleshy=def.damage},
+		}
 	end
 
+	designer_weapons.registered_weapons[name] = def;
 	minetest.register_tool(name, def);
 end
 
@@ -50,9 +103,6 @@ end
 -- 	'automatic_face_movement_max_rotation_per_sec', 'nametag', 'nametag_color',
 -- 	'infotext'
 -- }
-local function projectile_punch()
-	--can not be hurt
-end
 
 local function projectile_activate(self, staticdata)
 	if staticdata then
@@ -87,15 +137,15 @@ local function projectile_on_step(self, dtime)
 				return
 			end
 		end
-
-		-- destroy when velocity changes
-		if vector.distance(vector.add(self.prev,
-				vector.multiply(self.object:getacceleration(), dtime)),
-				self.object:getvelocity()) > 0.1 then
-			self.object:remove();
-			return
-		end
 	end
+	-- destroy when velocity changes
+	if vector.distance(vector.add(self.prev,
+	vector.multiply(self.object:getacceleration(), dtime)),
+	self.object:getvelocity()) > 0.1 then
+		self.object:remove();
+		return
+	end
+
 	self.prev = self.object:getvelocity()
 end
 
@@ -104,12 +154,11 @@ function designer_weapons.register_projectile(name, def)
 	def.speed = def.speed or 1;     -- 1 m/s
 	def.life = def.life or 5;       -- 5 second life span
 	def.damage = def.damage or 1;   -- half heart
-	def.wait = def.wait or 0.1;     -- time before it can hurt
+	def.wait = def.wait or 0.2;     -- time before it can hurt
 	def.radius = def.radius or 5;
 
 	def.physical = true;
 	def.collide_with_objects = false
-	def.on_punch = projectile_punch;
 	def.on_activate = projectile_activate;
 	def.get_staticdata = projectile_get_staticdata;
 	def.on_step = projectile_on_step;
