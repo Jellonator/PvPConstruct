@@ -19,6 +19,12 @@ designer_weapons.register_weapon("designer_weapons:bow", "projectile", {
 designer_weapons.register_weapon("designer_weapons:gun", "hitscan", {
 	description = "Basic pistol",
 	inventory_image = "dweapon_pistol.png",
-	delay = 0.4,
-	damage = 6
+	delay = 0.1,
+	damage = 6,
+	decal = "designer_weapons:decal_bullet"
 })
+
+designer_weapons.register_decal("designer_weapons:decal_bullet", {
+	description = "A bullet hole",
+	tiles = {"dweapon_decal_bullet.png"},
+});

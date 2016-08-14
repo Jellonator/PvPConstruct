@@ -31,7 +31,6 @@ minetest.register_node(clicky_sign_name, {
 		wall_side   = {-0.5, -0.3125, -0.4375, -0.4375, 0.3125, 0.4375},
 	},
 	groups = {cracky = 1, attached_node = 1, dig_immediate = 2},
-	legacy_wallmounted = true,
 	sounds = default.node_sound_defaults(),
 
 	after_place_node = function(pos, placer)

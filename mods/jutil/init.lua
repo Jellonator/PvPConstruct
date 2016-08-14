@@ -265,13 +265,13 @@ function jutil.check_line_box(B1, B2, L1, L2)
 		local did_hit_a, ret_a = get_intersection(
 				L1[name]-B1[name], L2[name]-B1[name], L1, L2)
 		if did_hit_a and in_box(ret_a, B1, B2, axis) then
-			return true, ret_a;
+			return true, ret_a, name .. '-';
 		end
 
 		local did_hit_b, ret_b = get_intersection(
 				L1[name]-B2[name], L2[name]-B2[name], L1, L2)
 		if did_hit_b and in_box(ret_b, B1, B2, axis) then
-			return true, ret_b;
+			return true, ret_b, name .. '+';
 		end
 	end
 
@@ -352,7 +352,10 @@ function jutil.raytrace_entity(a, b, filter)
 			end
 		end
 	end
-	return ret_ent, ret_pos;
+	if not ret_ent then
+		ret_pos = b;
+	end
+	return ret_ent, ret_pos, new_pos;
 end
 
 function jutil.get_nearest_entity(list, pos, filter)
@@ -383,4 +386,53 @@ function jutil.get_nearest_entity(list, pos, filter)
 		end
 	end
 	return ret_ent, ret_pos;
+end
+
+function jutil.vec_unit(dir)
+	local min, max = math.minmax(dir.x, dir.y, dir.z);
+
+	if dir.x == min then
+		return {x = -1, y =  0, z =  0};
+	elseif dir.x == max then
+		return {x =  1, y =  0, z =  0};
+	elseif dir.y == min then
+		return {x =  0, y = -1, z =  0};
+	elseif dir.y == max then
+		return {x =  0, y =  1, z =  0};
+	elseif dir.z == min then
+		return {x =  0, y =  0, z = -1};
+	elseif dir.z == max then
+		return {x =  0, y =  0, z =  1};
+	end
+
+	return {x =  0, y =  0, z =  0};
+end
+
+
+function jutil.get_axis(from, to, b1, b2)
+	local print_pos = function(v)
+		print("Pos: " .. v.x .. ", " .. v.y .. ", " .. v.z)
+	end
+	-- print_pos(from);
+	-- print_pos(to);
+	-- print_pos(b1);
+	-- print_pos(b2);
+	local did, pos, axis = jutil.check_line_box(b1, b2, from, to);
+	if not axis then return end
+	if axis == 'x-' then
+		return {x = -1, y =  0, z =  0};
+	elseif axis == 'x+' then
+		return {x =  1, y =  0, z =  0};
+	elseif axis == 'y-' then
+		return {x =  0, y = -1, z =  0};
+	elseif axis == 'y+' then
+		return {x =  0, y =  1, z =  0};
+	elseif axis == 'z-' then
+		return {x =  0, y =  0, z = -1};
+	elseif axis == 'z+' then
+		return {x =  0, y =  0, z =  1};
+	end
+	-- if not pos then return end;
+	-- local avg = vector.divide(vector.add(b1, b2), 2);
+	-- return jutil.vec_unit(vector.subtract(pos, avg));
 end

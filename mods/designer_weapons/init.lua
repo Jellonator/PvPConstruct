@@ -1,12 +1,12 @@
 designer_weapons = {
 	registered_weapons = {},
-	registered_projectiles = {}
-}
-
-designer_weapons.TYPES = {
-	hitscan = "hitscan",
-	projectile = "projectile",
-	melee = "melee"
+	registered_projectiles = {},
+	registered_decals = {},
+	TYPES = {
+		hitscan = "hitscan",
+		projectile = "projectile",
+		melee = "melee"
+	}
 }
 
 local designer_weapon_funcs = {
@@ -42,7 +42,7 @@ local designer_weapon_funcs = {
 
 	hitscan = function (itemstack, user, pointed_thing, digparams)
 		local def = designer_weapons.registered_weapons[itemstack:get_name()];
-		
+
 		local can_use = true;
 		local meta = itemstack:get_metadata();
 		local curtime = os.time();
@@ -64,9 +64,30 @@ local designer_weapon_funcs = {
 			end
 			local to = vector.add(from, vector.multiply(dir, 120));
 
-			local entity, entity_pos = jutil.raytrace_entity(from, to, {user});
+			local entity, entity_pos, node_pos = jutil.raytrace_entity(from, to, {user});
 			if entity then
 				entity:punch(user, 10, {damage_groups={fleshy=def.damage}});
+			elseif entity_pos and def.decal then
+				local unit_vec = jutil.get_axis(from, entity_pos,
+					vector.add(node_pos, {x=-0.5,y=-0.5,z=-0.5}),
+					vector.add(node_pos, {x=0.5, y=0.5, z=0.5}));
+
+				if unit_vec then
+					local decal_pos = vector.add(node_pos, unit_vec);
+					local decal_node = minetest.get_node(decal_pos);
+					local target_node = minetest.get_node(node_pos);
+					if (decal_node.name == "air" or minetest.registered_nodes[decal_node.name].buildable_to)
+					and minetest.registered_nodes[target_node.name].pointable then
+						minetest.set_node(decal_pos, {name=def.decal,
+							param2=minetest.dir_to_wallmounted(
+							vector.multiply(unit_vec, -1))});
+						print("Placed node!")
+					else
+						print("Can not place node :(");
+					end
+				else
+					print("No unit :<")
+				end
 			end
 
 			itemstack:set_metadata(tostring(curtime))
@@ -96,13 +117,39 @@ function designer_weapons.register_weapon(name, weapon_type, def)
 	minetest.register_tool(name, def);
 end
 
--- local COPY_PROJECTILE_DEF = {
--- 	'hp_max', 'weight', 'visual', 'visual_size', 'mesh', 'textures', 'colors',
--- 	'spritediv', 'initial_sprite_basepos', 'is_visible', 'makes_footstep_sount',
--- 	'automatic_rotate', 'automatic_face_movement_dir', 'backface_culling',
--- 	'automatic_face_movement_max_rotation_per_sec', 'nametag', 'nametag_color',
--- 	'infotext'
--- }
+function designer_weapons.register_decal(name, def)
+	def.drawtype = "nodebox";
+	def.paramtype = "light";
+	def.groups = {decal=1};
+	def.paramtype2 = "wallmounted";
+	def.sunlight_propagates = true;
+	def.is_ground_content = false;
+	def.walkable = false;
+	def.pointable = false;
+	def.diggable = false;
+	def.buildable_to = false;
+	def.floodable = true;
+	-- def.legacy_wallmounted = true;
+	def.node_box = {
+		type = "wallmounted",
+		wall_top    = {-0.5, 0.49, -0.5,   0.5,  0.5,  0.5},
+		wall_bottom = {-0.5, -0.5, -0.5,   0.5, -0.49, 0.5},
+		wall_side   = {-0.5, -0.5, -0.5, -0.49,  0.55, 0.5},
+	};
+
+	designer_weapons.registered_decals[name] = def;
+	minetest.register_node(name, def);
+end
+
+-- Slowly kill decals
+minetest.register_abm({
+	nodenames = {"group:decal"},
+	interval = 10,
+	chance = 10,
+	action = function(pos, node)
+		minetest.remove_node(pos)
+	end
+})
 
 local function projectile_activate(self, staticdata)
 	if staticdata then
