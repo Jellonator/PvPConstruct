@@ -14,17 +14,8 @@ local nodes_to_load = {};
 local items_to_load = {};
 local entities_to_load = {"control_point", "payload"};
 
-function init()
-	for _,name in pairs(nodes_to_load) do
-		dofile(minetest.get_modpath("team_fort") .. "/nodes/" .. name .. ".lua");
-	end
-	for _,name in pairs(items_to_load) do
-		dofile(minetest.get_modpath("team_fort") .. "/items/" .. name .. ".lua");
-	end
-	for _,name in pairs(entities_to_load) do
-		dofile(minetest.get_modpath("team_fort") .. "/entities/" .. name .. ".lua");
-	end
-	dofile(minetest.get_modpath("team_fort") .. "/commands.lua");
+for _,name in pairs(entities_to_load) do
+	dofile(minetest.get_modpath("team_fort") .. "/entities/" .. name .. ".lua");
 end
-
-init();
+dofile(minetest.get_modpath("team_fort") .. "/commands.lua");
+dofile(minetest.get_modpath("team_fort") .. "/nodes.lua");

@@ -241,21 +241,20 @@ end
 dofile(minetest.get_modpath("designer_weapons") .. "/default.lua");
 dofile(minetest.get_modpath("designer_weapons") .. "/testdummy.lua");
 
--- minetest.register_tool("designer_weapons:gahbage", {
--- 	description = "Does something I guess",
--- 	inventory_image = "creative_trash_icon.png",
--- 	on_use = function(itemstack, user, pointed_thing)
--- 		local pos1 = user:getpos();
--- 		local view = vector.multiply(user:get_look_dir(), 100);
--- 		pos1.y = pos1.y + 1.6;
--- 		print(string.format("Thing: %f, %f, %f", view.x, view.y, view.z))
--- 		local pos2 = vector.add(pos1, view);
---
--- 		local entity, entity_pos = jutil.raytrace_entity(pos1, pos2, {user});
--- 		if entity then
--- 			entity:remove();
--- 		end
---
--- 		return itemstack;
--- 	end
--- })
+minetest.register_tool("designer_weapons:destructinator", {
+	description = "Deletes objects",
+	inventory_image = "creative_trash_icon.png",
+	on_use = function(itemstack, user, pointed_thing)
+		if pointed_thing.type == "node" then
+			minetest.remove_node(pointed_thing.under);
+		elseif pointed_thing.type == "object" then
+			local object = pointed_thing.ref;
+			if object:is_player() then
+				object:set_hp(0);
+			else
+				object:remove();
+			end
+		end
+	end,
+	range = 20
+})

@@ -213,6 +213,21 @@ function Teams.remove_team(team)
 	return true;
 end
 
+function Teams.respawn(team)
+	for player_name, player_team in pairs(team_players) do
+		local player = minetest.get_player_by_name(player_name);
+		if (not team or player_name == team) and player_team and player then
+			local spawn, yaw = get_team_spawn(player_team);
+			if yaw then
+				player:set_look_yaw(math.rad(yaw));
+			end
+			if spawn then
+				player:setpos(spawn);
+			end
+		end
+	end
+end
+
 minetest.register_on_joinplayer(function(player)
 	local team = Teams.player_get_team(player:get_player_name());
 	if team then

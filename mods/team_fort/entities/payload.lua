@@ -18,7 +18,10 @@ local payload = {
 	target_pos = false,
 	target_yaw = 0,
 	self_pos = false,
-	falling = -1
+	falling = -1,
+	start_pos = nil,
+	start_yaw = nil,
+	initialize = false
 };
 
 function payload.on_activate(self, staticdata)
@@ -45,6 +48,11 @@ local function filter_player(t)
 end
 
 function payload.on_step(self, dtime)
+	if not self.initialize then
+		self.initialize = true;
+		self.start_pos = self.object:getpos()
+		self.start_yaw = self.object:getyaw();
+	end
 	-- minetest.chat_send_all(string.format("Rot: %f", math.deg(self.object:getyaw())))
 	-- Using self.self_pos instead of actual object position
 	-- This is because using the actual position can lead to strange behavior,
@@ -76,10 +84,22 @@ function payload.on_step(self, dtime)
 	end
 
 	if (self.move_speed > 0 or self.falling >= 0) and not self.target_pos then
+		-- check for targets in front and below
+		local current_pos = self.self_pos;
 		local dir = jutil.direction.from_yaw(self.object:getyaw());
 		local dirx, dirz = jutil.direction.decompose(dir);
+
+		if jutil.check_node("team_fort:cart_target", current_pos.x,
+				current_pos.y - 0.5, current_pos.z) or jutil.check_node(
+				"team_fort:cart_target", current_pos.x + dirx, current_pos.y,
+				current_pos.z + dirz) then
+			self.object:setpos(self.start_pos);
+			self.object:setyaw(self.start_yaw);
+			self.self_pos = self.object:getpos();
+			Scoreboard.Teams.respawn();
+			return;
+		end
 		self.target_yaw = self.object:getyaw();
-		local current_pos = self.self_pos;
 		local current_node = minetest.get_node(current_pos);
 		local under_pos = {
 			x = math.round(current_pos.x),

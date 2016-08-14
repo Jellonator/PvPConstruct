@@ -44,6 +44,9 @@ function string.sanatize(str)
 	return str;
 end
 
+--[[
+Limits the value of 'value' to the bounds of [min,max]
+--]]
 function jutil.clamp(value, min, max)
 	min, max = math.minmax(min, max);
 	if (value < min) then return min end
@@ -51,6 +54,11 @@ function jutil.clamp(value, min, max)
 	return value;
 end
 
+--[[
+Converts a number from one scale to another.
+Example:
+celcius = jutil.normalize(fahrenheit, 32, 212, 0, 100, false);
+--]]
 function jutil.normalize(value, min, max, to_min, to_max, clamp)
 	if to_min == to_max then return to_min end
 	if clamp == nil then clamp = true end
@@ -368,10 +376,11 @@ function jutil.get_entity_box(entity)
 		local lua_entity = entity:get_luaentity();
 		if lua_entity then
 			local ent_name = lua_entity.name;
-			-- print(ent_name);
 			local ent_name = lua_entity.name;
 			local ent_def = minetest.registered_entities[ent_name];
-			local ent_col = ent_def.collisionbox;
+			local ent_col = ent_def.collisionbox or {
+				-0.5, -0.5, -0.5, 0.5, 0.5, 0.5
+			};
 			b1 = {x = ent_col[1], y = ent_col[2], z = ent_col[3]}
 			b2 = {x = ent_col[4], y = ent_col[5], z = ent_col[6]}
 		end
