@@ -64,19 +64,19 @@ local designer_weapon_funcs = {
 			end
 			local to = vector.add(from, vector.multiply(dir, 120));
 
-			local entity, entity_pos, node_pos = jutil.raytrace_entity(from, to, {user});
+			local entity, entity_pos, node_pos, axis =
+					jutil.raytrace_entity(from, to, {user});
+
 			if entity then
 				entity:punch(user, 10, {damage_groups={fleshy=def.damage}});
 			elseif entity_pos and def.decal then
-				local unit_vec = jutil.get_axis(from, entity_pos,
-					vector.add(node_pos, {x=-0.5,y=-0.5,z=-0.5}),
-					vector.add(node_pos, {x=0.5, y=0.5, z=0.5}));
+				local unit_vec = jutil.vec_unit(axis);
 
 				if unit_vec then
 					local decal_pos = vector.add(node_pos, unit_vec);
 					local decal_node = minetest.get_node(decal_pos);
 					local target_node = minetest.get_node(node_pos);
-					if (decal_node.name == "air" or minetest.registered_nodes[decal_node.name].buildable_to)
+					if decal_node.name == "air"
 					and minetest.registered_nodes[target_node.name].pointable then
 						minetest.set_node(decal_pos, {name=def.decal,
 							param2=minetest.dir_to_wallmounted(
@@ -144,8 +144,8 @@ end
 -- Slowly kill decals
 minetest.register_abm({
 	nodenames = {"group:decal"},
-	interval = 10,
-	chance = 10,
+	interval = 2,
+	chance = 20,
 	action = function(pos, node)
 		minetest.remove_node(pos)
 	end

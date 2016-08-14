@@ -17,15 +17,24 @@ jutil.color = {
 	grey    = 0xff666666,
 }
 
+--[[
+Rounds a number to the nearest 'mult'
+--]]
 function math.round(num, mult)
 	local mult = mult or 1;
 	return math.floor(num / mult + 0.5) * mult
 end
 
+--[[
+returns both the minimum and the maximum of a set of values
+--]]
 function math.minmax(...)
 	return math.min(...), math.max(...);
 end
 
+--[[
+Sanatize a string for use in a formspec
+--]]
 local sanatize_badchars = {";", ",", "[", "]"}
 function string.sanatize(str)
 	str = str:gsub("\\", "\\\\");
@@ -35,11 +44,22 @@ function string.sanatize(str)
 	return str;
 end
 
+--[[
+Get the yaw of a player
+--]]
 function jutil.get_player_yaw(player)
 	local value = player:get_look_yaw() - math.pi/2;
 	return math.round(value, math.pi/2);
 end
 
+--[[
+Generate a crafting recipe by substitution, e.g.
+jutil.recipe_format({
+	{0, 1, 0},
+	{1, 2, 1},
+	{3, 3, 3}
+}, {"default:stone", "default:mese", "default:obsidian_shard"})
+--]]
 function jutil.recipe_format(t, lookup)
 	for k,v in pairs(t) do
 		if type(v) == "table" then
@@ -52,16 +72,25 @@ function jutil.recipe_format(t, lookup)
 	return t;
 end
 
+--[[
+Better mod function than the default
+--]]
 function jutil.mod(a, n)
 	return a - math.floor(a/n) * n
 end
 
+--[[
+Find the difference between two angles
+--]]
 function jutil.angle_diff(a, b)
 	local ret = a - b;
 	ret = jutil.mod(ret + math.pi, math.pi*2) - math.pi
 	return ret;
 end
 
+--[[
+Tween an angle from 'from' to 'to', changing at most as much as 'speed'
+--]]
 function jutil.angle_to(from, to, speed)
 	local diff = jutil.angle_diff(to, from);
 	if math.abs(diff) < speed then return to end
@@ -70,6 +99,9 @@ function jutil.angle_to(from, to, speed)
 	return jutil.mod(from, math.pi*2);
 end
 
+--[[
+Check if the property of the node at x,y,z has the value of value
+--]]
 function jutil.check_node_property(property, value, x, y, z)
 	if y and z then
 		x = {
@@ -83,6 +115,9 @@ function jutil.check_node_property(property, value, x, y, z)
 	return def[property] == value, node;
 end
 
+--[[
+Check if the node at position x,y,z has the name 'name'
+--]]
 function jutil.check_node(name, x, y, z)
 	if y and z then
 		x = {
@@ -103,6 +138,9 @@ function jutil.check_node(name, x, y, z)
 	return node.name == name, node;
 end
 
+--[[
+Safely serialize a string, ignoring any unrecognized types
+--]]
 function jutil.serialize_safe(obj, ignore)
 	local ignore = ignore or {}
 	local val = {}
@@ -123,6 +161,9 @@ function jutil.serialize_safe(obj, ignore)
 	return minetest.serialize(val);
 end
 
+--[[
+Deserializes a string in-place to an object
+--]]
 function jutil.deserialize_to(str, obj)
 	if str == "" then return end;
 	local data = minetest.deserialize(str);
@@ -131,6 +172,10 @@ function jutil.deserialize_to(str, obj)
 	end
 end
 
+--[[
+Run a command 'command' for player 'player', optionally using priveledges for
+the 'owner'
+--]]
 function jutil.run_command(player, command, owner)
 	command = string.trim(command)
 	command = command:gsub("@", player)
@@ -162,10 +207,11 @@ function jutil.run_command(player, command, owner)
 	command_table.func(player, cmd_value);
 end
 
+-- actual iterator function
 local function _block_iter(state, prev_var)
 	if state.first then
 		state.first = false;
-		return state.start;
+		return state.start, state.start;
 	end
 	local x_diff = state.stop.x - state.var.x;
 	local y_diff = state.stop.y - state.var.y;
@@ -184,7 +230,7 @@ local function _block_iter(state, prev_var)
 		if ret.x == prev_var.x and ret.y == prev_var.y and ret.z == prev_var.z then
 			return nil;
 		end
-		return ret;
+		return ret, ret;
 	end
 	local nx = x_diff / len;
 	local ny = y_diff / len;
@@ -200,27 +246,23 @@ local function _block_iter(state, prev_var)
 	if ret.x == prev_var.x and ret.y == prev_var.y and ret.z == prev_var.z then
 		return _block_iter(state, prev_var);
 	end
-	return ret;
+	return ret, state.var;
 end
 
+--[[
+Iterates through all axis-aligned positions along a path
+--]]
 function jutil.block_iter(pos1, pos2, step, skip_first)
 	if skip_first == nil then skip_first = false end
 	local step = step or 1;
-	local pos1 = {
-		x = math.round(pos1.x),
-		y = math.round(pos1.y),
-		z = math.round(pos1.z),
-	}
-	local pos2 = {
-		x = math.round(pos2.x),
-		y = math.round(pos2.y),
-		z = math.round(pos2.z),
-	}
 	return _block_iter, {start = pos1, stop = pos2, step = step,
 			first = not skip_first, var = {x=pos1.x,y=pos1.y,z=pos1.z}},
 			{x=pos1.x,y=pos1.y,z=pos1.z};
 end
 
+--[[
+Returns the intersection of a line and a face, provided they touch
+--]]
 local function get_intersection(fDst1, fDst2, P1, P2)
 	if (fDst1 * fDst2) >= 0.0 then
 		return false
@@ -233,6 +275,9 @@ local function get_intersection(fDst1, fDst2, P1, P2)
 	return true, hit;
 end
 
+--[[
+Returns if a point is inside a box
+--]]
 local function in_box(hit, B1, B2, Axis)
 	if Axis == 1 then
 		return hit.z > B1.z and hit.z < B2.z and hit.y > B1.y and hit.y < B2.y
@@ -240,11 +285,17 @@ local function in_box(hit, B1, B2, Axis)
 		return hit.z > B1.z and hit.z < B2.z and hit.x > B1.x and hit.x < B2.x
 	elseif Axis == 3 then
 		return hit.x > B1.x and hit.x < B2.x and hit.y > B1.y and hit.y < B2.y
+	else
+		return hit.x > B1.x and hit.x < B2.x and hit.y > B1.y and hit.y < B2.y
+				and hit.z > B1.z and hit.z < B2.z
 	end
-	return false
+	-- return false
 end
 
--- returns true if line (L1, L2) intersects with the box (B1, B2)
+--[[
+Checks if a line intersects a box
+returns if they intersect, where they intersect, axis
+--]]
 function jutil.check_line_box(B1, B2, L1, L2)
 	if (L2.x < B1.x and L1.x < B1.x) then return false end
 	if (L2.x > B2.x and L1.x > B2.x) then return false end
@@ -278,12 +329,18 @@ function jutil.check_line_box(B1, B2, L1, L2)
 	return false;
 end
 
+--[[
+Checks for collision between two boxes
+--]]
 function jutil.check_box_box(A1, A2, B1, B2)
 	return A1.x <= B2.x and A2.x >= B1.x and
 	       A1.y <= B2.y and A2.y >= B1.y and
 	       A1.z <= B2.z and A2.z >= B1.z;
 end
 
+--[[
+Returns an entity's hitbox
+--]]
 function jutil.get_entity_box(entity)
 	local b1, b2;
 	if entity:is_player() then
@@ -310,10 +367,14 @@ function jutil.get_entity_box(entity)
 	return b1, b2
 end
 
+--[[
+Raytrace that find the first entity hit. Does not penetrate walls.
+returns entity, position of entity, position of block behind entity, axis
+--]]
 function jutil.raytrace_entity(a, b, filter)
 	--make sure that view isn't blocked
 	--maybe replace line_of_sight with something a little better...?
-	local is_blocked, new_pos = minetest.line_of_sight(a, b);
+	local is_blocked, _, new_pos, backup_axis = jutil.raytrace_blocks(a, b);
 	if new_pos and not is_blocked then
 		-- reposition newpos along line
 		local diff = vector.normalize(vector.subtract(b, a));
@@ -325,6 +386,7 @@ function jutil.raytrace_entity(a, b, filter)
 	local mid = vector.divide(vector.add(a, b), 2);
 	local all_objects = minetest.get_objects_inside_radius(mid, len/2);
 	local ret_ent, ret_pos;
+	local ret_axis;
 	for _,entity in pairs(all_objects) do
 		local can_check = true;
 		if filter then
@@ -342,22 +404,79 @@ function jutil.raytrace_entity(a, b, filter)
 
 		local b1, b2 = jutil.get_entity_box(entity);
 		if b1 and b2 and can_check then
-			local did_collide, pos = jutil.check_line_box(b1, b2, a, b)
+			local did_collide, pos, axis = jutil.check_line_box(b1, b2, a, b)
 			if did_collide then
 				if not ret_pos or vector.distance(a, pos) <
 						vector.distance(a, ret_pos) then
 					ret_ent = entity;
 					ret_pos = pos;
+					ret_axis = axis;
 				end
 			end
 		end
 	end
 	if not ret_ent then
 		ret_pos = b;
+		axis = backup_axis;
 	end
-	return ret_ent, ret_pos, new_pos;
+	return ret_ent, ret_pos, new_pos, axis;
 end
 
+--[[
+Returns a list of all collision boxes of a node
+--]]
+local function get_node_boxes(def)
+	if not def then return {} end
+	if not def.walkable then return {} end
+	local node_col = def.collision_box;
+
+	if not node_col or node_col.type == "regular" then
+		return {{-0.5,-0.5,-0.5, 0.5,0.5,0.5}}
+
+	elseif node_col.type == "fixed" then
+		local fixed = node_col.fixed;
+		if type(fixed[1]) == "table" then
+			return fixed;
+		else
+			return {fixed}
+		end
+
+	else
+		--TODO? wallmounted and connected, probably not important
+		return {{-0.5,-0.5,-0.5, 0.5,0.5,0.5}}
+	end
+end
+
+--[[
+A raytrace that checks against blocks
+returns if it collided, where it ends, block position, axis
+--]]
+function jutil.raytrace_blocks(a, b, step)
+	local step = step or 0.25;
+	for pos, apos in jutil.block_iter(a, b, step or 0.4) do
+		local node = minetest.get_node(pos);
+		if node.name == "ignore" then
+			return false, b, pos
+		end
+		local node_def = minetest.registered_nodes[node.name];
+		local node_cols = get_node_boxes(node_def);
+		for k, col in pairs(node_cols) do
+			local min_x, max_x = math.minmax(col[1], col[4]);
+			local min_y, max_y = math.minmax(col[2], col[5]);
+			local min_z, max_z = math.minmax(col[3], col[6]);
+			local b1 = vector.add(pos, vector.new(min_x, min_y, min_z));
+			local b2 = vector.add(pos, vector.new(max_x, max_y, max_z));
+			local did, ret, axis = jutil.check_line_box(b1, b2, a, apos);
+			if did then return true, ret, pos, axis end
+		end
+	end
+
+	return false, b;
+end
+
+--[[
+Get the nearest entity to a point from a list of entities
+--]]
 function jutil.get_nearest_entity(list, pos, filter)
 	local ret_ent, ret_pos;
 	-- print("Near: " .. tostring(#list))
@@ -388,7 +507,27 @@ function jutil.get_nearest_entity(list, pos, filter)
 	return ret_ent, ret_pos;
 end
 
+--[[
+converts a direction into a unit single axis-aligned unit direction
+accepts directions and strings in the format 'x+' or 'z-'
+--]]
 function jutil.vec_unit(dir)
+	if type(dir) == "string" then
+		if axis == 'x-' then
+			return {x = -1, y =  0, z =  0};
+		elseif axis == 'x+' then
+			return {x =  1, y =  0, z =  0};
+		elseif axis == 'y-' then
+			return {x =  0, y = -1, z =  0};
+		elseif axis == 'y+' then
+			return {x =  0, y =  1, z =  0};
+		elseif axis == 'z-' then
+			return {x =  0, y =  0, z = -1};
+		elseif axis == 'z+' then
+			return {x =  0, y =  0, z =  1};
+		end
+		return {x =  0, y =  0, z =  0};
+	end
 	local min, max = math.minmax(dir.x, dir.y, dir.z);
 
 	if dir.x == min then
@@ -408,31 +547,15 @@ function jutil.vec_unit(dir)
 	return {x =  0, y =  0, z =  0};
 end
 
-
+--[[
+Gets the axis of a block based on the angle it is being viewed from
+--]]
 function jutil.get_axis(from, to, b1, b2)
 	local print_pos = function(v)
 		print("Pos: " .. v.x .. ", " .. v.y .. ", " .. v.z)
 	end
-	-- print_pos(from);
-	-- print_pos(to);
-	-- print_pos(b1);
-	-- print_pos(b2);
+
 	local did, pos, axis = jutil.check_line_box(b1, b2, from, to);
 	if not axis then return end
-	if axis == 'x-' then
-		return {x = -1, y =  0, z =  0};
-	elseif axis == 'x+' then
-		return {x =  1, y =  0, z =  0};
-	elseif axis == 'y-' then
-		return {x =  0, y = -1, z =  0};
-	elseif axis == 'y+' then
-		return {x =  0, y =  1, z =  0};
-	elseif axis == 'z-' then
-		return {x =  0, y =  0, z = -1};
-	elseif axis == 'z+' then
-		return {x =  0, y =  0, z =  1};
-	end
-	-- if not pos then return end;
-	-- local avg = vector.divide(vector.add(b1, b2), 2);
-	-- return jutil.vec_unit(vector.subtract(pos, avg));
+	return jutil.vec_unit(axis);
 end
