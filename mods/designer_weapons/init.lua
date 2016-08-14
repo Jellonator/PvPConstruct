@@ -13,16 +13,7 @@ local designer_weapon_funcs = {
 	projectile = function (itemstack, user, pointed_thing, digparams)
 		local def = designer_weapons.registered_weapons[itemstack:get_name()];
 
-		local can_use = true;
-		local meta = itemstack:get_metadata();
-		local curtime = os.time();
-		if meta == "" then
-			can_use = true;
-		else
-			can_use = tonumber(meta) + def.delay < curtime;
-		end
-
-		if can_use then
+		if itemstack:get_wear() == 0 then
 			local dir;
 			local from = user:getpos();
 			from.y = from.y + 1.6;
@@ -35,24 +26,16 @@ local designer_weapon_funcs = {
 
 			designer_weapons.shoot_projectile(def.entity_name, from, dir,
 					def.speed_mult, def.damage_mult);
-			itemstack:set_metadata(tostring(curtime))
+			itemstack:set_wear(65535);
 		end
+
 		return itemstack;
 	end,
 
 	hitscan = function (itemstack, user, pointed_thing, digparams)
 		local def = designer_weapons.registered_weapons[itemstack:get_name()];
 
-		local can_use = true;
-		local meta = itemstack:get_metadata();
-		local curtime = os.time();
-		if meta == "" then
-			can_use = true;
-		else
-			can_use = tonumber(meta) + def.delay < curtime;
-		end
-
-		if can_use then
+		if itemstack:get_wear() == 0 then
 			local dir;
 			local from = user:getpos();
 			from.y = from.y + 1.6;
@@ -68,10 +51,13 @@ local designer_weapon_funcs = {
 					jutil.raytrace_entity(from, to, {user});
 
 			if entity then
+				-- punch entity
 				local dmg = jutil.normalize(vector.distance(from, entity_pos),
 					def.falloff, def.falloff_min, def.damage_min, def.damage);
 				entity:punch(user, 10, {damage_groups={fleshy=dmg}});
+
 			elseif entity_pos and axis and def.decal then
+				-- place decal
 				local unit_vec = jutil.vec_unit(axis);
 
 				if unit_vec then
@@ -83,22 +69,32 @@ local designer_weapon_funcs = {
 						minetest.set_node(decal_pos, {name=def.decal,
 							param2=minetest.dir_to_wallmounted(
 							vector.multiply(unit_vec, -1))});
-						print("Placed node!")
-					else
-						print("Can not place node :(");
 					end
-				else
-					print("No unit :<")
 				end
 			end
 
-			itemstack:set_metadata(tostring(curtime))
+			itemstack:set_wear(65535);
 		end
 		return itemstack;
 	end,
 
 	melee = nil -- use default punching mechanic
 }
+
+local WEAR_MAX = 65535;
+minetest.register_globalstep(function(dtime)
+	for _,player in pairs(minetest.get_connected_players()) do
+		local itemstack = player:get_wielded_item();
+		local def = designer_weapons.registered_weapons[itemstack:get_name()];
+		if def and def.groups and def.groups.reloaded_weapon then
+			local wear_sub = math.max(1, dtime * WEAR_MAX / def.delay);
+			local wear = itemstack:get_wear();
+			wear = math.max(0, wear - wear_sub);
+			itemstack:set_wear(wear);
+			player:set_wielded_item(itemstack);
+		end
+	end
+end)
 
 function designer_weapons.register_weapon(name, weapon_type, def)
 	-- def.on_use = function() end
@@ -119,6 +115,8 @@ function designer_weapons.register_weapon(name, weapon_type, def)
 		}
 	else
 		def.range = 0;
+		def.groups = def.groups or {}
+		def.groups.reloaded_weapon = 1;
 	end
 
 	designer_weapons.registered_weapons[name] = def;
