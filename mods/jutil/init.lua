@@ -44,6 +44,23 @@ function string.sanatize(str)
 	return str;
 end
 
+function jutil.clamp(value, min, max)
+	min, max = math.minmax(min, max);
+	if (value < min) then return min end
+	if (value > max) then return max end
+	return value;
+end
+
+function jutil.normalize(value, min, max, to_min, to_max, clamp)
+	if to_min == to_max then return to_min end
+	if clamp == nil then clamp = true end
+	local a = (to_max - to_min) / (max - min);
+	local b = to_max - a * max;
+	value = a * value + b;
+	if clamp then return jutil.clamp(value, to_min, to_max) end
+	return value;
+end
+
 --[[
 Get the yaw of a player
 --]]

@@ -68,8 +68,10 @@ local designer_weapon_funcs = {
 					jutil.raytrace_entity(from, to, {user});
 
 			if entity then
-				entity:punch(user, 10, {damage_groups={fleshy=def.damage}});
-			elseif entity_pos and def.decal then
+				local dmg = jutil.normalize(vector.distance(from, entity_pos),
+					def.falloff, def.falloff_min, def.damage_min, def.damage);
+				entity:punch(user, 10, {damage_groups={fleshy=dmg}});
+			elseif entity_pos and axis and def.decal then
 				local unit_vec = jutil.vec_unit(axis);
 
 				if unit_vec then
@@ -101,8 +103,12 @@ local designer_weapon_funcs = {
 function designer_weapons.register_weapon(name, weapon_type, def)
 	-- def.on_use = function() end
 	def.delay = def.delay or 0.1;
+	if def.rate then def.delay = 1 / def.rate end
 	def.on_use = designer_weapon_funcs[weapon_type];
 	def.damage = def.damage or 1;
+	def.damage_min = def.damage_min or def.damage;
+	def.falloff = def.falloff or 100;
+	def.falloff_min = def.falloff_min or 0;
 
 	if weapon_type == "melee" then
 		def.tool_capabilities = def.tool_capabilities or {
@@ -127,7 +133,7 @@ function designer_weapons.register_decal(name, def)
 	def.walkable = false;
 	def.pointable = false;
 	def.diggable = false;
-	def.buildable_to = false;
+	def.buildable_to = true;
 	def.floodable = true;
 	-- def.legacy_wallmounted = true;
 	def.node_box = {
@@ -231,6 +237,7 @@ function designer_weapons.shoot_projectile(name, from, dir, speed_mult, damage_m
 end
 
 dofile(minetest.get_modpath("designer_weapons") .. "/default.lua");
+dofile(minetest.get_modpath("designer_weapons") .. "/testdummy.lua");
 
 -- minetest.register_tool("designer_weapons:gahbage", {
 -- 	description = "Does something I guess",

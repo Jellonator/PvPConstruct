@@ -19,12 +19,28 @@ designer_weapons.register_weapon("designer_weapons:bow", "projectile", {
 designer_weapons.register_weapon("designer_weapons:gun", "hitscan", {
 	description = "Basic pistol",
 	inventory_image = "dweapon_pistol.png",
-	delay = 0.1,
-	damage = 6,
+	rate = 5,
+	damage = 4,
 	decal = "designer_weapons:decal_bullet"
+})
+
+designer_weapons.register_weapon("designer_weapons:shotgun", "hitscan", {
+	description = "Basic shotgun",
+	inventory_image = "dweapon_shotgun.png",
+	rate = 2,
+	damage = 8,
+	damage_min = 2,
+	falloff = 25,
+	falloff_min = 5,
+	decal = "designer_weapons:decal_shotgun"
 })
 
 designer_weapons.register_decal("designer_weapons:decal_bullet", {
 	description = "A bullet hole",
 	tiles = {"dweapon_decal_bullet.png"},
+});
+
+designer_weapons.register_decal("designer_weapons:decal_shotgun", {
+	description = "A shotgun hole",
+	tiles = {"dweapon_decal_shotgun.png"},
 });
