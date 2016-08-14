@@ -5,6 +5,19 @@ local dummy = {
 	visual_size = {x=0.8,y=1.8},
 };
 
+function dummy.on_activate(self, staticdata)
+	self.dummy_bool = true
+	self.dummy_number = 1.0
+	self.dummy_string = "Hello"
+	if staticdata then
+		jutil.deserialize_to(staticdata, self);
+	end
+end
+
+function dummy.get_staticdata(self)
+	return jutil.serialize_safe(self);
+end
+
 function dummy.on_punch(self, puncher, time, tool_capabilities, dir)
 	if not puncher:is_player() then return end
 	local dmg = tool_capabilities.damage_groups and

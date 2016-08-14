@@ -35,7 +35,7 @@ end
 --[[
 Sanatize a string for use in a formspec
 --]]
-local sanatize_badchars = {";", ",", "[", "]"}
+local sanatize_badchars = {";", ",", "%[", "%]"}
 function string.sanatize(str)
 	str = str:gsub("\\", "\\\\");
 	for k,v in pairs(sanatize_badchars) do

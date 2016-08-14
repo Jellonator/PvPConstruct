@@ -17,25 +17,30 @@ is so that I can sync this project between my laptop and desktop.
 
 Mods bundled with this subgame
 ------------------------------
-Every mod has its own function and are separated for organization.
+Every mod has its own function and are separated for organization. Mods listed
+here are in order of dependency, with most dependent mods placed at the bottom.
 
 ### jutil
 Set of utilities used by most every mod in this subgame.
 
+### jtools
+Set of in-game tools used for manipulating the world. Not intended for large
+scale world modification, install worldedit for that.
+
 ### scoreboard
 Adds teams to the game. Players on the same team can not harm each other.
 Teams must compete to complete objectives to win.
-
-### team_fort
-A mod based on Team Fortess 2; provides many tf2-style utilities, such as
-health packs, ammo boxes, payloads, etc.
 
 ### clicky_signs
 Adds signs that can be clicked to activate commands on a player
 
 ### designer_weapons
 Mod that adds functions for defining weapons. This mod is intended for use by
-other mods for defining weapons. It defines a small set of default weapons.
+other mods, yet it also defines a small set of default weapons.
+
+### team_fort
+A mod based on Team Fortess 2; provides many tf2-style utilities, such as
+health packs, ammo boxes, payloads, etc.
 
 TODO
 ----

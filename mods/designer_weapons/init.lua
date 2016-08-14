@@ -240,21 +240,3 @@ end
 
 dofile(minetest.get_modpath("designer_weapons") .. "/default.lua");
 dofile(minetest.get_modpath("designer_weapons") .. "/testdummy.lua");
-
-minetest.register_tool("designer_weapons:destructinator", {
-	description = "Deletes objects",
-	inventory_image = "creative_trash_icon.png",
-	on_use = function(itemstack, user, pointed_thing)
-		if pointed_thing.type == "node" then
-			minetest.remove_node(pointed_thing.under);
-		elseif pointed_thing.type == "object" then
-			local object = pointed_thing.ref;
-			if object:is_player() then
-				object:set_hp(0);
-			else
-				object:remove();
-			end
-		end
-	end,
-	range = 20
-})
