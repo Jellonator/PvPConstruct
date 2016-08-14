@@ -25,7 +25,7 @@ local designer_weapon_funcs = {
 			end
 
 			designer_weapons.shoot_projectile(def.entity_name, from, dir,
-					def.speed_mult, def.damage_mult);
+					def.speed_mult, def.damage_mult, user);
 			itemstack:set_wear(65535);
 		end
 
@@ -85,9 +85,10 @@ local WEAR_MAX = 65535;
 minetest.register_globalstep(function(dtime)
 	for _,player in pairs(minetest.get_connected_players()) do
 		local itemstack = player:get_wielded_item();
-		local def = designer_weapons.registered_weapons[itemstack:get_name()];
+		local def = itemstack:get_definition();
 		if def and def.groups and def.groups.reloaded_weapon then
-			local wear_sub = math.max(1, dtime * WEAR_MAX / def.delay);
+			local delay = def.delay or 1;
+			local wear_sub = math.max(1, dtime * WEAR_MAX / delay);
 			local wear = itemstack:get_wear();
 			wear = math.max(0, wear - wear_sub);
 			itemstack:set_wear(wear);
@@ -184,7 +185,8 @@ local function projectile_on_step(self, dtime)
 			local self_b1, self_b2 = jutil.get_entity_box(self.object);
 			local other_b1, other_b2 = jutil.get_entity_box(entity);
 			if jutil.check_box_box(self_b1, self_b2, other_b1, other_b2) then
-				entity:punch(self.object, 10, {damage_groups={fleshy=self.damage}});
+				entity:punch(self.owner or self.object, 10,
+					{damage_groups={fleshy=self.damage}});
 				self.object:remove();
 				print("Punched!")
 				return
@@ -220,7 +222,8 @@ function designer_weapons.register_projectile(name, def)
 	minetest.register_entity(name, def);
 end
 
-function designer_weapons.shoot_projectile(name, from, dir, speed_mult, damage_mult)
+function designer_weapons.shoot_projectile(name, from, dir, speed_mult,
+		damage_mult, owner)
 	local speed_mult = speed_mult or 1;
 	local damage_mult = damage_mult or 1;
 	local def = designer_weapons.registered_projectiles[name];
@@ -234,6 +237,7 @@ function designer_weapons.shoot_projectile(name, from, dir, speed_mult, damage_m
 	local lua_entity = object:get_luaentity();
 	lua_entity.damage = lua_entity.damage * damage_mult;
 	lua_entity.prev = velocity;
+	lua_entity.owner = owner;
 end
 
 dofile(minetest.get_modpath("designer_weapons") .. "/default.lua");
