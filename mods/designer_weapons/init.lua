@@ -117,6 +117,8 @@ function designer_weapons.register_weapon(name, weapon_type, def)
 			},
 			damage_groups = {fleshy=def.damage},
 		}
+	else
+		def.range = 0;
 	end
 
 	designer_weapons.registered_weapons[name] = def;
@@ -150,8 +152,8 @@ end
 -- Slowly kill decals
 minetest.register_abm({
 	nodenames = {"group:decal"},
-	interval = 2,
-	chance = 20,
+	interval = 3,
+	chance = 30,
 	action = function(pos, node)
 		minetest.remove_node(pos)
 	end
