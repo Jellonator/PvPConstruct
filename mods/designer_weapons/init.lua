@@ -175,6 +175,8 @@ minetest.register_entity("designer_weapons:explosion", {
 	textures = {"dweapon_explosion.png"},
 	spritediv = {x=7,y=1},
 	visual_size = {x=2,y=2},
+	physical = false,
+	collide_with_objects = false,
 	on_activate = function(self, staticdata)
 		if staticdata == "a" then
 			self.object:remove()
@@ -244,6 +246,7 @@ function designer_weapons.register_projectile(name, def)
 	def.radius = def.radius or 5;
 	def.visual = def.visual or "mesh";
 	def.mesh = def.mesh or "dweapon_arrow.b3d";
+	def.prev = {x=0,y=0,z=0};
 	if def.backface_culling == nil then
 		def.backface_culling = false;
 	end
