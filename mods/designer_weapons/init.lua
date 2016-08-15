@@ -194,6 +194,31 @@ minetest.register_entity("designer_weapons:explosion", {
 	end
 })
 
+local function projectile_kill(self, dir)
+	if self.explode then
+		minetest.add_entity(self.object:getpos(),
+			"designer_weapons:explosion");
+	end
+	if self.decal then
+		for _, axis in ipairs({dir, "y-", "y+", "x-", "x+", "z-", "z+"}) do
+			if axis then
+				local unit = jutil.vec_unit(axis);
+				minetest.chat_send_all(string.format("Axis: %s", dump(unit)))
+				minetest.chat_send_all("Orientation: " .. minetest.dir_to_wallmounted(unit))
+				local block = minetest.get_node(vector.add(self.object:getpos(), unit));
+				local block_def = minetest.registered_nodes[block.name];
+				local decal_node = minetest.get_node(self.object:getpos());
+				if decal_node.name == "air" and block_def and block_def.pointable then
+					minetest.set_node(self.object:getpos(), {name=self.decal,
+						param2=minetest.dir_to_wallmounted(unit)});
+					break;
+				end
+			end
+		end
+	end
+	self.object:remove();
+end
+
 local function projectile_on_step(self, dtime)
 	self.life = self.life - dtime;
 	if self.life < 0 then
@@ -213,24 +238,16 @@ local function projectile_on_step(self, dtime)
 				local owner = self.owner or self.object
 				entity:punch(owner, 10, {damage_groups={fleshy=self.damage}},
 					vector.normalize(vector.subtract(entity:getpos(), self.object:getpos())));
-				if self.explode then
-					minetest.add_entity(self.object:getpos(),
-						"designer_weapons:explosion");
-				end
-				self.object:remove();
+				projectile_kill(self, nil);
 				return
 			end
 		end
 	end
 	-- destroy when velocity changes(presumably hitting a wall)
-	if vector.distance(vector.add(self.prev,
-	vector.multiply(self.object:getacceleration(), dtime)),
-	self.object:getvelocity()) > 0.01 then
-		if self.explode then
-			minetest.add_entity(self.object:getpos(),
-				"designer_weapons:explosion");
-		end
-		self.object:remove();
+	local vdiff = vector.subtract(vector.add(self.prev, vector.multiply(
+			self.object:getacceleration(), dtime)), self.object:getvelocity())
+	if vector.length(vdiff) > 0.01 then
+		projectile_kill(self, vdiff);
 		return
 	end
 

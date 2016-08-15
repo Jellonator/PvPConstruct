@@ -10,7 +10,8 @@ designer_weapons.register_projectile("team_fort:rocket", {
 	life = 15,
 	damage = 9,
 	explode = true,
-	visual_size = {x = 0.8, y = 0.8}
+	visual_size = {x = 0.8, y = 0.8},
+	decal = "team_fort:decal_explosion"
 })
 
 designer_weapons.register_weapon("team_fort:rocket_launcher", "projectile", {
@@ -19,3 +20,8 @@ designer_weapons.register_weapon("team_fort:rocket_launcher", "projectile", {
 	inventory_image = "teamf_weapon_rocketlauncher.png",
 	delay = 0.5,
 })
+
+designer_weapons.register_decal("team_fort:decal_explosion", {
+	description = "Remains of an explosion long past",
+	tiles = {"teamf_decal_explosion.png"},
+});

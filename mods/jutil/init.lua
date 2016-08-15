@@ -539,34 +539,35 @@ accepts directions and strings in the format 'x+' or 'z-'
 --]]
 function jutil.vec_unit(dir)
 	if type(dir) == "string" then
-		if axis == 'x-' then
+		if dir == 'x-' then
 			return {x = -1, y =  0, z =  0};
-		elseif axis == 'x+' then
+		elseif dir == 'x+' then
 			return {x =  1, y =  0, z =  0};
-		elseif axis == 'y-' then
+		elseif dir == 'y-' then
 			return {x =  0, y = -1, z =  0};
-		elseif axis == 'y+' then
+		elseif dir == 'y+' then
 			return {x =  0, y =  1, z =  0};
-		elseif axis == 'z-' then
+		elseif dir == 'z-' then
 			return {x =  0, y =  0, z = -1};
-		elseif axis == 'z+' then
+		elseif dir == 'z+' then
 			return {x =  0, y =  0, z =  1};
 		end
 		return {x =  0, y =  0, z =  0};
 	end
-	local min, max = math.minmax(dir.x, dir.y, dir.z);
+	-- local min, max = math.minmax(dir.x, dir.y, dir.z);
 
-	if dir.x == min then
+	local val = minetest.dir_to_wallmounted(dir);
+	if val == 3 then
 		return {x = -1, y =  0, z =  0};
-	elseif dir.x == max then
+	elseif val == 2 then
 		return {x =  1, y =  0, z =  0};
-	elseif dir.y == min then
+	elseif val == 1 then
 		return {x =  0, y = -1, z =  0};
-	elseif dir.y == max then
+	elseif val == 0 then
 		return {x =  0, y =  1, z =  0};
-	elseif dir.z == min then
+	elseif val == 5 then
 		return {x =  0, y =  0, z = -1};
-	elseif dir.z == max then
+	elseif val == 4 then
 		return {x =  0, y =  0, z =  1};
 	end
 
