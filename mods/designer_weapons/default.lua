@@ -9,11 +9,10 @@ shotgun - gun with falloff
 designer_weapons.register_projectile("designer_weapons:arrow", {
 	collisionbox = {-0.2,-0.2,-0.2, 0.2,0.2,0.2},
 	textures = {"dweapon_arrow.png"},
-	gravity = -9.8,
-	speed = 25,
+	gravity = -8,
+	speed = 20,
 	life = 10,
 	damage = 6,
-	visual_size = {x = 0.4, y = 0.4}
 })
 
 designer_weapons.register_weapon("designer_weapons:bow", "projectile", {

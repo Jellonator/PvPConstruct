@@ -16,13 +16,19 @@ local designer_weapon_funcs = {
 		if itemstack:get_wear() == 0 then
 			local dir;
 			local from = user:getpos();
-			from.y = from.y + 1.6;
+			local yaw;
+			from.y = from.y + 1.5;
 			if user:is_player() then
 				dir = user:get_look_dir();
+				yaw =  user:get_look_yaw();
 			else
-				local yaw = user:getyaw();
+				yaw = user:getyaw();
 				dir = vector.new(math.cos(yaw), 0, math.sin(yaw));
 			end
+			local yrot = yaw - math.pi/2;
+			local scale_rot = 0.15;
+			from = vector.add(from, vector.new(math.cos(yrot)*scale_rot, 0,
+			math.sin(yrot)*scale_rot));
 
 			designer_weapons.shoot_projectile(def.entity_name, from, dir,
 					def.speed_mult, def.damage_mult, user);
@@ -264,6 +270,7 @@ function designer_weapons.register_projectile(name, def)
 	def.visual = def.visual or "mesh";
 	def.mesh = def.mesh or "dweapon_arrow.b3d";
 	def.prev = {x=0,y=0,z=0};
+	def.visual_size = def.visual_size or {x=2,y=2};
 	if def.backface_culling == nil then
 		def.backface_culling = false;
 	end
