@@ -162,12 +162,35 @@ local function projectile_activate(self, staticdata)
 	if staticdata then
 		jutil.deserialize_to(staticdata, self);
 	end
-	self.object:set_armor_groups({immortal=1})
+	self.object:set_armor_groups({fleshy=1})
 end
 
 local function projectile_get_staticdata(self)
 	return jutil.serialize_safe(self);
 end
+
+minetest.register_entity("designer_weapons:explosion", {
+	visual = "sprite",
+	frame = 0,
+	textures = {"dweapon_explosion.png"},
+	spritediv = {x=7,y=1},
+	visual_size = {x=2,y=2},
+	on_activate = function(self, staticdata)
+		if staticdata == "a" then
+			self.object:remove()
+		end
+	end,
+	get_staticdata = function() return "a" end,
+	on_step = function(self, dtime)
+		self.frame = self.frame + dtime * 15;
+		local aframe = math.floor(self.frame);
+		if aframe >= 7 then
+			self.object:remove();
+			return;
+		end
+		self.object:setsprite({x=aframe,y=0}, 7);
+	end
+})
 
 local function projectile_on_step(self, dtime)
 	self.life = self.life - dtime;
@@ -185,18 +208,26 @@ local function projectile_on_step(self, dtime)
 			local self_b1, self_b2 = jutil.get_entity_box(self.object);
 			local other_b1, other_b2 = jutil.get_entity_box(entity);
 			if jutil.check_box_box(self_b1, self_b2, other_b1, other_b2) then
-				entity:punch(self.owner or self.object, 10,
-					{damage_groups={fleshy=self.damage}});
+				local owner = self.owner or self.object
+				entity:punch(owner, 10, {damage_groups={fleshy=self.damage}},
+					vector.normalize(vector.subtract(entity:getpos(), self.object:getpos())));
+				if self.explode then
+					minetest.add_entity(self.object:getpos(),
+						"designer_weapons:explosion");
+				end
 				self.object:remove();
-				print("Punched!")
 				return
 			end
 		end
 	end
-	-- destroy when velocity changes
+	-- destroy when velocity changes(presumably hitting a wall)
 	if vector.distance(vector.add(self.prev,
 	vector.multiply(self.object:getacceleration(), dtime)),
-	self.object:getvelocity()) > 0.1 then
+	self.object:getvelocity()) > 0.01 then
+		if self.explode then
+			minetest.add_entity(self.object:getpos(),
+				"designer_weapons:explosion");
+		end
 		self.object:remove();
 		return
 	end
@@ -211,6 +242,15 @@ function designer_weapons.register_projectile(name, def)
 	def.damage = def.damage or 1;   -- half heart
 	def.wait = def.wait or 0.2;     -- time before it can hurt
 	def.radius = def.radius or 5;
+	def.visual = def.visual or "mesh";
+	def.mesh = def.mesh or "dweapon_arrow.b3d";
+	if def.backface_culling == nil then
+		def.backface_culling = false;
+	end
+	if def.automatic_face_movement_dir == nil then
+		def.automatic_face_movement_dir = 0.0
+	end
+
 
 	def.physical = true;
 	def.collide_with_objects = false

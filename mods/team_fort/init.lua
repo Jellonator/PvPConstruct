@@ -19,3 +19,4 @@ for _,name in pairs(entities_to_load) do
 end
 dofile(minetest.get_modpath("team_fort") .. "/commands.lua");
 dofile(minetest.get_modpath("team_fort") .. "/nodes.lua");
+dofile(minetest.get_modpath("team_fort") .. "/weapons.lua");

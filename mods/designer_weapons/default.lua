@@ -1,5 +1,12 @@
+--[[
+Defines a few basic weapons to demonstrate the core abilities of this mod.
+Includes:
+bow - shoots arrow projectile
+gun - shoots bullets, leaves decal
+shotgun - gun with falloff
+--]]
+
 designer_weapons.register_projectile("designer_weapons:arrow", {
-	visual = "sprite",
 	collisionbox = {-0.2,-0.2,-0.2, 0.2,0.2,0.2},
 	textures = {"dweapon_arrow.png"},
 	gravity = -9.8,
