@@ -1,9 +1,10 @@
 --[[
 Defines a few basic weapons to demonstrate the core abilities of this mod.
 Includes:
-bow - shoots arrow projectile
-gun - shoots bullets, leaves decal
+bow     - shoots arrow projectile
+gun     - shoots bullets, leaves decal
 shotgun - gun with falloff
+rifle   - gun that can headshot
 --]]
 
 -- Bow and arrow
@@ -90,4 +91,27 @@ designer_weapons.register_weapon("designer_weapons:shotgun", "hitscan", {
 designer_weapons.register_decal("designer_weapons:decal_shotgun", {
 	description = "A shotgun hole",
 	tiles = {"dweapon_decal_shotgun.png"},
+})
+
+-- rifle
+minetest.register_craftitem("designer_weapons:bullet_rifle", {
+	description = "Rifle bullet",
+	inventory_image = "dweapon_bullet_rifle.png"
+})
+
+-- minetest.register_craft({
+-- 	type = "shapeless",
+-- 	recipe = {},
+-- 	output = "designer_weapons:bullet_standard 6"
+-- })
+
+designer_weapons.register_weapon("designer_weapons:rifle", "hitscan", {
+	description = "Basic rifle",
+	inventory_image = "dweapon_rifle.png",
+	delay = 1.2,
+	damage = 8,
+	damage_headshot = 12,
+	sound_shoot = "dweapon_shoot",
+	decal = "designer_weapons:decal_bullet",
+	ammo = "designer_weapons:bullet_rifle"
 })

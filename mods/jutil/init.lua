@@ -54,6 +54,10 @@ function jutil.clamp(value, min, max)
 	return value;
 end
 
+function jutil.lerp(value, a, b)
+	return jutil.normalize(value, 0, 1, a, b);
+end
+
 --[[
 Converts a number from one scale to another.
 Example:
@@ -369,7 +373,7 @@ Returns an entity's hitbox
 function jutil.get_entity_box(entity)
 	local b1, b2;
 	if entity:is_player() then
-		-- assuming player is 0.8x1.8x0.8
+		-- assuming player is 0.8x1.75x0.8
 		b1 = {x = -0.4, y = 0.0, z = -0.4}
 		b2 = {x =  0.4, y = 1.8, z =  0.4}
 	else

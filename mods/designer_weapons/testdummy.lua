@@ -1,8 +1,9 @@
 local dummy = {
 	hp_max = 20,
-	collisionbox = {-0.4, -0.9, -0.4, 0.4, 0.9, 0.4},
-	visual = "cube",
-	visual_size = {x=0.8,y=1.8},
+	collisionbox = {-0.4, -1.0, -0.4, 0.4, 0.8, 0.4},
+	visual = "mesh",
+	mesh = "character.b3d",
+	-- visual_size = {x=0.8,y=1.8},
 };
 
 function dummy.on_activate(self, staticdata)
@@ -37,7 +38,7 @@ minetest.register_craftitem("designer_weapons:dummy", {
 			return
 		end
 
-		pointed_thing.under.y = pointed_thing.under.y + 0.5 + 0.9
+		pointed_thing.under.y = pointed_thing.under.y + 0.5 + 1.0
 		local entity = minetest.add_entity(pointed_thing.under, "designer_weapons:dummy");
 		entity:get_luaentity().color = color;
 		entity:get_luaentity().original_color = color;

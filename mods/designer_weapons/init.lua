@@ -25,6 +25,13 @@ local designer_weapon_funcs = {
 			-- punch entity
 			local dmg = jutil.normalize(vector.distance(from, entity_pos),
 				def.falloff, def.falloff_min, def.damage_min, def.damage);
+			if def.damage_headshot then
+				local b1, b2 = jutil.get_entity_box(entity);
+				local target_y = jutil.lerp(0.65, b1.y, b2.y);
+				if entity_pos.y > target_y then
+					dmg = def.damage_headshot;
+				end
+			end
 			entity:punch(user, 10, {damage_groups={fleshy=dmg}});
 		elseif entity_pos and axis and def.decal then
 			-- place decal
