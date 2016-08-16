@@ -7,7 +7,7 @@ designer_weapons.register_projectile("team_fort:rocket", {
 	textures = {"teamf_projectile_rocket.png"},
 	gravity = 0,
 	speed = 10,
-	life = 15,
+	life = 10,
 	damage = 9,
 	damage_min = 3,
 	blast_radius = 2.5,

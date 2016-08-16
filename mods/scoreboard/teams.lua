@@ -101,15 +101,15 @@ local function set_player_nametag_color(player, team)
 	if team then
 		local teamdef = Teams.get_team(team);
 		print(teamdef);
-		properties.color = teamdef and teamdef.color or {};
+		properties.nametag_color = teamdef and teamdef.color or {};
 	else
-		properties.color = {}
+		properties.nametag_color = {}
 	end
-	if type(properties.color) == "table" then
+	if type(properties.nametag_color) == "table" then
 		-- properties.color.r = properties.color.r or 255;
 		-- properties.color.g = properties.color.g or 255;
 		-- properties.color.b = properties.color.b or 255;
-		properties.color.a = properties.color.a or 255;
+		properties.nametag_color.a = properties.nametag_color.a or 255;
 	end
 	player:set_properties(properties)
 end
