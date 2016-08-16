@@ -27,6 +27,7 @@ designer_weapons.register_weapon("designer_weapons:gun", "hitscan", {
 	inventory_image = "dweapon_pistol.png",
 	rate = 5,
 	damage = 4,
+	sound_shoot = "dweapon_shoot",
 	decal = "designer_weapons:decal_bullet"
 })
 
@@ -38,6 +39,7 @@ designer_weapons.register_weapon("designer_weapons:shotgun", "hitscan", {
 	damage_min = 2,
 	falloff = 25,
 	falloff_min = 5,
+	sound_shoot = "dweapon_shotgun",
 	decal = "designer_weapons:decal_shotgun"
 })
 

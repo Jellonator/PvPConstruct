@@ -12,6 +12,7 @@ designer_weapons.register_projectile("team_fort:rocket", {
 	damage_min = 3,
 	blast_radius = 2.5,
 	explode = true,
+	sound_hit = "tnt_explode",
 	decal = "team_fort:decal_explosion"
 })
 

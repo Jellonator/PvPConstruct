@@ -33,6 +33,12 @@ local designer_weapon_funcs = {
 			designer_weapons.shoot_projectile(def.entity_name, from, dir,
 					def.speed_mult, def.damage_mult, user);
 			itemstack:set_wear(65535);
+
+			if def.sound_shoot then
+				minetest.sound_play(def.sound_shoot, {pos = user:getpos()});
+			end
+		else
+			minetest.sound_play("dweapon_noshot", {pos = user:getpos()});
 		end
 
 		return itemstack;
@@ -78,8 +84,12 @@ local designer_weapon_funcs = {
 					end
 				end
 			end
-
+			if def.sound_shoot then
+				minetest.sound_play(def.sound_shoot, {pos = user:getpos()});
+			end
 			itemstack:set_wear(65535);
+		else
+			minetest.sound_play("dweapon_noshot", {pos = user:getpos()});
 		end
 		return itemstack;
 	end,
@@ -92,13 +102,16 @@ minetest.register_globalstep(function(dtime)
 	for _,player in pairs(minetest.get_connected_players()) do
 		local itemstack = player:get_wielded_item();
 		local def = itemstack:get_definition();
-		if def and def.groups and def.groups.reloaded_weapon then
+		local wear = itemstack:get_wear();
+		if def and def.groups and def.groups.reloaded_weapon and wear > 0 then
 			local delay = def.delay or 1;
 			local wear_sub = math.max(1, dtime * WEAR_MAX / delay);
-			local wear = itemstack:get_wear();
 			wear = math.max(0, wear - wear_sub);
 			itemstack:set_wear(wear);
 			player:set_wielded_item(itemstack);
+			if wear == 0 then
+				minetest.sound_play("dweapon_reload", {pos = player:getpos()});
+			end
 		end
 	end
 end)
@@ -245,6 +258,10 @@ local function projectile_explode(self, entity, vdir)
 			local dmgdata = {damage_groups={fleshy=dmg}}
 			other:punch(owner, 10, dmgdata);
 		end
+	end
+	-- play sound
+	if self.sound_hit then
+		minetest.sound_play(self.sound_hit, {pos = self.object:getpos()})
 	end
 	--kill self
 	projectile_kill(self, vdir);
