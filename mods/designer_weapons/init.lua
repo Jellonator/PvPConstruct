@@ -209,8 +209,6 @@ local function projectile_kill(self, dir)
 		for _, axis in ipairs({dir, "y-", "y+", "x-", "x+", "z-", "z+"}) do
 			if axis then
 				local unit = jutil.vec_unit(axis);
-				minetest.chat_send_all(string.format("Axis: %s", dump(unit)))
-				minetest.chat_send_all("Orientation: " .. minetest.dir_to_wallmounted(unit))
 				local block = minetest.get_node(vector.add(self.object:getpos(), unit));
 				local block_def = minetest.registered_nodes[block.name];
 				local decal_node = minetest.get_node(self.object:getpos());

@@ -589,10 +589,6 @@ end
 Gets the axis of a block based on the angle it is being viewed from
 --]]
 function jutil.get_axis(from, to, b1, b2)
-	local print_pos = function(v)
-		print("Pos: " .. v.x .. ", " .. v.y .. ", " .. v.z)
-	end
-
 	local did, pos, axis = jutil.check_line_box(b1, b2, from, to);
 	if not axis then return end
 	return jutil.vec_unit(axis);
