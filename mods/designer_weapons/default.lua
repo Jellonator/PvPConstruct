@@ -35,15 +35,44 @@ designer_weapons.register_weapon("designer_weapons:bow", "projectile", {
 	ammo = "designer_weapons:arrow"
 })
 
--- Shotguns and pistols
+-- pistol
+minetest.register_craftitem("designer_weapons:bullet_standard", {
+	description = "Bullet",
+	inventory_image = "dweapon_bullet_standard.png"
+})
+
+-- minetest.register_craft({
+-- 	type = "shapeless",
+-- 	recipe = {},
+-- 	output = "designer_weapons:bullet_standard 6"
+-- })
+
 designer_weapons.register_weapon("designer_weapons:gun", "hitscan", {
 	description = "Basic pistol",
 	inventory_image = "dweapon_pistol.png",
 	rate = 3,
 	damage = 3,
 	sound_shoot = "dweapon_shoot",
-	decal = "designer_weapons:decal_bullet"
+	decal = "designer_weapons:decal_bullet",
+	ammo = "designer_weapons:bullet_standard"
 })
+
+designer_weapons.register_decal("designer_weapons:decal_bullet", {
+	description = "A bullet hole",
+	tiles = {"dweapon_decal_bullet.png"},
+})
+
+-- shotgun
+minetest.register_craftitem("designer_weapons:bullet_shell", {
+	description = "Shotgun shell",
+	inventory_image = "dweapon_bullet_shell.png"
+})
+
+-- minetest.register_craft({
+-- 	type = "shapeless",
+-- 	recipe = {},
+-- 	output = "designer_weapons:bullet_shell 4"
+-- })
 
 designer_weapons.register_weapon("designer_weapons:shotgun", "hitscan", {
 	description = "Basic shotgun",
@@ -54,15 +83,11 @@ designer_weapons.register_weapon("designer_weapons:shotgun", "hitscan", {
 	falloff = 25,
 	falloff_min = 4,
 	sound_shoot = "dweapon_shotgun",
-	decal = "designer_weapons:decal_shotgun"
+	decal = "designer_weapons:decal_shotgun",
+	ammo = "designer_weapons:bullet_shell"
 })
-
-designer_weapons.register_decal("designer_weapons:decal_bullet", {
-	description = "A bullet hole",
-	tiles = {"dweapon_decal_bullet.png"},
-});
 
 designer_weapons.register_decal("designer_weapons:decal_shotgun", {
 	description = "A shotgun hole",
 	tiles = {"dweapon_decal_shotgun.png"},
-});
+})

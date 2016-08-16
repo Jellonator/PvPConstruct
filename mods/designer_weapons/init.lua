@@ -191,7 +191,7 @@ minetest.register_entity("designer_weapons:explosion", {
 	frame = 0,
 	textures = {"dweapon_explosion.png"},
 	spritediv = {x=7,y=1},
-	visual_size = {x=2,y=2},
+	visual_size = {x=4,y=4},
 	physical = false,
 	collide_with_objects = false,
 	on_activate = function(self, staticdata)
