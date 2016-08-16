@@ -19,7 +19,7 @@ designer_weapons.register_weapon("team_fort:rocket_launcher", "projectile", {
 	entity_name = "team_fort:rocket",
 	description = "Rocket Launcher",
 	inventory_image = "teamf_weapon_rocketlauncher.png",
-	delay = 0.3,
+	delay = 0.6,
 })
 
 designer_weapons.register_decal("team_fort:decal_explosion", {

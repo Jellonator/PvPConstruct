@@ -235,16 +235,18 @@ local function projectile_explode(self, entity, vdir)
 		table.insert(filter, entity);
 	end
 	--blast radius
-	for _, other in pairs(jutil.table_filter(filter, minetest.get_objects_inside_radius(
-			self.object:getpos(), self.blast_radius))) do
-		local dis = vector.distance(self.object:getpos(), other:getpos());
-		local dmg = jutil.normalize(dis, 0, self.blast_radius, self.damage, self.damage_min);
-		if other == owner then
-			dmg = dmg / 2;
+	if self.blast_radius > 0 then
+		for _, other in pairs(jutil.table_filter(filter, minetest.get_objects_inside_radius(
+				self.object:getpos(), self.blast_radius))) do
+			local dis = vector.distance(self.object:getpos(), other:getpos());
+			local dmg = jutil.normalize(dis, 0, self.blast_radius, self.damage, self.damage_min);
+			if other == owner then
+				dmg = dmg / 2;
+			end
+			dmg = math.max(1, dmg);
+			local dmgdata = {damage_groups={fleshy=dmg}}
+			other:punch(owner, 10, dmgdata);
 		end
-		dmg = math.max(1, dmg);
-		local dmgdata = {damage_groups={fleshy=dmg}}
-		other:punch(owner, 10, dmgdata);
 	end
 	--kill self
 	projectile_kill(self, vdir);
