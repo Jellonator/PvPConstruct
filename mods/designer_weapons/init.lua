@@ -151,6 +151,8 @@ function designer_weapons.register_decal(name, def)
 	def.diggable = false;
 	def.buildable_to = true;
 	def.floodable = true;
+	def.groups = def.groups or {};
+	def.groups.not_in_creative_inventory = 1;
 	-- def.legacy_wallmounted = true;
 	def.node_box = {
 		type = "wallmounted",
