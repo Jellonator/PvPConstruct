@@ -6,6 +6,18 @@ gun - shoots bullets, leaves decal
 shotgun - gun with falloff
 --]]
 
+-- Bow and arrow
+minetest.register_craftitem("designer_weapons:arrow", {
+	description = "An arrow",
+	inventory_image = "dweapon_arrow.png"
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	recipe = {"default:stick", "default:paper", "default:flint"},
+	output = "designer_weapons:arrow 4"
+})
+
 designer_weapons.register_projectile("designer_weapons:arrow", {
 	collisionbox = {-0.15,-0.15,-0.15, 0.15,0.15,0.15},
 	textures = {"dweapon_arrow.png"},
@@ -20,8 +32,10 @@ designer_weapons.register_weapon("designer_weapons:bow", "projectile", {
 	description = "Bow and Arrow",
 	inventory_image = "dweapon_bow.png",
 	delay = 0.5,
+	ammo = "designer_weapons:arrow"
 })
 
+-- Shotguns and pistols
 designer_weapons.register_weapon("designer_weapons:gun", "hitscan", {
 	description = "Basic pistol",
 	inventory_image = "dweapon_pistol.png",

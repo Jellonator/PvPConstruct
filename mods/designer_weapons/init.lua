@@ -10,91 +10,39 @@ designer_weapons = {
 }
 
 local designer_weapon_funcs = {
-	projectile = function (itemstack, user, pointed_thing, digparams)
-		local def = designer_weapons.registered_weapons[itemstack:get_name()];
-
-		if itemstack:get_wear() == 0 then
-			local dir;
-			local from = user:getpos();
-			local yaw;
-			from.y = from.y + 1.5;
-			if user:is_player() then
-				dir = user:get_look_dir();
-				yaw =  user:get_look_yaw();
-			else
-				yaw = user:getyaw();
-				dir = vector.new(math.cos(yaw), 0, math.sin(yaw));
-			end
-			local yrot = yaw - math.pi/2;
-			local scale_rot = 0.15;
-			from = vector.add(from, vector.new(math.cos(yrot)*scale_rot, 0,
-			math.sin(yrot)*scale_rot));
-
-			designer_weapons.shoot_projectile(def.entity_name, from, dir,
-					def.speed_mult, def.damage_mult, user);
-			itemstack:set_wear(65535);
-
-			if def.sound_shoot then
-				minetest.sound_play(def.sound_shoot, {pos = user:getpos()});
-			end
-		else
-			minetest.sound_play("dweapon_noshot", {pos = user:getpos()});
-		end
-
-		return itemstack;
+	projectile = function (def, from, dir, user)
+		designer_weapons.shoot_projectile(def.entity_name, from, dir,
+				def.speed_mult, def.damage_mult, user);
 	end,
 
-	hitscan = function (itemstack, user, pointed_thing, digparams)
-		local def = designer_weapons.registered_weapons[itemstack:get_name()];
+	hitscan = function (def, from, dir, user)
+		local to = vector.add(from, vector.multiply(dir, 120));
 
-		if itemstack:get_wear() == 0 then
-			local dir;
-			local from = user:getpos();
-			from.y = from.y + 1.6;
-			if user:is_player() then
-				dir = user:get_look_dir();
-			else
-				local yaw = user:getyaw();
-				dir = vector.new(math.cos(yaw), 0, math.sin(yaw));
-			end
-			local to = vector.add(from, vector.multiply(dir, 120));
+		local entity, entity_pos, node_pos, axis =
+				jutil.raytrace_entity(from, to, {user});
 
-			local entity, entity_pos, node_pos, axis =
-					jutil.raytrace_entity(from, to, {user});
+		if entity then
+			-- punch entity
+			local dmg = jutil.normalize(vector.distance(from, entity_pos),
+				def.falloff, def.falloff_min, def.damage_min, def.damage);
+			entity:punch(user, 10, {damage_groups={fleshy=dmg}});
+		elseif entity_pos and axis and def.decal then
+			-- place decal
+			local unit_vec = jutil.vec_unit(axis);
 
-			if entity then
-				-- punch entity
-				local dmg = jutil.normalize(vector.distance(from, entity_pos),
-					def.falloff, def.falloff_min, def.damage_min, def.damage);
-				entity:punch(user, 10, {damage_groups={fleshy=dmg}});
-
-			elseif entity_pos and axis and def.decal then
-				-- place decal
-				local unit_vec = jutil.vec_unit(axis);
-
-				if unit_vec then
-					local decal_pos = vector.add(node_pos, unit_vec);
-					local decal_node = minetest.get_node(decal_pos);
-					local target_node = minetest.get_node(node_pos);
-					if decal_node.name == "air"
-					and minetest.registered_nodes[target_node.name].pointable then
-						minetest.set_node(decal_pos, {name=def.decal,
-							param2=minetest.dir_to_wallmounted(
-							vector.multiply(unit_vec, -1))});
-					end
+			if unit_vec then
+				local decal_pos = vector.add(node_pos, unit_vec);
+				local decal_node = minetest.get_node(decal_pos);
+				local target_node = minetest.get_node(node_pos);
+				if decal_node.name == "air"
+				and minetest.registered_nodes[target_node.name].pointable then
+					minetest.set_node(decal_pos, {name=def.decal,
+						param2=minetest.dir_to_wallmounted(
+						vector.multiply(unit_vec, -1))});
 				end
 			end
-			if def.sound_shoot then
-				minetest.sound_play(def.sound_shoot, {pos = user:getpos()});
-			end
-			itemstack:set_wear(65535);
-		else
-			minetest.sound_play("dweapon_noshot", {pos = user:getpos()});
 		end
-		return itemstack;
 	end,
-
-	melee = nil -- use default punching mechanic
 }
 
 local WEAR_MAX = 65535;
@@ -116,15 +64,62 @@ minetest.register_globalstep(function(dtime)
 	end
 end)
 
+local weapon_shoot = function(itemstack, user, pointed_thing, digparams)
+	local def = itemstack:get_definition();
+
+	local can_shoot = true;
+	if def.ammo then
+		local inv = user:get_inventory();
+		if not inv then
+			can_shoot = false
+		else
+			local wield_list = user:get_wield_list();
+			can_shoot = inv:remove_item(wield_list, def.ammo):get_count() > 0;
+		end
+	end
+
+	if itemstack:get_wear() == 0 and can_shoot then
+		local dir;
+		local from = user:getpos();
+		local yaw;
+		from.y = from.y + 1.5;
+		if user:is_player() then
+			dir = user:get_look_dir();
+			yaw =  user:get_look_yaw();
+		else
+			yaw = user:getyaw();
+			dir = vector.new(math.cos(yaw), 0, math.sin(yaw));
+		end
+		local yrot = yaw - math.pi/2;
+		local scale_rot = 0.15;
+		from = vector.add(from, vector.new(math.cos(yrot)*scale_rot, 0,
+		math.sin(yrot)*scale_rot));
+
+		local func = designer_weapon_funcs[def.weapon_type];
+		if func then
+			func(def, from, dir, user);
+		end
+
+		itemstack:set_wear(65535);
+		if def.sound_shoot then
+			minetest.sound_play(def.sound_shoot, {pos = user:getpos()});
+		end
+	else
+		minetest.sound_play("dweapon_noshot", {pos = user:getpos()});
+	end
+
+	return itemstack;
+end
+
 function designer_weapons.register_weapon(name, weapon_type, def)
 	-- def.on_use = function() end
 	def.delay = def.delay or 0.1;
 	if def.rate then def.delay = 1 / def.rate end
-	def.on_use = designer_weapon_funcs[weapon_type];
 	def.damage = def.damage or 1;
 	def.damage_min = def.damage_min or def.damage;
 	def.falloff = def.falloff or 100;
 	def.falloff_min = def.falloff_min or 0;
+	def.weapon_type = weapon_type;
 
 	if weapon_type == "melee" then
 		def.tool_capabilities = def.tool_capabilities or {
@@ -134,6 +129,7 @@ function designer_weapons.register_weapon(name, weapon_type, def)
 			damage_groups = {fleshy=def.damage},
 		}
 	else
+		def.on_use = weapon_shoot;
 		def.range = 0;
 		def.groups = def.groups or {}
 		def.groups.reloaded_weapon = 1;
