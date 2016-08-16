@@ -6,8 +6,14 @@ TEAM_COLOR = {
 }
 
 -- register some basic teams
-Scoreboard.Teams.register_team("red", {nametag_color = 0xFFFF0000})
-Scoreboard.Teams.register_team("blue", {nametag_color = 0xFF0000FF})
+Scoreboard.Teams.set_team("red", {
+	nametag_color = 0xFFFF0000,
+	gui_hotbar_image = "teamf_gui_hotbar_red.png"
+})
+Scoreboard.Teams.set_team("blue", {
+	nametag_color = 0xFF0000FF,
+	gui_hotbar_image = "teamf_gui_hotbar_blue.png"
+})
 
 -- Load all objects
 local nodes_to_load = {};

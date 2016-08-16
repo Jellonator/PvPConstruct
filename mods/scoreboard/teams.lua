@@ -98,10 +98,12 @@ end
 
 local function set_player_nametag_color(player, team)
 	local properties = {}
+	local hotbar_image = "gui_hotbar.png";
 	if team then
 		local teamdef = Teams.get_team(team);
 		print(teamdef);
 		properties.nametag_color = teamdef and teamdef.color or {};
+		hotbar_image = teamdef and teamdef.gui_hotbar_image or hotbar_image;
 	else
 		properties.nametag_color = {}
 	end
@@ -112,6 +114,7 @@ local function set_player_nametag_color(player, team)
 		properties.nametag_color.a = properties.nametag_color.a or 255;
 	end
 	player:set_properties(properties)
+	player:hud_set_hotbar_image(hotbar_image);
 end
 
 function Teams.set_color(team, color)
@@ -184,6 +187,17 @@ function Teams.player_join(team, player)
 	minetest.chat_send_all(string.format("Player %s joined team %s!", player, team));
 	increment_id()
 	return true
+end
+
+function Teams.set_team(team, def)
+	if not Teams.team_exists(team) then
+		return Teams.register_team(team, def);
+	else
+		local teamdef = Teams.get_team(team);
+		for k,v in pairs(def) do
+			teamdef[k] = v;
+		end
+	end
 end
 
 function Teams.register_team(team, def)
