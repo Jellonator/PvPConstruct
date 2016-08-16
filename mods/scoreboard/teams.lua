@@ -11,7 +11,7 @@ local prev_incremental_id = incremental_id;
 
 local function get_team_spawn(team)
 	local teamdata = Teams.get_team(team);
-	if teamdata.spawn then
+	if teamdata and teamdata.spawn then
 		if teamdata.spawn.r then
 			local spawn = teamdata.spawn;
 			local newpos = {

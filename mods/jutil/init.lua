@@ -500,6 +500,29 @@ function jutil.raytrace_blocks(a, b, step)
 	return false, b;
 end
 
+function jutil.table_filter(filter, t)
+	local ret = {}
+	for k,v in pairs(t) do
+		if not jutil.match_filter(filter, v) then
+			table.insert(ret, v);
+		end
+	end
+	return ret;
+end
+
+function jutil.match_filter(filter, obj)
+	if not filter then return false end;
+	if type(filter) == "table" then
+		for k,v in pairs(filter) do
+			if v == obj then
+				return true;
+			end
+		end
+	else
+		return filter(obj);
+	end
+end
+
 --[[
 Get the nearest entity to a point from a list of entities
 --]]
@@ -507,19 +530,7 @@ function jutil.get_nearest_entity(list, pos, filter)
 	local ret_ent, ret_pos;
 	-- print("Near: " .. tostring(#list))
 	for _,entity in pairs(list) do
-		local can_check = true;
-		if filter then
-			if type(filter) == "table" then
-				for k,v in pairs(filter) do
-					if v == entity then
-						can_check = false;
-						break;
-					end
-				end
-			else
-				can_check = filter(entity);
-			end
-		end
+		local can_check = not jutil.match_filter(filter, entity);
 
 		if can_check then
 			local new_pos = entity:getpos();

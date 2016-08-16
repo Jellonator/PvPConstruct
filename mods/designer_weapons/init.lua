@@ -225,6 +225,31 @@ local function projectile_kill(self, dir)
 	self.object:remove();
 end
 
+local function projectile_explode(self, entity, vdir)
+	local filter = {self.object}
+	local owner = self.owner or self.object;
+	if entity then
+		--hurt entity
+		local dmgdata = {damage_groups={fleshy=self.damage}}
+		entity:punch(owner, 10, dmgdata);
+		table.insert(filter, entity);
+	end
+	--blast radius
+	for _, other in pairs(jutil.table_filter(filter, minetest.get_objects_inside_radius(
+			self.object:getpos(), self.blast_radius))) do
+		local dis = vector.distance(self.object:getpos(), other:getpos());
+		local dmg = jutil.normalize(dis, 0, self.blast_radius, self.damage, self.damage_min);
+		if other == owner then
+			dmg = dmg / 2;
+		end
+		dmg = math.max(1, dmg);
+		local dmgdata = {damage_groups={fleshy=dmg}}
+		other:punch(owner, 10, dmgdata);
+	end
+	--kill self
+	projectile_kill(self, vdir);
+end
+
 local function projectile_on_step(self, dtime)
 	self.life = self.life - dtime;
 	if self.life < 0 then
@@ -234,18 +259,15 @@ local function projectile_on_step(self, dtime)
 	self.wait = self.wait - dtime;
 	if self.wait < 0 then
 		-- find nearby entities
-		local entity = jutil.get_nearest_entity(
-				minetest.get_objects_inside_radius(self.object:getpos(),
-				self.radius), self.object:getpos(), {self.object});
+		local entities = minetest.get_objects_inside_radius(
+				self.object:getpos(), self.radius)
+		local entity = jutil.get_nearest_entity(entities, self.object:getpos(),
+				{self.object});
 		if entity then
 			local self_b1, self_b2 = jutil.get_entity_box(self.object);
 			local other_b1, other_b2 = jutil.get_entity_box(entity);
 			if jutil.check_box_box(self_b1, self_b2, other_b1, other_b2) then
-				local owner = self.owner or self.object
-				entity:punch(owner, 10, {damage_groups={fleshy=self.damage}},
-					vector.normalize(vector.subtract(entity:getpos(), self.object:getpos())));
-				projectile_kill(self, nil);
-				return
+				projectile_explode(self, entity, nil);
 			end
 		end
 	end
@@ -253,7 +275,7 @@ local function projectile_on_step(self, dtime)
 	local vdiff = vector.subtract(vector.add(self.prev, vector.multiply(
 			self.object:getacceleration(), dtime)), self.object:getvelocity())
 	if vector.length(vdiff) > 0.01 then
-		projectile_kill(self, vdiff);
+		projectile_explode(self, nil, vdiff);
 		return
 	end
 
@@ -271,6 +293,8 @@ function designer_weapons.register_projectile(name, def)
 	def.mesh = def.mesh or "dweapon_arrow.b3d";
 	def.prev = {x=0,y=0,z=0};
 	def.visual_size = def.visual_size or {x=2,y=2};
+	def.blast_radius = def.blast_radius or 0;
+	def.damage_min = def.damage_min or 0;
 	if def.backface_culling == nil then
 		def.backface_culling = false;
 	end

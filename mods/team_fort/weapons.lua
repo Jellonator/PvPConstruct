@@ -9,6 +9,8 @@ designer_weapons.register_projectile("team_fort:rocket", {
 	speed = 10,
 	life = 15,
 	damage = 9,
+	damage_min = 3,
+	blast_radius = 2.5,
 	explode = true,
 	decal = "team_fort:decal_explosion"
 })
