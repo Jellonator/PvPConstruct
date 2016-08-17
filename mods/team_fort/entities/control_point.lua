@@ -11,6 +11,10 @@ local control_point_textures = {
 	blue    = "teamf_cp_blue.png"
 }
 
+-- I should probably put lock_data into a save file, but since control points
+-- should be near eachother anyways, I don't see it as a big deal.
+local lock_data = {}
+
 local control_point = {
 	collisionbox = {-2.5, 0.0, -2.5, 2.5, 0.25, 2.5},
 	visual = "mesh",
@@ -18,20 +22,31 @@ local control_point = {
 	textures = {"teamf_cp_neutral.png"},
 	visual_size = {x=10,y=10},
 
+	-- owner data
 	color = "neutral",
 	pcolor = NO_TEAM,
 	original_color = "neutral",
+
+	-- timer data
 	timer = 0,
 	timer_target = 10,
+	check_time = 0,
+
+	-- capture data
 	capturer = NO_TEAM,
 	holder = NO_TEAM,
 	holder_count = 0,
-	check_time = 0,
+
+	-- lock data
+	lock = NO_TEAM,
+	id = NO_TEAM,
 
 	jtool_variables = {
 		color = true,
 		original_color = true,
-		timer_target = true
+		timer_target = true,
+		lock = true,
+		id = true
 	}
 };
 
@@ -56,7 +71,11 @@ function control_point.on_step(self, dtime)
 	-- change texture depending on color
 	if self.color ~= self.pcolor then
 		self.pcolor = self.color;
-		self.object:set_properties({textures = {control_point_textures[self.color]}})
+		local tex = control_point_textures[self.color]
+		self.object:set_properties({textures = {tex}})
+		if self.id and self.id ~= '' then
+			lock_data[self.id] = self.color;
+		end
 	end
 
 	-- get data for who is currently standing on the point
@@ -84,6 +103,17 @@ function control_point.on_step(self, dtime)
 			end
 		end
 
+		-- control point is locked and the team trying to capture this point
+		-- does not own the locking point, then don't allow capture of this
+		-- point
+		if self.lock ~= NO_TEAM then
+			local lock_team = lock_data[self.lock];
+			if lock_team ~= team_majority then
+				team_majority = nil;
+				team_count = 0;
+			end
+		end
+
 		self.holder = team_majority;
 		self.holder_count = team_count;
 	end
@@ -100,14 +130,16 @@ function control_point.on_step(self, dtime)
 		self.timer = math.max(0, self.timer - CONTROL_POINT_DECAY * dtime);
 
 	elseif self.holder ~= self.capturer and self.holder ~= NO_TEAM then
-		-- decrease timer if players on point aren't capturing the point(owner or otherwise)
+		-- decrease timer if players on point aren't
+		-- capturing the point(owner or otherwise)
 		self.timer = math.max(0, self.timer - speed * dtime);
 
 		-- when timer hits zero set capturer to team of players on point
 		if self.timer == 0 then
 			self.capturer = self.holder;
 		end
-	elseif self.holder == self.capturer and self.holder ~= self.color and self.holder ~= NO_TEAM then
+	elseif self.holder == self.capturer and
+			self.holder ~= self.color and self.holder ~= NO_TEAM then
 		-- increase timer if players on point are capturing the point
 		self.timer = math.min(self.timer_target, self.timer + speed * dtime);
 		if self.timer_target == self.timer then
@@ -132,7 +164,8 @@ local function register_control_point_item(name, texture, color)
 			end
 
 			pointed_thing.under.y = pointed_thing.under.y + 0.5
-			local entity = minetest.add_entity(pointed_thing.under, "team_fort:control_point");
+			local entity = minetest.add_entity(pointed_thing.under,
+					"team_fort:control_point");
 			entity:get_luaentity().color = color;
 			entity:get_luaentity().original_color = color;
 
