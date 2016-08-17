@@ -39,7 +39,7 @@ local control_point = {
 
 	-- lock data
 	lock = NO_TEAM,
-	id = NO_TEAM,
+	id = '',
 
 	jtool_variables = {
 		color = true,
@@ -112,6 +112,16 @@ function control_point.on_step(self, dtime)
 				team_majority = nil;
 				team_count = 0;
 			end
+		elseif self.holder ~= team_majority then
+			if not team_majority or team_majority == NO_TEAM and self.timer > 0 then
+				minetest.chat_send_all(string.format(
+					"Control point %s is no longer being contested.", self.id));
+			elseif self.color ~= team_majority and team_majority and
+					team_majority ~= NO_TEAM then
+				minetest.chat_send_all(string.format(
+					"Control point %s is being contested by team %s!",
+					self.id, team_majority));
+			end
 		end
 
 		self.holder = team_majority;
@@ -146,6 +156,9 @@ function control_point.on_step(self, dtime)
 			self.color = self.capturer;
 			self.timer = 0;
 			self.capturer = NO_TEAM;
+			minetest.chat_send_all(string.format(
+				"Control point %s has been captured by team %s!",
+				self.id, self.color));
 		end
 	end
 end
