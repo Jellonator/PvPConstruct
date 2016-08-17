@@ -145,7 +145,7 @@ function control_point.on_step(self, dtime)
 		self.timer = math.max(0, self.timer - speed * dtime);
 
 		-- when timer hits zero set capturer to team of players on point
-		if self.timer == 0 then
+		if self.timer == 0 and self.holder ~= self.color then
 			self.capturer = self.holder;
 		end
 	elseif self.holder == self.capturer and
