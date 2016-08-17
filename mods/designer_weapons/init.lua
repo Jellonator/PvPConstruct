@@ -52,12 +52,34 @@ local designer_weapon_funcs = {
 	end,
 }
 
+local function weapon_can_shoot(itemstack, user)
+	local def = itemstack:get_definition();
+
+	-- check user ammo
+	local can_shoot = true;
+	if def.ammo and itemstack:get_wear() == 0 then
+		local inv = user:get_inventory();
+		if not inv then
+			return false;
+		else
+			local wield_list = user:get_wield_list();
+			if not inv:contains_item(wield_list, def.ammo) then
+				return false
+			end
+		end
+	end
+
+	-- check if reloaded
+	return itemstack:get_wear() == 0;
+end
+
 local WEAR_MAX = 65535;
 minetest.register_globalstep(function(dtime)
 	for _,player in pairs(minetest.get_connected_players()) do
 		local itemstack = player:get_wielded_item();
 		local def = itemstack:get_definition();
 		local wear = itemstack:get_wear();
+		-- reload weapons
 		if def and def.groups and def.groups.reloaded_weapon and wear > 0 then
 			local delay = def.delay or 1;
 			local wear_sub = math.max(1, dtime * WEAR_MAX / delay);
@@ -68,24 +90,21 @@ minetest.register_globalstep(function(dtime)
 				minetest.sound_play("dweapon_reload", {pos = player:getpos()});
 			end
 		end
+		-- shoot automatic weapons
+		if def.automatic and def.on_use and player:get_player_control().LMB and
+				weapon_can_shoot(itemstack, player) then
+			local new_itemstack = def.on_use(itemstack, player);
+			if new_itemstack then
+				player:set_wielded_item(itemstack);
+			end
+		end
 	end
 end)
 
-local weapon_shoot = function(itemstack, user, pointed_thing, digparams)
+local weapon_shoot = function(itemstack, user)
 	local def = itemstack:get_definition();
 
-	local can_shoot = true;
-	if def.ammo then
-		local inv = user:get_inventory();
-		if not inv then
-			can_shoot = false
-		else
-			local wield_list = user:get_wield_list();
-			can_shoot = inv:remove_item(wield_list, def.ammo):get_count() > 0;
-		end
-	end
-
-	if itemstack:get_wear() == 0 and can_shoot then
+	if weapon_can_shoot(itemstack, user) then
 		local dir;
 		local from = user:getpos();
 		local yaw;
@@ -102,14 +121,27 @@ local weapon_shoot = function(itemstack, user, pointed_thing, digparams)
 		from = vector.add(from, vector.new(math.cos(yrot)*scale_rot, 0,
 		math.sin(yrot)*scale_rot));
 
+		-- call shoot function
 		local func = designer_weapon_funcs[def.weapon_type];
 		if func then
 			func(def, from, dir, user);
 		end
 
+		-- reload
 		itemstack:set_wear(65535);
+
+		-- shoot sound
 		if def.sound_shoot then
 			minetest.sound_play(def.sound_shoot, {pos = user:getpos()});
+		end
+
+		-- remove one ammo
+		if def.ammo then
+			local inv = user:get_inventory();
+			if inv then
+				local wield_list = user:get_wield_list();
+				inv:remove_item(wield_list, def.ammo);
+			end
 		end
 	else
 		minetest.sound_play("dweapon_noshot", {pos = user:getpos()});
