@@ -1,7 +1,14 @@
+local CONTROL_POINT_CHECK_RATE = 0.5;
+local CONTROL_POINT_RANGE = 3.0;
+local CONTROL_POINT_DECAY = 0.5;
+local CONTROL_POINT_CAPTURE_BASE = 0.6;
+local CONTROL_POINT_CAPTURE_MULT = 0.4;
+local NO_TEAM = "$NONE";
+
 local control_point_textures = {
-	[TEAM_COLOR.NEUTRAL] = "teamf_cp_neutral.png",
-	[TEAM_COLOR.RED]     = "teamf_cp_red.png",
-	[TEAM_COLOR.BLUE]    = "teamf_cp_blue.png"
+	neutral = "teamf_cp_neutral.png",
+	red     = "teamf_cp_red.png",
+	blue    = "teamf_cp_blue.png"
 }
 
 local control_point = {
@@ -11,33 +18,97 @@ local control_point = {
 	textures = {"teamf_cp_neutral.png"},
 	visual_size = {x=10,y=10},
 
-	color = TEAM_COLOR.NEUTRAL,
-	pcolor = 4,
-	original_color = TEAM_COLOR.NEUTRAL
+	color = "neutral",
+	pcolor = NO_TEAM,
+	original_color = "neutral",
+	timer = 0,
+	timer_target = 10,
+	capturer = NO_TEAM,
+	holder = NO_TEAM,
+	holder_count = 0,
+	check_time = 0,
 };
 
 function control_point.on_activate(self, staticdata)
 	if staticdata then
-		local data = string.split(staticdata, ",");
-		self.color = tonumber(data[1]);
-		self.original_color = tonumber(data[2]);
-		self.pcolor = 4;
-		print("Activating point: ", data[1], data[2]);
+		jutil.deserialize_to(staticdata, self);
 	end
+	-- place some variables into editor
+	self.timer_target = self.timer_target;
+	self.color = self.color;
+	self.original_color = self.original_color;
+
 	self.object:set_armor_groups({immortal=1})
 end
 
 function control_point.get_staticdata(self)
-	local data = {self.color, self.original_color};
-	local ret = table.concat(data, ",");
-	print("Saving point: " .. ret);
-	return ret;
+	return jutil.serialize_safe(self, {"pcolor", "check_time", "holder",
+			"holder_count", "timer"})
 end
 
 function control_point.on_step(self, dtime)
+	-- change texture depending on color
 	if self.color ~= self.pcolor then
 		self.pcolor = self.color;
 		self.object:set_properties({textures = {control_point_textures[self.color]}})
+	end
+
+	-- get data for who is currently standing on the point
+	self.check_time = self.check_time + dtime;
+	if self.check_time >= CONTROL_POINT_CHECK_RATE then
+		self.check_time = self.check_time - CONTROL_POINT_CHECK_RATE
+		local objects = minetest.get_objects_inside_radius(
+				self.object:getpos(), CONTROL_POINT_RANGE);
+		local team_majority = NO_TEAM;
+		local team_count = 0;
+		for k,v in pairs(objects) do
+			if v:is_player() then
+				local player_team = Scoreboard.Teams.player_get_team(
+						v:get_player_name());
+				if team_majority == NO_TEAM and player_team then
+					team_majority = player_team;
+					team_count = 1;
+				elseif team_majority == player_team and player_team then
+					team_count = team_count + 1;
+				elseif player_team then
+					team_majority = NO_TEAM;
+					team_count = 0;
+					break;
+				end
+			end
+		end
+
+		self.holder = team_majority;
+		self.holder_count = team_count;
+	end
+
+	local speed = CONTROL_POINT_CAPTURE_BASE +
+			CONTROL_POINT_CAPTURE_MULT * self.holder_count;
+
+	-- if not self.capturer then
+	-- 	self.capturer = self.holder;
+	-- end
+
+	if self.holder == NO_TEAM then
+		-- decrease timer if nobody is on point
+		self.timer = math.max(0, self.timer - CONTROL_POINT_DECAY * dtime);
+
+	elseif self.holder ~= self.capturer and self.holder ~= NO_TEAM then
+		-- decrease timer if players on point aren't capturing the point(owner or otherwise)
+		self.timer = math.max(0, self.timer - speed * dtime);
+
+		-- when timer hits zero set capturer to team of players on point
+		if self.timer == 0 then
+			self.capturer = self.holder;
+		end
+	elseif self.holder == self.capturer and self.holder ~= self.color and self.holder ~= NO_TEAM then
+		-- increase timer if players on point are capturing the point
+		self.timer = math.min(self.timer_target, self.timer + speed * dtime);
+		if self.timer_target == self.timer then
+			self.color = self.capturer;
+			self.timer = 0;
+			self.capturer = NO_TEAM;
+		end
 	end
 end
 
@@ -67,6 +138,6 @@ local function register_control_point_item(name, texture, color)
 	})
 end
 
-register_control_point_item("neutral", "teamf_cp_neutral_item.png", TEAM_COLOR.NEUTRAL)
-register_control_point_item("red", "teamf_cp_red_item.png", TEAM_COLOR.RED)
-register_control_point_item("blue", "teamf_cp_blue_item.png", TEAM_COLOR.BLUE)
+register_control_point_item("neutral", "teamf_cp_neutral_item.png", "neutral")
+register_control_point_item("red", "teamf_cp_red_item.png", "red")
+register_control_point_item("blue", "teamf_cp_blue_item.png", "blue")
