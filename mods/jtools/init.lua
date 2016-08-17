@@ -33,7 +33,9 @@ minetest.register_tool(editor_name, {
 			local formspec = "";
 			local width = 8;
 			local pos_y = 1;
-			for k,v in pairs(lua_ent) do
+			local def = lua_ent.jtool_variables or lua_ent;
+			for k,_ in pairs(def) do
+				local v = lua_ent[k];
 				if type(v) == "number" then
 					formspec = formspec .. string.format(
 						"field[1,%d;%d,1;i%s;%s;%s]", pos_y, width-2,

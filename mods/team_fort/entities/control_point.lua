@@ -27,6 +27,12 @@ local control_point = {
 	holder = NO_TEAM,
 	holder_count = 0,
 	check_time = 0,
+
+	jtool_variables = {
+		color = true,
+		original_color = true,
+		timer_target = true
+	}
 };
 
 function control_point.on_activate(self, staticdata)
@@ -43,7 +49,7 @@ end
 
 function control_point.get_staticdata(self)
 	return jutil.serialize_safe(self, {"pcolor", "check_time", "holder",
-			"holder_count", "timer"})
+			"holder_count", "timer", "jtool_variables"})
 end
 
 function control_point.on_step(self, dtime)
