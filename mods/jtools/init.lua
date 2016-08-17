@@ -16,6 +16,12 @@ minetest.register_tool("jtools:destructinator", {
 	range = 20
 });
 
+
+--[[
+Editor tool
+Allows for a player to edit an entity's contained data
+Currently only supports editing strings, numbers, and booleans
+--]]
 local editor_refs = {}
 local editor_name = "jtools:editor"
 local editor_inc = 1;
@@ -39,15 +45,15 @@ minetest.register_tool(editor_name, {
 				if type(v) == "number" then
 					formspec = formspec .. string.format(
 						"field[1,%d;%d,1;i%s;%s;%s]", pos_y, width-2,
-						tostring(k), tostring(k), tostring(v));
+						tostring(k), tostring(k) .. ":Number", tostring(v));
 				elseif type(v) == "string" then
 					formspec = formspec .. string.format(
 						"field[1,%d;%d,1;s%s;%s;%s]", pos_y, width-2,
-						tostring(k), tostring(k), v:sanatize());
-				-- elseif type(v) == "boolean" then
-				-- 	formspec = formspec .. string.format(
-				-- 			"dropdown[%d,%f;%d,1;b%s;true,false;]",
-				-- 			width/4, pos_y - 0.25, width/2, tostring(k))
+						tostring(k), tostring(k) .. ":String", v:sanatize());
+				elseif type(v) == "boolean" then
+					formspec = formspec .. string.format(
+						"field[1,%d;%d,1;b%s;%s;%s]", pos_y, width-2,
+						tostring(k), tostring(k) .. ":Boolean", v and 'true' or 'false');
 				else
 					pos_y = pos_y - 1;
 				end
@@ -81,9 +87,12 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 					lua_ent[vname] = value;
 				elseif vtype == 'i' then
 					lua_ent[vname] = tonumber(value) or lua_ent[vname];
-				-- elseif vtype == 'b' then
-				-- 	print("Bool", vtype, vname, value, type(value))
-				-- 	lua_ent[vname] = (value == "true");
+				elseif vtype == 'b' then
+					if value:lower() == 'true' then
+						lua_ent[vname] = true;
+					elseif value:lower() == 'false' then
+						lua_ent[vname] = false;
+					end
 				end
 			end
 		end
