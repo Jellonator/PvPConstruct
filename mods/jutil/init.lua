@@ -522,17 +522,31 @@ function jutil.raytrace_blocks(a, b, step)
 	return false, b;
 end
 
-function jutil.table_filter(filter, t)
+function jutil.table_filter(filter, t, ...)
 	local ret = {}
 	for k,v in pairs(t) do
-		if not jutil.match_filter(filter, v) then
+		if not jutil.match_filter(filter, v, ...) then
 			table.insert(ret, v);
 		end
 	end
 	return ret;
 end
 
-function jutil.match_filter(filter, obj)
+function jutil.table_filter_inplace(filter, t, ...)
+	local i = 1;
+	while i <= #t do
+		local v = t[i];
+		if jutil.match_filter(filter, v, ...) then
+			table.remove(t, i);
+			i = i - 1;
+		end
+		i = i + 1;
+	end
+
+	return t;
+end
+
+function jutil.match_filter(filter, obj, ...)
 	if not filter then return false end;
 	if type(filter) == "table" then
 		for k,v in pairs(filter) do
@@ -541,8 +555,18 @@ function jutil.match_filter(filter, obj)
 			end
 		end
 	else
-		return filter(obj);
+		return filter(obj, ...);
 	end
+end
+
+function jutil.table_match_filter(filter, t, ...)
+	for k, v in pairs(t) do
+		if jutil.match_filter(filter, v, ...) then
+			return true;
+		end
+	end
+
+	return false;
 end
 
 --[[

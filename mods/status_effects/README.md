@@ -10,7 +10,7 @@ How to apply a status effect:
 status_effect.apply_effect("mod_name:status_effect_name", player, time);
 ```
 
-Status effect defintion:
+Status effect definition:
 ```
 def = {
 	overrides -- Status effects that will be removed when applied.
@@ -24,15 +24,15 @@ def = {
 			-- "both", use both the original and the new effect at the same time
 			-- function(a, b), use a function and return the mode(s) to use
 
-	applies_to = nil -- If set to "player", this status will only affect
+	applies_to = "all" -- If set to "player", this status will only affect
 			players. If set to "object", this status will only affect
 			LuaEntitySAO objects.
 
-	on_activate(self, object) -- Function that will be called when the status effect
-			is first applied or the player logs in.
+	on_activate(self, object) -- Function that will be called when the status
+			-- effect is first applied or the player logs in.
 
-	on_deactive(self, object) -- Function that will be called when the status effect
-			ends.
+	on_deactivate(self, object) -- Function that will be called when the status
+	 		-- effect ends.
 
 	on_step(self, object, dtime) -- Function that will be called every frame.
 
