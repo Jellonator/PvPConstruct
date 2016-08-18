@@ -44,6 +44,15 @@ function string.sanatize(str)
 	return str;
 end
 
+function jutil.remove_indexes(t, indexes)
+	-- remove in reverse order so that indexes dont interfere with each other
+	table.sort(indexes);
+	for i = #indexes, 1, -1 do
+		local k = indexes[i];
+		table.remove(t, k);
+	end
+end
+
 function jutil.gen_uuid(bytes)
 	local bytes = bytes or 16;
 	local ret = '0x';
