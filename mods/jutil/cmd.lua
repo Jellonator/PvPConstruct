@@ -150,9 +150,9 @@ function cmd.command(def, func, desc)
 		end
 
 		if optional then
-			cmd_str = cmd_str .. '{' .. name .. '}';
-		else
 			cmd_str = cmd_str .. '[' .. name .. ']';
+		else
+			cmd_str = cmd_str .. '<' .. name .. '>';
 		end
 	end
 
