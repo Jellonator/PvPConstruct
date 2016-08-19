@@ -34,7 +34,7 @@ status_effect.apply_effect("mod_name:status_effect_name", player, time,
 ```
 
 Status effect definition:
-```
+```Lua
 def = {
 	overrides -- Status effects that will be removed when applied.
 
