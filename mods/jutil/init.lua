@@ -17,6 +17,24 @@ jutil.color = {
 	grey    = 0xff666666,
 }
 
+function jutil.register_entitytool(name, entity, def, offset)
+	local offset = offset or 0;
+	def.on_place = function(itemstack, placer, pointed_thing)
+		if pointed_thing.type ~= "node" then
+			return
+		end
+
+		pointed_thing.above.y = pointed_thing.above.y + offset
+		local entity = minetest.add_entity(pointed_thing.above, entity);
+
+		if not minetest.setting_getbool("creative_mode") then
+			itemstack:take_item()
+		end
+		return itemstack
+	end
+	minetest.register_craftitem(name, def);
+end
+
 function jutil.gen_uuid(bytes)
 	local bytes = bytes or 16;
 	local ret = '0x';
@@ -126,11 +144,11 @@ end
 --[[
 Get the nearest entity to a point from a list of entities
 --]]
-function jutil.get_nearest_entity(list, pos, filter)
+function jutil.get_nearest_entity(list, pos, filter, ...)
 	local ret_ent, ret_pos;
 	-- print("Near: " .. tostring(#list))
 	for _,entity in pairs(list) do
-		local can_check = not jutil.filter.match(filter, entity);
+		local can_check = not jutil.filter.match(filter, entity, ...);
 
 		if can_check then
 			local new_pos = entity:getpos();

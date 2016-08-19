@@ -12,6 +12,7 @@ local payload = {
 	mesh = "teamf_kart.b3d",
 	textures = {"teamf_kart.png"},
 	visual_size = {x=4,y=4},
+	
 	physical = true,
 	check_time = 0,
 	move_speed = 0,

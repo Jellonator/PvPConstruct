@@ -26,6 +26,20 @@ Filter.CALL_FUNC = function(value, func, filter, ...)
 end
 
 --[[
+Filter which only matches players
+--]]
+Filter.PLAYER = function(value)
+	return value:is_player();
+end
+
+--[[
+Filter which negates another filter
+--]]
+Filter.NOT = function(value, filter, ...)
+	return not Filter.match(filter, value, ...);
+end
+
+--[[
 Returns whether an object matches a filter
 --]]
 function Filter.match(filter, obj, ...)

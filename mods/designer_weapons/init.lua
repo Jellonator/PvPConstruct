@@ -43,7 +43,7 @@ local designer_weapon_funcs = {
 				end
 			end
 			damage_entity(self, user, entity, dmg);
-			
+
 		elseif entity_pos and axis and def.decal then
 			-- place decal
 			local unit_vec = jutil.vec_unit(axis);
@@ -395,3 +395,4 @@ end
 
 dofile(minetest.get_modpath("designer_weapons") .. "/default.lua");
 dofile(minetest.get_modpath("designer_weapons") .. "/testdummy.lua");
+dofile(minetest.get_modpath("designer_weapons") .. "/ammo_pack.lua");
