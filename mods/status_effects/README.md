@@ -24,9 +24,15 @@ def = {
 			-- "both", use both the original and the new effect at the same time
 			-- function(a, b), use a function and return the mode(s) to use
 
-	applies_to = "all" -- If set to "player", this status will only affect
-			players. If set to "object", this status will only affect
-			LuaEntitySAO objects.
+	applies_to = "all" -- What type of objects this status will affect.
+			--     Possible values:
+			-- "player", will only affect players
+			-- "object", will only affect LuaEntitySAO objects
+
+	step_timer = nil -- If set, will only call step every 'step_time' seconds.
+
+	remove_on_death = true -- Whether or not this effect should be removed when
+			-- the player dies.
 
 	on_activate(self, object) -- Function that will be called when the status
 			-- effect is first applied or the player logs in.
@@ -35,8 +41,6 @@ def = {
 	 		-- effect ends.
 
 	on_step(self, object, dtime) -- Function that will be called every frame.
-
-	-- anything else defined will be used by self
 }
 ```
 

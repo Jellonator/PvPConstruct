@@ -6,7 +6,7 @@ local effect_data = {}
 
 local DMETHOD = {
 	override = 'override',
-	copy = 'copy',
+	both = 'both',
 	reset = 'reset'
 }
 
@@ -40,6 +40,9 @@ function status_effect.register_effect(name, def)
 	def.overrides = def.overrides or {};
 	def.conflicts = def.conflicts or {};
 	def.applies_to = def.applies_to or "all";
+	if def.remove_on_death == nil then
+		def.remove_on_death = true;
+	end
 	status_effect.registered_effects[name] = def;
 end
 
@@ -58,9 +61,10 @@ local function remove_effect_name(effect, name)
 	return false;
 end
 
-function status_effect.apply_effect(name, player, length, data)
+function status_effect.apply_effect(name, player, length, strength, data)
 	local data = data or {}
 	data.time = length;
+	data.strength = strength;
 	data._name = name;
 	data._object = player;
 	data._original_time = length;
@@ -103,10 +107,10 @@ function status_effect.apply_effect(name, player, length, data)
 		end
 	end
 
-	if #pvalues == 0 or effect_def.duplicate_method == DMETHOD.copy then
+	if #pvalues == 0 or effect_def.duplicate_method == DMETHOD.both then
 		table.insert(object_data, data);
 		if effect_def.on_activate then
-			effect_def.on_activate(data, player);
+			effect_def.on_activate(data, player, strength);
 		end
 
 	elseif type(effect_def.duplicate_method) == "function" then
@@ -117,7 +121,7 @@ function status_effect.apply_effect(name, player, length, data)
 			table.insert(object_data, v);
 			if v == data then
 				if effect_def.on_activate then
-					effect_def.on_activate(data, player);
+					effect_def.on_activate(data, player, strength);
 				end
 			end
 		end
@@ -139,7 +143,7 @@ function status_effect.apply_effect(name, player, length, data)
 		data.time = math.max(pvalues[1].time, data.time);
 		object_data[pindexes[1]] = data;
 		if effect_def.on_activate then
-			effect_def.on_activate(data, player);
+			effect_def.on_activate(data, player, strength);
 		end
 
 	elseif effect_def.duplicate_method == DMETHOD.reset then
@@ -158,16 +162,23 @@ minetest.register_globalstep(function(dtime)
 		local rm;
 		for _, effect in pairs(player_effects) do
 			local def = status_effect.registered_effects[effect._name];
-			if def.on_step then
-				def.on_step(effect, player, dtime);
-			end
+			local do_step = true;
+			local ptime = effect.time;
 			effect.time = effect.time - dtime;
+			local timer = effect.step_timer or def.step_timer;
+			if timer then
+				do_step = jutil.mod(ptime, timer) < jutil.mod(effect.time, timer);
+			end
 			if effect.time <= 0 then
 				rm = rm or {};
 				table.insert(rm, effect);
 				if def.on_deactivate then
 					def.on_deactivate(effect, player);
 				end
+				do_step = false;
+			end
+			if def.on_step and do_step then
+				def.on_step(effect, player, dtime);
 			end
 		end
 
@@ -175,6 +186,20 @@ minetest.register_globalstep(function(dtime)
 			jutil.table_filter_inplace(rm, player_effects, v, def);
 		end
 	end
+end)
+
+local function remove_effect_death(effect)
+	local def = status_effect.registered_effects[effect._name];
+	if def.remove_on_death then
+		return true;
+	end
+
+	return false;
+end
+
+minetest.register_on_dieplayer(function(player)
+	local player_effects = effect_data[player:get_player_name()];
+	jutil.table_filter_inplace(remove_effect_death, player_effects);
 end)
 
 dofile(minetest.get_modpath("status_effects") .. "/default.lua");
