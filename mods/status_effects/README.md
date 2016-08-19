@@ -1,5 +1,27 @@
 Status effect mod for Minetest and PvPConstruct
 
+Basics
+======
+
+From in the game, you can apply status effects with the `/effect` command, like
+so:
+```
+/effect apply effect_name duration strength player_name
+```
+e.g.
+```
+/effect apply default:burning 5 2 singleplayer
+```
+
+This mod defines a few basic basic status effects:
+
+ * default:burning - player will take continual damage over time
+ * default:speed - speeds up or down the player based on its strength
+ * default:regeneration - player will heal over time
+
+Lua API
+=======
+
 How to define a status effect:
 ```Lua
 status_effect.register_effect("mod_name:status_effect_name", def);
@@ -7,7 +29,8 @@ status_effect.register_effect("mod_name:status_effect_name", def);
 
 How to apply a status effect:
 ```Lua
-status_effect.apply_effect("mod_name:status_effect_name", player, time);
+status_effect.apply_effect("mod_name:status_effect_name", player, time,
+		strength);
 ```
 
 Status effect definition:

@@ -64,7 +64,6 @@ end
 function status_effect.apply_effect(name, player, length, strength, data)
 	local data = data or {}
 	data.time = length;
-	data.strength = strength;
 	data._name = name;
 	data._object = player;
 	data._original_time = length;
