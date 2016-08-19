@@ -34,7 +34,7 @@ designer_weapons.register_weapon("designer_weapons:bow", "projectile", {
 	inventory_image = "dweapon_bow.png",
 	delay = 0.5,
 	ammo = "designer_weapons:arrow",
-	ammo_max = 8,
+	ammo_max = 16,
 })
 
 -- pistol
@@ -57,7 +57,7 @@ designer_weapons.register_weapon("designer_weapons:gun", "hitscan", {
 	sound_shoot = "dweapon_shoot",
 	decal = "designer_weapons:decal_bullet",
 	ammo = "designer_weapons:bullet_standard",
-	ammo_max = 12,
+	ammo_max = 18,
 })
 
 designer_weapons.register_decal("designer_weapons:decal_bullet", {
@@ -88,7 +88,7 @@ designer_weapons.register_weapon("designer_weapons:shotgun", "hitscan", {
 	sound_shoot = "dweapon_shotgun",
 	decal = "designer_weapons:decal_shotgun",
 	ammo = "designer_weapons:bullet_shell",
-	ammo_max = 8,
+	ammo_max = 12,
 })
 
 designer_weapons.register_decal("designer_weapons:decal_shotgun", {

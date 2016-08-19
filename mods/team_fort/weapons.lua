@@ -8,10 +8,6 @@ status_effect.register_effect("team_fort:rocket_jump", {
 	duplicate_method = "override",
 	on_activate = function(self, player, speed)
 		local speed = speed or 1;
-		if player:get_player_control().sneak then
-			-- simulate crouch jumping
-			speed = speed * 1.5;
-		end
 		local override = player:get_physics_override();
 		self.pgrav = override.gravity;
 		override.gravity = -speed;
@@ -50,7 +46,7 @@ designer_weapons.register_projectile("team_fort:rocket", {
 	explode = true,
 	sound_hit = "tnt_explode",
 	decal = "team_fort:decal_explosion",
-	status_effects = {"team_fort:rocket_jump 0.25 2.5"}
+	status_effects = {"team_fort:rocket_jump 0.1 5"}
 })
 
 designer_weapons.register_weapon("team_fort:rocket_launcher", "projectile", {
@@ -58,7 +54,8 @@ designer_weapons.register_weapon("team_fort:rocket_launcher", "projectile", {
 	description = "Rocket Launcher",
 	inventory_image = "teamf_weapon_rocketlauncher.png",
 	delay = 0.9,
-	ammo = "team_fort:rocket"
+	ammo = "team_fort:rocket",
+	ammo_max = 8
 })
 
 designer_weapons.register_decal("team_fort:decal_explosion", {
