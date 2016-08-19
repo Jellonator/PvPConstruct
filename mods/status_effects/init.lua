@@ -35,6 +35,18 @@ function status_effect.get_object_data(object)
 	end
 end
 
+local function disable_effect(effect)
+	local def = status_effect.registered_effects[effect._name];
+	if def.on_deactivate then
+		def.on_deactivate(effect, effect._object);
+	end
+end
+
+local function match_def_value(effect, key, value)
+	local def = status_effect.registered_effects[effect._name];
+	return def[key] == value;
+end
+
 function status_effect.register_effect(name, def)
 	def.duplicate_method = def.duplicate_method or DMETHOD.override;
 	def.overrides = def.overrides or {};
@@ -44,21 +56,6 @@ function status_effect.register_effect(name, def)
 		def.remove_on_death = true;
 	end
 	status_effect.registered_effects[name] = def;
-end
-
-local function match_effect_name(effect, name)
-	return effect._name == name;
-end
-
-local function remove_effect_name(effect, name)
-	local def = status_effect.registered_effects[name];
-	if match_effect_name(effect, name) then
-		if def.on_deactivate then
-			def.on_deactivate(effect, effect._object);
-		end
-		return true;
-	end
-	return false;
 end
 
 function status_effect.apply_effect(name, player, length, strength, data)
@@ -78,6 +75,7 @@ function status_effect.apply_effect(name, player, length, strength, data)
 	if not effect_def then
 		return false, "No such effect of name '" .. name .. "'";
 	end
+
 	if effect_def.applies_to == "player" and not player:is_player() then
 		return false, "This effect can only be applied to players!";
 	end
@@ -87,7 +85,8 @@ function status_effect.apply_effect(name, player, length, strength, data)
 
 	-- fail on conflict
 	for _, conflict in pairs(effect_def.conflicts) do
-		if jutil.filter.table_match(match_effect_name, object_data, conflict) then
+		if jutil.filter.table_match(jutil.MATCH_KEY_VALUE, object_data, '_name',
+		conflict) then
 			return false, "Effect '" .. name ..
 					"' conflicts with effect '" .. conflict .. "'.";
 		end
@@ -95,7 +94,8 @@ function status_effect.apply_effect(name, player, length, strength, data)
 
 	-- remove overrides
 	for _, override in pairs(effect_def.overrides) do
-		jutil.table.filter_inplace(remove_effect_name, object_data, override);
+		jutil.table.filter_inplace(jutil.filter.CALL_FUNC, object_data,
+				disable_effect, jutil.filter.MATCH_KEY_VALUE, '_name', override);
 	end
 
 	local pvalues = {};
@@ -176,9 +176,6 @@ minetest.register_globalstep(function(dtime)
 			if effect.time <= 0 then
 				rm = rm or {};
 				table.insert(rm, effect);
-				if def.on_deactivate then
-					def.on_deactivate(effect, player);
-				end
 				do_step = false;
 			end
 
@@ -188,23 +185,16 @@ minetest.register_globalstep(function(dtime)
 		end
 
 		if rm then
-			jutil.table.filter_inplace(rm, player_effects, v, def);
+			jutil.table.filter_inplace(jutil.filter.CALL_FUNC, player_effects,
+					disable_effect, rm);
 		end
 	end
 end)
 
-local function remove_effect_death(effect)
-	local def = status_effect.registered_effects[effect._name];
-	if def.remove_on_death then
-		return true;
-	end
-
-	return false;
-end
-
 minetest.register_on_dieplayer(function(player)
 	local player_effects = effect_data[player:get_player_name()];
-	jutil.table.filter_inplace(remove_effect_death, player_effects);
+	jutil.table.filter_inplace(jutil.filter.CALL_FUNC, player_effects,
+			disable_effect, match_def_value, "remove_on_death", true);
 end)
 
 dofile(minetest.get_modpath("status_effects") .. "/default.lua");
