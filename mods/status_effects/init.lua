@@ -67,6 +67,7 @@ function status_effect.apply_effect(name, player, length, strength, data)
 	data._name = name;
 	data._object = player;
 	data._original_time = length;
+	data._timer = 0;
 
 	local object_data = status_effect.get_object_data(player);
 	local effect_def = status_effect.registered_effects[name];
@@ -162,12 +163,15 @@ minetest.register_globalstep(function(dtime)
 		for _, effect in pairs(player_effects) do
 			local def = status_effect.registered_effects[effect._name];
 			local do_step = true;
-			local ptime = effect.time;
-			effect.time = effect.time - dtime;
+
+			local ptime = effect._timer;
+			effect._timer = effect._timer - dtime;
 			local timer = effect.step_timer or def.step_timer;
 			if timer then
-				do_step = jutil.mod(ptime, timer) < jutil.mod(effect.time, timer);
+				do_step = jutil.mod(ptime, timer) < jutil.mod(effect._timer, timer);
 			end
+
+			effect.time = effect.time - dtime;
 			if effect.time <= 0 then
 				rm = rm or {};
 				table.insert(rm, effect);
@@ -176,6 +180,7 @@ minetest.register_globalstep(function(dtime)
 				end
 				do_step = false;
 			end
+
 			if def.on_step and do_step then
 				def.on_step(effect, player, dtime);
 			end
