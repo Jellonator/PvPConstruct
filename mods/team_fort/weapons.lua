@@ -2,8 +2,28 @@
 Attempts to recreate some of the weapons found in team fortress 2
 --]]
 
-
 -- rocket launcher
+status_effect.register_effect("team_fort:rocket_jump", {
+	applies_to = "player",
+	duplicate_method = "override",
+	on_activate = function(self, player, speed)
+		local speed = speed or 1;
+		if player:get_player_control().sneak then
+			-- simulate crouch jumping
+			speed = speed * 1.5;
+		end
+		local override = player:get_physics_override();
+		self.pgrav = override.gravity;
+		override.gravity = -speed;
+		player:set_physics_override(override);
+	end,
+	on_deactivate = function(self, player)
+		local override = player:get_physics_override();
+		override.gravity = self.pgrav;
+		player:set_physics_override(override);
+	end
+})
+
 minetest.register_craftitem("team_fort:rocket", {
 	description = "A rocket",
 	inventory_image = "teamf_projectile_rocket.png"
@@ -30,6 +50,7 @@ designer_weapons.register_projectile("team_fort:rocket", {
 	explode = true,
 	sound_hit = "tnt_explode",
 	decal = "team_fort:decal_explosion",
+	status_effects = {"team_fort:rocket_jump 0.25 2.5"}
 })
 
 designer_weapons.register_weapon("team_fort:rocket_launcher", "projectile", {

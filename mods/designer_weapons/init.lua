@@ -9,6 +9,16 @@ designer_weapons = {
 	}
 }
 
+local function damage_entity(self, owner, entity, damage)
+	local dmgdata = {damage_groups={fleshy=damage}}
+	entity:punch(owner, 10, dmgdata);
+	if self.status_effects then
+		for k,v in pairs(self.status_effects) do
+			status_effect.apply_effect(entity, status_effect.parse(v));
+		end
+	end
+end
+
 local designer_weapon_funcs = {
 	projectile = function (def, from, dir, user)
 		designer_weapons.shoot_projectile(def.entity_name, from, dir,
@@ -32,11 +42,11 @@ local designer_weapon_funcs = {
 					dmg = def.damage_headshot;
 				end
 			end
-			entity:punch(user, 10, {damage_groups={fleshy=dmg}});
+			damage_entity(self, user, entity, dmg);
+			
 		elseif entity_pos and axis and def.decal then
 			-- place decal
 			local unit_vec = jutil.vec_unit(axis);
-
 			if unit_vec then
 				local decal_pos = vector.add(node_pos, unit_vec);
 				local decal_node = minetest.get_node(decal_pos);
@@ -276,10 +286,9 @@ end
 local function projectile_explode(self, entity, vdir)
 	local filter = {self.object}
 	local owner = self.owner or self.object;
+	--hurt entity
 	if entity then
-		--hurt entity
-		local dmgdata = {damage_groups={fleshy=self.damage}}
-		entity:punch(owner, 10, dmgdata);
+		damage_entity(self, owner, entity, self.damage);
 		table.insert(filter, entity);
 	end
 	--blast radius
@@ -292,8 +301,7 @@ local function projectile_explode(self, entity, vdir)
 				dmg = dmg / 2;
 			end
 			dmg = math.max(1, dmg);
-			local dmgdata = {damage_groups={fleshy=dmg}}
-			other:punch(owner, 10, dmgdata);
+			damage_entity(self, owner, other, dmg);
 		end
 	end
 	-- play sound

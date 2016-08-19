@@ -2,3 +2,4 @@ default
 scoreboard
 jutil
 designer_weapons
+status_effects

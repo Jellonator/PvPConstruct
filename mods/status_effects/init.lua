@@ -58,7 +58,42 @@ function status_effect.register_effect(name, def)
 	status_effect.registered_effects[name] = def;
 end
 
-function status_effect.apply_effect(name, player, length, strength, data)
+function status_effect.parse(text)
+	local name;
+	local length;
+	local strength;
+	for v in text:gmatch("%S+") do
+		if not name then
+			name = v;
+		elseif not length then
+			length = tonumber(v);
+			if not length then
+				return;
+			end
+		elseif not strength then
+			strength = tonumber(v);
+			if not strength then
+				return;
+			end
+		else
+			return;
+		end
+	end
+
+	return name, length, strength
+end
+
+function status_effect.apply_effect(player, name, length, strength, data)
+	if not length then
+		return false, "No length given.";
+	end
+	if not player then
+		return false, "No player given.";
+	end
+	if not name then
+		return false, "No effect given.";
+	end
+
 	local data = data or {}
 	data.time = length;
 	data._name = name;
@@ -156,39 +191,49 @@ function status_effect.apply_effect(name, player, length, strength, data)
 	return true, "Successfully applied status effect!"
 end
 
-minetest.register_globalstep(function(dtime)
-	for _,player in pairs(minetest.get_connected_players()) do
-		local player_effects = status_effect.get_object_data(player);
-		local rm;
-		for _, effect in pairs(player_effects) do
-			local def = status_effect.registered_effects[effect._name];
-			local do_step = true;
+local function update_status(effect_table, dtime)
+	local rm;
+	for _, effect in pairs(effect_table) do
+		local def = status_effect.registered_effects[effect._name];
+		local do_step = true;
 
-			local ptime = effect._timer;
-			effect._timer = effect._timer - dtime;
-			local timer = effect.step_timer or def.step_timer;
-			if timer then
-				do_step = jutil.math.mod(ptime, timer) <
-				          jutil.math.mod(effect._timer, timer);
-			end
-
-			effect.time = effect.time - dtime;
-			if effect.time <= 0 then
-				rm = rm or {};
-				table.insert(rm, effect);
-				do_step = false;
-			end
-
-			if def.on_step and do_step then
-				def.on_step(effect, player, dtime);
-			end
+		local ptime = effect._timer;
+		effect._timer = effect._timer - dtime;
+		local timer = effect.step_timer or def.step_timer;
+		if timer then
+			do_step = jutil.math.mod(ptime, timer) <
+					  jutil.math.mod(effect._timer, timer);
 		end
 
-		if rm then
-			jutil.table.filter_inplace(jutil.filter.CALL_FUNC, player_effects,
-					disable_effect, rm);
+		effect.time = effect.time - dtime;
+		if effect.time <= 0 then
+			rm = rm or {};
+			table.insert(rm, effect);
+			do_step = false;
+		end
+
+		if def.on_step and do_step then
+			def.on_step(effect, effect._object, dtime);
 		end
 	end
+
+	if rm then
+		jutil.table.filter_inplace(jutil.filter.CALL_FUNC, effect_table,
+				disable_effect, rm);
+	end
+end
+
+minetest.register_globalstep(function(dtime)
+	for _,player in pairs(minetest.get_connected_players()) do
+		local effect_table = status_effect.get_object_data(player);
+		update_status(effect_table, dtime)
+	end
+	--[[ I will add this in later
+	for _,entity in pairs(minetest.luaentities) do
+		local effect_table = status_effect.get_object_data(entity);
+		update_status(effect_table, dtime);
+	end
+	]]
 end)
 
 minetest.register_on_dieplayer(function(player)
