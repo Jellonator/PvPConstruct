@@ -19,15 +19,15 @@ local designer_weapon_funcs = {
 		local to = vector.add(from, vector.multiply(dir, 120));
 
 		local entity, entity_pos, node_pos, axis =
-				jutil.raytrace_entity(from, to, {user});
+				jutil.raycast.entities(from, to, {user});
 
 		if entity then
 			-- punch entity
-			local dmg = jutil.normalize(vector.distance(from, entity_pos),
+			local dmg = jutil.math.normalize(vector.distance(from, entity_pos),
 				def.falloff, def.falloff_min, def.damage_min, def.damage);
 			if def.damage_headshot then
-				local b1, b2 = jutil.get_entity_box(entity);
-				local target_y = jutil.lerp(0.65, b1.y, b2.y);
+				local b1, b2 = jutil.raycast.get_entity_box(entity);
+				local target_y = jutil.math.lerp(0.65, b1.y, b2.y);
 				if entity_pos.y > target_y then
 					dmg = def.damage_headshot;
 				end
@@ -284,10 +284,10 @@ local function projectile_explode(self, entity, vdir)
 	end
 	--blast radius
 	if self.blast_radius > 0 then
-		for _, other in pairs(jutil.table_filter(filter, minetest.get_objects_inside_radius(
+		for _, other in pairs(jutil.table.filter(filter, minetest.get_objects_inside_radius(
 				self.object:getpos(), self.blast_radius))) do
 			local dis = vector.distance(self.object:getpos(), other:getpos());
-			local dmg = jutil.normalize(dis, 0, self.blast_radius, self.damage, self.damage_min);
+			local dmg = jutil.math.normalize(dis, 0, self.blast_radius, self.damage, self.damage_min);
 			if other == owner then
 				dmg = dmg / 2;
 			end
@@ -318,9 +318,9 @@ local function projectile_on_step(self, dtime)
 		local entity = jutil.get_nearest_entity(entities, self.object:getpos(),
 				{self.object});
 		if entity then
-			local self_b1, self_b2 = jutil.get_entity_box(self.object);
-			local other_b1, other_b2 = jutil.get_entity_box(entity);
-			if jutil.check_box_box(self_b1, self_b2, other_b1, other_b2) then
+			local self_b1, self_b2 = jutil.raycast.get_entity_box(self.object);
+			local other_b1, other_b2 = jutil.raycast.get_entity_box(entity);
+			if jutil.raycast.check_box_box(self_b1, self_b2, other_b1, other_b2) then
 				projectile_explode(self, entity, nil);
 			end
 		end

@@ -52,8 +52,8 @@ minetest.register_node(clicky_sign_name, {
 			minetest.show_formspec(
 				clicker:get_player_name(),
 				clicky_sign_name .. pos.x .. ',' .. pos.y .. ',' .. pos.z,
-				"field[text;Command;"..string.sanatize(meta:get_string("cmd")).."]" ..
-				"field[info;Infotext;"..string.sanatize(meta:get_string("infotext")).."]"
+				"field[text;Command;".. jutil.string.sanatize(meta:get_string("cmd")) .."]" ..
+				"field[info;Infotext;".. jutil.string.sanatize(meta:get_string("infotext")) .."]"
 			)
 		end
 	end,

@@ -55,45 +55,6 @@ function jutil.recipe_format(t, lookup)
 end
 
 --[[
-Check if the property of the node at x,y,z has the value of value
---]]
-function jutil.check_node_property(property, value, x, y, z)
-	if y and z then
-		x = {
-			x = x,
-			y = y,
-			z = z
-		};
-	end
-	local node = minetest.get_node(x);
-	local def = minetest.registered_nodes[node.name];
-	return def[property] == value, node;
-end
-
---[[
-Check if the node at position x,y,z has the name 'name'
---]]
-function jutil.check_node(name, x, y, z)
-	if y and z then
-		x = {
-			x = x,
-			y = y,
-			z = z
-		};
-	end
-	local node = minetest.get_node(x);
-	if type(name) == "table" then
-		for k,v in pairs(name) do
-			if v == node.name then
-				return true, node;
-			end
-		end
-		return false, node;
-	end
-	return node.name == name, node;
-end
-
---[[
 Safely serialize a string, ignoring any unrecognized types
 --]]
 function jutil.serialize_safe(obj, ignore)
@@ -169,7 +130,7 @@ function jutil.get_nearest_entity(list, pos, filter)
 	local ret_ent, ret_pos;
 	-- print("Near: " .. tostring(#list))
 	for _,entity in pairs(list) do
-		local can_check = not jutil.match_filter(filter, entity);
+		local can_check = not jutil.filter.match(filter, entity);
 
 		if can_check then
 			local new_pos = entity:getpos();
@@ -228,13 +189,14 @@ end
 Gets the axis of a block based on the angle it is being viewed from
 --]]
 function jutil.get_axis(from, to, b1, b2)
-	local did, pos, axis = jutil.check_line_box(b1, b2, from, to);
+	local did, pos, axis = jutil.raycast.check_line_box(b1, b2, from, to);
 	if not axis then return end
 	return jutil.vec_unit(axis);
 end
 
-dofile(minetest.get_modpath("jutil") .. "/filter.lua");
-dofile(minetest.get_modpath("jutil") .. "/math.lua");
-dofile(minetest.get_modpath("jutil") .. "/raycast.lua");
-dofile(minetest.get_modpath("jutil") .. "/string.lua");
-dofile(minetest.get_modpath("jutil") .. "/table.lua");
+jutil.filter = dofile(minetest.get_modpath("jutil") .. "/filter.lua");
+jutil.math = dofile(minetest.get_modpath("jutil") .. "/math.lua");
+jutil.raycast = dofile(minetest.get_modpath("jutil") .. "/raycast.lua");
+jutil.string = dofile(minetest.get_modpath("jutil") .. "/string.lua");
+jutil.table = dofile(minetest.get_modpath("jutil") .. "/table.lua");
+jutil.node = dofile(minetest.get_modpath("jutil") .. "/node.lua");

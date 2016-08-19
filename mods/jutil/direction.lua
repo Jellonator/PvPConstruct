@@ -10,7 +10,7 @@ local function _mod(a, n)
 end
 
 function direction.from_yaw(yaw)
-	yaw = jutil.mod(yaw, math.pi * 2);
+	yaw = jutil.math.mod(yaw, math.pi * 2);
 	yaw = yaw + math.pi / 4;
 	if yaw < math.pi / 2 then
 		return direction.NORTH;

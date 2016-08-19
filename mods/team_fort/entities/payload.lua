@@ -89,8 +89,8 @@ function payload.on_step(self, dtime)
 		local dir = jutil.direction.from_yaw(self.object:getyaw());
 		local dirx, dirz = jutil.direction.decompose(dir);
 
-		if jutil.check_node("team_fort:cart_target", current_pos.x,
-				current_pos.y - 0.5, current_pos.z) or jutil.check_node(
+		if jutil.node.check_name("team_fort:cart_target", current_pos.x,
+				current_pos.y - 0.5, current_pos.z) or jutil.node.check_name(
 				"team_fort:cart_target", current_pos.x + dirx, current_pos.y,
 				current_pos.z + dirz) then
 			self.object:setpos(self.start_pos);
@@ -149,10 +149,10 @@ function payload.on_step(self, dtime)
 				v.z = v.z + base_z;
 
 				local move_by_down = false;
-				local can_move = jutil.check_node("default:rail", v);
+				local can_move = jutil.node.check_name("default:rail", v);
 				if not can_move and self.falling < 0 then
-					can_move = jutil.check_node("default:rail", down_check_a) or
-							jutil.check_node("default:rail", down_check_b);
+					can_move = jutil.node.check_name("default:rail", down_check_a) or
+							jutil.node.check_name("default:rail", down_check_b);
 					move_by_down = true;
 				end
 				if can_move then
@@ -160,12 +160,12 @@ function payload.on_step(self, dtime)
 					self.target_yaw = target_yaw;
 					local target_pitch = 0;
 					if self.falling < 0 then
-						if jutil.check_node("default:rail", up_check) then
+						if jutil.node.check_name("default:rail", up_check) then
 							self.target_pos.y = self.target_pos.y + 1.0;
 							target_pitch = math.pi/4;
 						end
 						if current_node.name == "air" and move_by_down and
-								jutil.check_node("default:rail", under_pos) then
+								jutil.node.check_name("default:rail", under_pos) then
 							self.target_pos.y = self.target_pos.y - 1.0
 							target_pitch = -math.pi/4;
 						end
@@ -175,7 +175,7 @@ function payload.on_step(self, dtime)
 			end
 		end
 
-		if not self.target_pos and jutil.check_node_property(
+		if not self.target_pos and jutil.node.check_property(
 				"walkable", false, under_pos) then
 			-- fall in air
 			self.target_pos = under_pos;
@@ -191,7 +191,7 @@ function payload.on_step(self, dtime)
 				y = math.round(current_pos.y),
 				z = math.round(current_pos.z) + dirz
 			};
-			if jutil.check_node_property("walkable", false, next_pos) then
+			if jutil.node.check_property("walkable", false, next_pos) then
 				self.target_pos = next_pos;
 			end
 		end
@@ -231,7 +231,7 @@ function payload.on_step(self, dtime)
 			self.self_pos.z = self.self_pos.z + diff.z * mspeed;
 			self.object:setpos(self.self_pos);
 
-			self.object:setyaw(jutil.angle_to(self.object:getyaw(),
+			self.object:setyaw(jutil.math.angle_to(self.object:getyaw(),
 					self.target_yaw, dtime * YAW_CHANGE_SPEED))
 		end
 	end

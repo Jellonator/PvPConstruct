@@ -18,7 +18,7 @@ status_effect.register_effect("default:burning", {
 	duplicate_method = "override",
 	step_timer = 1.0,
 	on_activate = function(self, player, strength)
-		self.damage = strength;
+		self.damage = strength or 1;
 	end,
 	on_step = function(self, player, dtime)
 		player:set_hp(player:get_hp() - self.damage);
@@ -30,7 +30,7 @@ status_effect.register_effect("default:regeneration", {
 	step_timer = 1.0,
 	overrides = {"default:burning"},
 	on_activate = function(self, player, strength)
-		self.step_timer = 1 / strength;
+		self.step_timer = 1 / (strength or 1);
 	end,
 	on_step = function(self, player, dtime)
 		player:set_hp(player:get_hp() + 1);

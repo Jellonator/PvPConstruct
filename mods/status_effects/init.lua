@@ -87,7 +87,7 @@ function status_effect.apply_effect(name, player, length, strength, data)
 
 	-- fail on conflict
 	for _, conflict in pairs(effect_def.conflicts) do
-		if jutil.table_match_filter(match_effect_name, object_data, conflict) then
+		if jutil.filter.table_match(match_effect_name, object_data, conflict) then
 			return false, "Effect '" .. name ..
 					"' conflicts with effect '" .. conflict .. "'.";
 		end
@@ -95,7 +95,7 @@ function status_effect.apply_effect(name, player, length, strength, data)
 
 	-- remove overrides
 	for _, override in pairs(effect_def.overrides) do
-		jutil.table_filter_inplace(remove_effect_name, object_data, override);
+		jutil.table.filter_inplace(remove_effect_name, object_data, override);
 	end
 
 	local pvalues = {};
@@ -115,7 +115,7 @@ function status_effect.apply_effect(name, player, length, strength, data)
 
 	elseif type(effect_def.duplicate_method) == "function" then
 		-- remove from data
-		jutil.remove_indexes(object_data, pindexes);
+		jutil.table.remove_indexes(object_data, pindexes);
 		-- add based on function
 		for _,v in pairs({effect_def.duplicate_method(data, unpack(pvalues))}) do
 			table.insert(object_data, v);
@@ -129,7 +129,7 @@ function status_effect.apply_effect(name, player, length, strength, data)
 		if effect_def.on_deactivate then
 			for _,pval in pairs(pvalues) do
 				-- deactivate removed values
-				if not jutil.match_filter(object_data, {pval}) then
+				if not jutil.filter.match(object_data, {pval}) then
 					effect_def.on_deactivate(pval, player);
 				end
 			end
@@ -168,7 +168,8 @@ minetest.register_globalstep(function(dtime)
 			effect._timer = effect._timer - dtime;
 			local timer = effect.step_timer or def.step_timer;
 			if timer then
-				do_step = jutil.mod(ptime, timer) < jutil.mod(effect._timer, timer);
+				do_step = jutil.math.mod(ptime, timer) <
+				          jutil.math.mod(effect._timer, timer);
 			end
 
 			effect.time = effect.time - dtime;
@@ -187,7 +188,7 @@ minetest.register_globalstep(function(dtime)
 		end
 
 		if rm then
-			jutil.table_filter_inplace(rm, player_effects, v, def);
+			jutil.table.filter_inplace(rm, player_effects, v, def);
 		end
 	end
 end)
@@ -203,7 +204,7 @@ end
 
 minetest.register_on_dieplayer(function(player)
 	local player_effects = effect_data[player:get_player_name()];
-	jutil.table_filter_inplace(remove_effect_death, player_effects);
+	jutil.table.filter_inplace(remove_effect_death, player_effects);
 end)
 
 dofile(minetest.get_modpath("status_effects") .. "/default.lua");
