@@ -27,6 +27,7 @@ status_effect.register_effect("default:burning", {
 status_effect.register_effect("default:regeneration", {
 	duplicate_method = "override",
 	step_timer = 1.0,
+	overrides = {"default:burning"},
 	on_activate = function(self, player, strength)
 		self.step_timer = 1 / strength;
 	end,

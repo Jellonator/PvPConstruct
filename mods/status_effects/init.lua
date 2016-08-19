@@ -87,7 +87,7 @@ function status_effect.apply_effect(name, player, length, strength, data)
 
 	-- fail on conflict
 	for _, conflict in pairs(effect_def.conflicts) do
-		if jutil.table_match_filter(object_data, match_effect_name, conflict) then
+		if jutil.table_match_filter(match_effect_name, object_data, conflict) then
 			return false, "Effect '" .. name ..
 					"' conflicts with effect '" .. conflict .. "'.";
 		end
@@ -95,7 +95,7 @@ function status_effect.apply_effect(name, player, length, strength, data)
 
 	-- remove overrides
 	for _, override in pairs(effect_def.overrides) do
-		jutil.table_filter_inplace(object_data, remove_effect_name, override);
+		jutil.table_filter_inplace(remove_effect_name, object_data, override);
 	end
 
 	local pvalues = {};
