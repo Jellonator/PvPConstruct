@@ -12,7 +12,7 @@ local payload = {
 	mesh = "teamf_kart.b3d",
 	textures = {"teamf_kart.png"},
 	visual_size = {x=4,y=4},
-	
+
 	physical = true,
 	check_time = 0,
 	move_speed = 0,
@@ -70,9 +70,9 @@ function payload.on_step(self, dtime)
 		filter_player(objects);
 		local blu_num = 0;
 		for k,v in pairs(objects) do
-			if Scoreboard.Teams.has_player("blue", v:get_player_name()) then
+			if Teammake.Teams.has_player("blue", v:get_player_name()) then
 				blu_num = blu_num + 1;
-			elseif Scoreboard.Teams.has_player("red", v:get_player_name()) then
+			elseif Teammake.has_player("red", v:get_player_name()) then
 				blu_num = 0;
 				break;
 			end
@@ -97,7 +97,7 @@ function payload.on_step(self, dtime)
 			self.object:setpos(self.start_pos);
 			self.object:setyaw(self.start_yaw);
 			self.self_pos = self.object:getpos();
-			Scoreboard.Teams.respawn();
+			Teammake.respawn();
 			return;
 		end
 		self.target_yaw = self.object:getyaw();

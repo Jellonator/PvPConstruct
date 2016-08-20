@@ -1,4 +1,4 @@
-local Teams = {
+Teammake = {
 	NONE_TEAM = "__NONE__"
 };
 -- players are given Teams by key, not value
@@ -10,13 +10,13 @@ local TEAM_FILE_VERSION = "1";
 
 local team_players = {}
 local team_data = {
-	[Teams.NONE_TEAM] = {} -- team that is not a team. used for default values.
+	[Teammake.NONE_TEAM] = {} -- team that is not a team. used for default values.
 }
 local incremental_id = 0;
 local prev_incremental_id = incremental_id;
 
 local function get_team_spawn(team)
-	local teamdata = Teams.get_team(team);
+	local teamdata = Teammake.get_team(team);
 	if teamdata and teamdata.spawn then
 		if teamdata.spawn.r then
 			local spawn = teamdata.spawn;
@@ -31,8 +31,8 @@ local function get_team_spawn(team)
 		end
 	end
 
-	if team ~= Teams.NONE_TEAM then
-		return get_team_spawn(Teams.NONE_TEAM);
+	if team ~= Teammake.NONE_TEAM then
+		return get_team_spawn(Teammake.NONE_TEAM);
 	end
 end
 
@@ -70,7 +70,7 @@ local function loadteams()
 			local team_name = line:sub(1, first_space - 1);
 			local player_name = line:sub(first_space + 1);
 			if team_name and player_name then
-				Teams.player_join(team_name, player_name);
+				Teammake.player_join(team_name, player_name);
 			end
 		end
 	end
@@ -108,7 +108,7 @@ local function set_player_nametag_color(player, team)
 	local properties = {}
 	local hotbar_image = "gui_hotbar.png";
 	if team then
-		local teamdef = Teams.get_team(team);
+		local teamdef = Teammake.get_team(team);
 		print(teamdef);
 		properties.nametag_color = teamdef and teamdef.color or {};
 		hotbar_image = teamdef and teamdef.gui_hotbar_image or hotbar_image;
@@ -127,7 +127,7 @@ end
 
 local function reset_player(player)
 	local player_name = player:get_player_name();
-	local player_team = Teams.player_get_team(player_name);
+	local player_team = Teammake.player_get_team(player_name);
 	set_player_nametag_color(player, player_team);
 
 	local spawn, yaw = get_team_spawn(player_team);
@@ -142,41 +142,41 @@ local function reset_player(player)
 	return false;
 end
 
-function Teams.set_color(team, color)
-	if not Teams.team_exists(team) then
+function Teammake.set_color(team, color)
+	if not Teammake.team_exists(team) then
 		return false, string.format("Team %s does not exist!", team);
 	end
-	Teams.get_team(team).color = color;
+	Teammake.get_team(team).color = color;
 	increment_id();
 	return true, "Successfully set team color!";
 end
 
-function Teams.set_spawn(team, pos)
-	if not Teams.team_exists(team) then
+function Teammake.set_spawn(team, pos)
+	if not Teammake.team_exists(team) then
 		return false, string.format("Team %s does not exist!", team);
 	end
-	Teams.get_team(team).spawn = pos;
+	Teammake.get_team(team).spawn = pos;
 	increment_id();
 	return true, "Successfully set team spawn!";
 end
 
-function Teams.team_exists(team)
+function Teammake.team_exists(team)
 	return team_data[team] and true or false;
 end
 
-function Teams.get_team(team)
+function Teammake.get_team(team)
 	return team_data[team]
 end
 
-function Teams.has_player(team, player)
+function Teammake.has_player(team, player)
 	return team_players[player] == team;
 end
 
-function Teams.player_get_team(player)
+function Teammake.player_get_team(player)
 	return team_players[player];
 end
 
-function Teams.player_leave(player)
+function Teammake.player_leave(player)
 	if team_players[player] == nil then
 		return false, string.format("Player %s is not on a team!", player);
 	end
@@ -191,11 +191,11 @@ function Teams.player_leave(player)
 	return true
 end
 
-function Teams.player_join(team, player)
-	if not Teams.team_exists(team) then
+function Teammake.player_join(team, player)
+	if not Teammake.team_exists(team) then
 		return false, string.format("Team %s does not exist!", team);
 	end
-	if Teams.has_player(team, player) then
+	if Teammake.has_player(team, player) then
 		return false, string.format("Player %s is already on team %s!", player, team);
 	end
 	team_players[player] = team;
@@ -208,22 +208,22 @@ function Teams.player_join(team, player)
 	return true
 end
 
-function Teams.set_team(team, def)
-	if not Teams.team_exists(team) then
-		return Teams.register_team(team, def);
+function Teammake.set_team(team, def)
+	if not Teammake.team_exists(team) then
+		return Teammake.register_team(team, def);
 	else
-		local teamdef = Teams.get_team(team);
+		local teamdef = Teammake.get_team(team);
 		for k,v in pairs(def) do
 			teamdef[k] = v;
 		end
 	end
 end
 
-function Teams.register_team(team, def)
+function Teammake.register_team(team, def)
 	if team:find("[^%w_]") then
 		return false, "Team name \"" .. team .. "\" must only contain alphanumeric characters and underscores!";
 	end
-	if Teams.get_team(team) then
+	if Teammake.get_team(team) then
 		return false, "Team " .. team .. " already exists!"
 	end
 	def.color = def.color or {r=0,g=0,b=0,a=255};
@@ -232,8 +232,8 @@ function Teams.register_team(team, def)
 	return def;
 end
 
-function Teams.remove_team(team)
-	if not Teams.get_team(name) then
+function Teammake.remove_team(team)
+	if not Teammake.get_team(name) then
 		return false, "Team " .. name .. " does not exist!"
 	end
 	for player_name, player_team in pairs(team_players) do
@@ -246,7 +246,7 @@ function Teams.remove_team(team)
 	return true;
 end
 
-function Teams.respawn(team)
+function Teammake.respawn(team)
 	for player_name, player_team in pairs(team_players) do
 		local player = minetest.get_player_by_name(player_name);
 		-- reset all players on team, or all players if team is nil
@@ -257,10 +257,10 @@ function Teams.respawn(team)
 end
 
 minetest.register_on_joinplayer(function(player)
-	local team = Teams.player_get_team(player:get_player_name());
+	local team = Teammake.player_get_team(player:get_player_name());
 	if team then
-		if not Teams.team_exists(team) then
-			Teams.player_leave(player:get_player_name());
+		if not Teammake.team_exists(team) then
+			Teammake.player_leave(player:get_player_name());
 		end
 	end
 	return reset_player(player);
@@ -273,4 +273,5 @@ end)
 minetest.after(10, saveteams_timer);
 
 loadteams();
-return Teams;
+
+dofile(minetest.get_modpath("teammake") .. "/commands.lua");

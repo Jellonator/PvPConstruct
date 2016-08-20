@@ -88,7 +88,7 @@ function control_point.on_step(self, dtime)
 		local team_count = 0;
 		for k,v in pairs(objects) do
 			if v:is_player() then
-				local player_team = Scoreboard.Teams.player_get_team(
+				local player_team = Teammake.player_get_team(
 						v:get_player_name());
 				if team_majority == NO_TEAM and player_team then
 					team_majority = player_team;
