@@ -40,23 +40,23 @@ The weapon definition is as follows:
 ```Lua
 weapon_def = {
 	-- General properties
-	damage - how much damage this weapon should deal.
-	delay - the time between each shot.
-	rate - how fast this weapon can be fired (1 / delay).
-	sound_shoot - the sound this weapon will play when fired.
-	decal - the tile this weapon will leave behind when it misses.
-	ammo - the item this weapon will use as ammo.
-	ammo_max - how much ammo an ammo box will restore to.
+	damage -- how much damage this weapon should deal.
+	delay -- the time between each shot.
+	rate -- how fast this weapon can be fired (1 / delay).
+	sound_shoot -- the sound this weapon will play when fired.
+	decal -- the tile this weapon will leave behind when it misses.
+	ammo -- the item this weapon will use as ammo.
+	ammo_max -- how much ammo an ammo box will restore to.
 
 	-- Projectile weapon
-	entity_name - the entity to spawn.
+	entity_name -- the entity to spawn.
 
 	-- Hitscan weapon
-	status_effects - The status effects this weapon will apply.
-	damage_min - the damage this weapon will do at maximum falloff.
-	falloff - how far away the player will be when damage_min will be dealt.
-	falloff_min - how close the player can be to deal maximum damage.
-	damage_headshot - how much damage this weapon will deal on headshot.
+	status_effects -- The status effects this weapon will apply.
+	damage_min -- the damage this weapon will do at maximum falloff.
+	falloff -- how far away the player will be when damage_min will be dealt.
+	falloff_min -- how close the player can be to deal maximum damage.
+	damage_headshot -- how much damage this weapon will deal on headshot.
 }
 ```
 
@@ -72,16 +72,16 @@ Projectiles are defined as follows:
 
 ```Lua
 def = {
-	gravity - The effect of gravity on this projectile.
-	speed - how fast this projectile will move.
-	life - how long this projectile will go before it disappears.
-	damage - how much damage this projectile will deal.
-	damage_min - damage this projectile will deal if it explodes at max range.
-	blast_radius - range the explosion will encompass.
-	explode - whether this projectile explodes or not.
-	sound_hit - sound played when this projectile hits.
-	decal - tile left behind when this projectile hits something.
-	status_effects - -he status effects this projectile will apply.
+	gravity -- The effect of gravity on this projectile.
+	speed -- how fast this projectile will move.
+	life -- how long this projectile will go before it disappears.
+	damage -- how much damage this projectile will deal.
+	damage_min -- damage this projectile will deal if it explodes at max range.
+	blast_radius -- range the explosion will encompass.
+	explode -- whether this projectile explodes or not.
+	sound_hit -- sound played when this projectile hits.
+	decal -- tile left behind when this projectile hits something.
+	status_effects -- the status effects this projectile will apply.
 }
 ```
 

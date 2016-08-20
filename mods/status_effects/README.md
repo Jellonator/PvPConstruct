@@ -32,8 +32,7 @@ status_effect.register_effect("mod_name:status_effect_name", def);
 
 How to apply a status effect:
 ```Lua
-status_effect.apply_effect("mod_name:status_effect_name", player, time,
-		strength);
+status_effect.apply_effect("mod_name:status_effect_name", player, time, strength);
 ```
 
 Status effect definition:
@@ -96,7 +95,7 @@ return which effect(s) to use.
 
 This is an example of duplicate_method which returns all status effects passed to it with all times divided by two except for the first.
 
-```
+```Lua
 function def.duplicate_method(first, ...)
 	for k,v in pairs({...}) do
 		v.time = v.time / 2;
