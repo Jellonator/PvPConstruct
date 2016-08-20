@@ -256,6 +256,7 @@ function Teammake.respawn(team)
 	end
 end
 
+-- respawn players who join
 minetest.register_on_joinplayer(function(player)
 	local team = Teammake.player_get_team(player:get_player_name());
 	if team then
@@ -265,11 +266,30 @@ minetest.register_on_joinplayer(function(player)
 	end
 	return reset_player(player);
 end)
-minetest.register_on_shutdown(saveteams);
+
+-- respawn players who have died
 minetest.register_on_respawnplayer(function(player)
 	if not player:is_player() then return false end
 	return reset_player(player);
 end)
+
+-- disable damage between members of team
+minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch,
+tool_capabilities, dir, damage)
+	if not hitter:is_player() or not player:is_player() then
+		return false;
+	end
+	local player_team = Teammake.player_get_team(player:get_player_name());
+	local hitter_team = Teammake.player_get_team(hitter:get_player_name());
+	if player_team == Teammake.NONE_TEAM or hitter_team == Teammake.NONE_TEAM then
+		return false;
+	end
+	-- when players are on same team disable punching
+	return player_team == hitter_team;
+end)
+
+
+minetest.register_on_shutdown(saveteams);
 minetest.after(10, saveteams_timer);
 
 loadteams();

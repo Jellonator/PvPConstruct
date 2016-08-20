@@ -1,7 +1,10 @@
+Status effects
+==============
+
 Status effect mod for Minetest and PvPConstruct
 
 Basics
-======
+------
 
 From in the game, you can apply status effects with the `/effect` command, like
 so:
@@ -20,7 +23,7 @@ This mod defines a few basic basic status effects:
  * default:regeneration - player will heal over time
 
 Lua API
-=======
+-------
 
 How to define a status effect:
 ```Lua
@@ -67,23 +70,11 @@ def = {
 }
 ```
 
-When duplicate_method is set to a function, the new status effect is passed
-first, while all current status effects are passed as well. The function should
-return which effect(s) to use.
+#### Example
 
-Example of duplicate_method which returns all status effects passed to it with
-all times divided by two except for the first:
-```
-function def.duplicate_method(first, ...)
-	for k,v in pairs({...}) do
-		v.time = v.time / 2;
-	end
+This is an example of a status effect for burning, in case you want to define
+your own.
 
-	return first, ...;
-end
-```
-
-Example of a status effect for burning, in case you want to define your own:
 ```Lua
 status_effect.register_effect("my_mod:burning", {
 	duplicate_method = "override",
@@ -95,4 +86,22 @@ status_effect.register_effect("my_mod:burning", {
 		object:set_hp(object:get_hp() - 1);
 	end
 })
+```
+
+#### Duplicate method
+
+When duplicate_method is set to a function, the new status effect is passed
+first, while all current status effects are passed as well. The function should
+return which effect(s) to use.
+
+This is an example of duplicate_method which returns all status effects passed to it with all times divided by two except for the first.
+
+```
+function def.duplicate_method(first, ...)
+	for k,v in pairs({...}) do
+		v.time = v.time / 2;
+	end
+
+	return first, ...;
+end
 ```

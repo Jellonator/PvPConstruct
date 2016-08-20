@@ -51,7 +51,6 @@ TODO
 As with any mod, there is so much to do and so much to see. Here I will compile
 a list of generally what and where this mod is going.
 
- - Healthpacks (team_fort)
- - Ammo packs (team_fort)
  - Classes
  - Class selection formspec
+ - Objectives (timer, payload, control points)
