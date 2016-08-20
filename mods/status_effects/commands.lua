@@ -13,6 +13,14 @@ jutil.cmd.register("effect",
 			local player = minetest.get_player_by_name(player_name);
 			if not player then return false, "No such player " .. player_name .. "!"; end
 			return status_effect.apply_effect(player, effect_name, duration, strength);
-		end, "Applies an effect to a player.")
+		end, "Applies an effect to a player."),
+
+		remove = jutil.cmd.command({"effect:?string", "player:?string"},
+		function(player_name, effect_name, given_player_name)
+			local player_name = given_player_name or player_name;
+			local player = minetest.get_player_by_name(player_name);
+			if not player then return false, "No such player " .. player_name .. "!"; end
+			return status_effect.remove_effect(player, effect_name);
+		end)
 	}
 )

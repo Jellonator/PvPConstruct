@@ -1,6 +1,13 @@
 local Filter = {};
 
 --[[
+Filter which matches everything
+--]]
+Filter.MATCH_ALL = function()
+	return true;
+end
+
+--[[
 Filter which matches a value with another value
 --]]
 Filter.MATCH_VALUE = function(a, b)

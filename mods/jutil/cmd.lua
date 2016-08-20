@@ -46,7 +46,7 @@ local function get_param_next(param, type_name, player_name)
 			if     type_name == 'x' then ret = ret + playerpos.x
 			elseif type_name == 'y' then ret = ret + playerpos.y
 			elseif type_name == 'z' then ret = ret + playerpos.z
-			elseif type_name == 'yaw' then ret = ret + playerref:get_look_yaw() end
+			elseif type_name == 'yaw' then ret = ret + math.deg(playerref:get_look_yaw()) end
 		end
 	elseif type_name == "text" then
 		return param, "";

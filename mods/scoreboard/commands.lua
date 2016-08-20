@@ -36,6 +36,18 @@ jutil.cmd.register("scoreadmin",
 			function(player_name, team, color)
 				return Scoreboard.Teams.set_color(team, color);
 			end, "Sets a team's color"),
+		},
+		world = {
+			setspawn = jutil.cmd.command({"x", "y", "z", "radius:?number", "rotation:?yaw"},
+			function(player_name, x, y, z, r, yaw)
+				return Scoreboard.Teams.set_spawn(Scoreboard.Teams.NONE_TEAM, {
+					x=x,y=y,z=z,r=r or 0,yaw=yaw or 0});
+			end, "Sets a world spawn"),
+
+			resetspawn = jutil.cmd.command({},
+			function(player_name)
+				return Scoreboard.Teams.set_spawn(Scoreboard.Teams.NONE_TEAM, nil);
+			end, "Disables spawning at a set location"),
 		}
 	}
 )

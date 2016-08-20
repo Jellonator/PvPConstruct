@@ -83,6 +83,16 @@ function status_effect.parse(text)
 	return name, length, strength
 end
 
+function status_effect.remove_effect(player, name)
+	local effect_list = status_effect.get_object_data(player);
+	if name == nil then
+		jutil.table.filter_inplace(jutil.filter.MATCH_ALL, effect_list);
+	else
+		jutil.table.filter_inplace(jutil.filter.MATCH_KEY_VALUE, effect_list,
+			'_name', name)
+	end
+end
+
 function status_effect.apply_effect(player, name, length, strength, data)
 	if not length then
 		return false, "No length given.";
@@ -92,6 +102,10 @@ function status_effect.apply_effect(player, name, length, strength, data)
 	end
 	if not name then
 		return false, "No effect given.";
+	end
+
+	if length == 0 then
+		status_effect.remove_effect(player, name);
 	end
 
 	local data = data or {}

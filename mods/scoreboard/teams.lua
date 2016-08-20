@@ -1,11 +1,17 @@
-local Teams = {};
+local Teams = {
+	NONE_TEAM = "__NONE__"
+};
 -- players are given Teams by key, not value
 -- players not listed are not in a team
--- e.g. {"jellonator"="red","bob"="blue"}
+-- e.g. {jellonator="red",bob="blue"}
+
 local TEAM_FILE_NAME = minetest.get_worldpath() .. "/scoreboard_teams"
 local TEAM_FILE_VERSION = "1";
+
 local team_players = {}
-local team_data = {}
+local team_data = {
+	[Teams.NONE_TEAM] = {} -- team that is not a team. used for default values.
+}
 local incremental_id = 0;
 local prev_incremental_id = incremental_id;
 
@@ -25,7 +31,9 @@ local function get_team_spawn(team)
 		end
 	end
 
-	return nil;
+	if team ~= Teams.NONE_TEAM then
+		return get_team_spawn(Teams.NONE_TEAM);
+	end
 end
 
 local function increment_id()
@@ -50,7 +58,7 @@ local function loadteams()
 			local team_name = line:sub(1, first_space - 1);
 			local def_str = line:sub(first_space + 1);
 			local def = minetest.deserialize(def_str);
-			Teams.register_team(team_name, def);
+			team_data[team_name] = def
 		end
 	end
 
@@ -117,6 +125,23 @@ local function set_player_nametag_color(player, team)
 	player:hud_set_hotbar_image(hotbar_image);
 end
 
+local function reset_player(player)
+	local player_name = player:get_player_name();
+	local player_team = Teams.player_get_team(player_name);
+	set_player_nametag_color(player, player_team);
+
+	local spawn, yaw = get_team_spawn(player_team);
+	print(spawn, yaw);
+	if yaw then
+		player:set_look_yaw(math.rad(yaw - 90));
+	end
+	if spawn then
+		player:setpos(spawn);
+		return true;
+	end
+	return false;
+end
+
 function Teams.set_color(team, color)
 	if not Teams.team_exists(team) then
 		return false, string.format("Team %s does not exist!", team);
@@ -158,10 +183,11 @@ function Teams.player_leave(player)
 	team_players[player] = nil;
 	local playerent = minetest.get_player_by_name(player);
 	if playerent then
-		set_player_nametag_color(playerent);
+		reset_player(playerent)
 	end
 	minetest.chat_send_all(string.format("Player %s left their team!", player))
 	increment_id()
+
 	return true
 end
 
@@ -175,14 +201,7 @@ function Teams.player_join(team, player)
 	team_players[player] = team;
 	local playerent = minetest.get_player_by_name(player);
 	if playerent then
-		local spawn, yaw = get_team_spawn(team);
-		if spawn then
-			playerent:setpos(spawn)
-		end
-		if yaw then
-			playerent:set_look_yaw(math.rad(yaw))
-		end
-		set_player_nametag_color(playerent, team);
+		reset_player(playerent);
 	end
 	minetest.chat_send_all(string.format("Player %s joined team %s!", player, team));
 	increment_id()
@@ -230,14 +249,9 @@ end
 function Teams.respawn(team)
 	for player_name, player_team in pairs(team_players) do
 		local player = minetest.get_player_by_name(player_name);
-		if (not team or player_name == team) and player_team and player then
-			local spawn, yaw = get_team_spawn(player_team);
-			if yaw then
-				player:set_look_yaw(math.rad(yaw));
-			end
-			if spawn then
-				player:setpos(spawn);
-			end
+		-- reset all players on team, or all players if team is nil
+		if (not team or player_team == team) and player_team and player then
+			reset_player(player);
 		end
 	end
 end
@@ -247,34 +261,14 @@ minetest.register_on_joinplayer(function(player)
 	if team then
 		if not Teams.team_exists(team) then
 			Teams.player_leave(player:get_player_name());
-		else
-			-- treat it as a respawn
-			local spawn, yaw = get_team_spawn(team);
-			if spawn then
-				player:setpos(spawn);
-			end
-			if yaw then
-				player:set_look_yaw(math.rad(yaw));
-			end
-			set_player_nametag_color(player, team);
 		end
 	end
+	return reset_player(player);
 end)
 minetest.register_on_shutdown(saveteams);
 minetest.register_on_respawnplayer(function(player)
 	if not player:is_player() then return false end
-	local player_name = player:get_player_name();
-	local player_team = Teams.player_get_team(player_name);
-	-- local teamdata = Teams.get_team(player_team);
-	local spawn, yaw = get_team_spawn(player_team);
-	if yaw then
-		player:set_look_yaw(math.rad(yaw));
-	end
-	if spawn then
-		player:setpos(spawn);
-		return true;
-	end
-	return false;
+	return reset_player(player);
 end)
 minetest.after(10, saveteams_timer);
 
