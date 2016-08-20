@@ -396,3 +396,4 @@ end
 dofile(minetest.get_modpath("designer_weapons") .. "/default.lua");
 dofile(minetest.get_modpath("designer_weapons") .. "/testdummy.lua");
 dofile(minetest.get_modpath("designer_weapons") .. "/ammo_pack.lua");
+dofile(minetest.get_modpath("designer_weapons") .. "/health_pack.lua");

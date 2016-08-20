@@ -1,6 +1,6 @@
-local AMMO_ROT = 1;
-local AMMO_CHECK_RATE = 0.3;
-local AMMO_CHECK_RANGE = 1.2;
+local AMMO_ROT = 0.6;
+local AMMO_CHECK_RATE = 0.25;
+local AMMO_CHECK_RANGE = 1.0;
 local AMMO_TIMEOUT = 5;
 
 local ammo = {
@@ -86,13 +86,12 @@ function ammo.on_step(self, dtime)
 			jutil.table.filter_inplace(jutil.filter.NOT, entities,
 					jutil.filter.PLAYER);
 
-			local entity = jutil.get_nearest_entity(entities,
-					self.object:getpos());
-			if entity then
+			for _, entity in pairs(entities) do
 				if reload_player(entity) then
 					self.wait = AMMO_TIMEOUT;
 					self.object:setpos(vector.add(self.object:getpos(),
 							{x=0,y=-1,z=0}));
+					return
 				end
 			end
 		end
@@ -104,5 +103,5 @@ minetest.register_entity("designer_weapons:ammo_pack", ammo);
 jutil.register_entitytool("designer_weapons:ammo_pack",
 		"designer_weapons:ammo_pack", {
 	description = "An ammo pack",
-	inventory_image = "dweapon_decal_bullet.png"
+	inventory_image = "dweapon_ammo_item.png"
 })

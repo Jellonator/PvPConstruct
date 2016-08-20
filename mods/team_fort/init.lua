@@ -28,10 +28,14 @@ dofile(minetest.get_modpath("team_fort") .. "/weapons.lua");
 
 local creative_mode = minetest.setting_getbool("creative_mode")
 if not creative_mode and not minetest.is_singleplayer() then
+	local old_func = minetest.is_protected;
 	minetest.is_protected = function(pos, playername)
+		-- those with protection_bypass are fine
 		if minetest.check_player_privs(playername, {protection_bypass=true}) then
-			return false;
+			return old_func(pos, playername);
 		end
+
+		-- everyone else gets rekt tho
 		return true;
 	end
 end
