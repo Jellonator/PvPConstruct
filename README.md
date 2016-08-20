@@ -31,7 +31,7 @@ scale world modification, install worldedit for that.
 Adds status effects to the game. More about status effects can be read at
 'mods/status_effects/README.md'.
 
-### scoreboard
+### teammake
 Adds teams to the game. Players on the same team can not harm each other.
 Teams must compete to complete objectives to win.
 
