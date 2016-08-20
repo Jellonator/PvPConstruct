@@ -133,7 +133,7 @@ local function reset_player(player)
 	local spawn, yaw = get_team_spawn(player_team);
 	print(spawn, yaw);
 	if yaw then
-		player:set_look_yaw(math.rad(yaw - 90));
+		player:set_look_yaw(math.rad(yaw));
 	end
 	if spawn then
 		player:setpos(spawn);
