@@ -205,6 +205,12 @@ function status_effect.apply_effect(player, name, length, strength, data)
 	return true, "Successfully applied status effect!"
 end
 
+function status_effect.clear_effects(player)
+	local def = status_effect.get_object_data(player);
+	jutil.table.filter_inplace(jutil.filter.CALL_FUNC, def, disable_effect,
+			jutil.filter.MATCH_ALL);
+end
+
 local function update_status(effect_table, dtime)
 	local rm;
 	for _, effect in pairs(effect_table) do
@@ -219,11 +225,13 @@ local function update_status(effect_table, dtime)
 					  jutil.math.mod(effect._timer, timer);
 		end
 
-		effect.time = effect.time - dtime;
-		if effect.time <= 0 then
-			rm = rm or {};
-			table.insert(rm, effect);
-			do_step = false;
+		if not effect.infinite then
+			effect.time = effect.time - dtime;
+			if effect.time <= 0 then
+				rm = rm or {};
+				table.insert(rm, effect);
+				do_step = false;
+			end
 		end
 
 		if def.on_step and do_step then

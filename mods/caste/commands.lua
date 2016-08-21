@@ -23,6 +23,18 @@ jutil.cmd.register("casteadmin",
 			function(_, class, item)
 				return Caste.class.remove_item(class, item);
 			end)
+		},
+
+		effect = {
+			add = jutil.cmd.command({"class:string", "effect:string", "strength:?number"},
+			function(_, class, effect, strength)
+				return Caste.class.add_effect(class, effect, strength);
+			end),
+
+			remove = jutil.cmd.command({"class:string", "effect:string"},
+			function(_, class, effect)
+				return Caste.class.remove_effect(class, effect);
+			end)
 		}
 	}
 )
@@ -51,9 +63,14 @@ jutil.cmd.register("caste",
 				return false, "No such class!";
 			end
 			local ret = "Name: " .. class;
-			local class_items = Caste.class.list_items(class);
+			local class_items = Caste.class.list_items(class, '\t');
 			if class_items then
 				ret = ret .. '\nItems:\n' .. class_items;
+			end
+
+			local class_effects = Caste.class.list_effects(class, '\t');
+			if class_effects then
+				ret = ret .. '\nEffects:\n' .. class_effects;
 			end
 			return true, ret;
 		end, "Prints out a class' info")

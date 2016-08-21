@@ -23,6 +23,14 @@ function Player.reset(player)
 			inv:add_item(list, v.name .. " " .. tostring(v.count));
 		end
 	end
+	local effects = Caste.class.get_effects(class);
+	status_effect.clear_effects(player);
+	if effects then
+		for _, effect in pairs(effects) do
+			status_effect.apply_effect(player, effect.name, 1,
+					effect.strength, {infinite=true})
+		end
+	end
 end
 
 function Player.leave(player)
@@ -31,6 +39,8 @@ function Player.leave(player)
 	end
 	Player.player_data[player] = nil;
 	Player.reset(player);
+
+	return true, "Player successfully had their class removed!";
 end
 
 function Player.join(player, class)
@@ -43,6 +53,8 @@ function Player.join(player, class)
 
 	Player.player_data[player] = class;
 	Player.reset(player);
+
+	return true, "Player's class was set successfully!"
 end
 
 return Player;

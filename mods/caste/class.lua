@@ -90,7 +90,8 @@ function Class.get_items(class)
 	return class_data.items;
 end
 
-function Class.list_items(class)
+function Class.list_items(class, p)
+	local p = p or "";
 	local class_data = Class.get(class);
 	if not class_data then
 		return;
@@ -103,7 +104,71 @@ function Class.list_items(class)
 	local str = "";
 	for i,item in ipairs(class_data.items) do
 		if i ~= 1 then str = str .. '\n' end
-		str = str .. item.name .. " " .. tostring(item.count);
+		str = str .. p .. item.name .. " " .. tostring(item.count);
+	end
+
+	return str;
+end
+
+-- Status effects
+function Class.add_effect(class, effect, strength)
+	local class_data = Class.get(class);
+	if not class_data then
+		return false, "Class " .. class .. " does not exist!"
+	end
+
+	class_data.effects = class_data.effects or {}
+	table.insert(class_data.effects, {name=effect, strength=strength});
+	Caste._increment_id()
+
+	return true, "Successfully added status effect to class' definition!"
+end
+
+function Class.remove_effect(class, effect)
+	local class_data = Class.get(class);
+	if not class_data then
+		return false, "Class " .. class .. " does not exist!"
+	end
+	local effects = class_data.effects or {};
+	local pval = #effects;
+	jutil.table.filter_inplace(jutil.filter.MATCH_KEY_VALUE, effects, 'name', effect);
+	Caste._increment_id()
+	if pval == #effects then
+		return false, "No such status effect defined in class!";
+	else
+		return true, "Successfully removed status effects!"
+	end
+end
+
+function Class.get_effects(class)
+	local class_data = Class.get(class);
+	if not class_data then
+		return;
+	end
+	if not class_data.effects or #class_data.effects == 0 then
+		return;
+	end
+	return class_data.effects;
+end
+
+function Class.list_effects(class, p)
+	local p = p or "";
+	local class_data = Class.get(class);
+	if not class_data then
+		return;
+	end
+
+	if not class_data.effects or #class_data.effects == 0 then
+		return;
+	end
+
+	local str = "";
+	for i,effect in ipairs(class_data.effects) do
+		if i ~= 1 then str = str .. '\n' end
+		str = str .. p .. effect.name
+		if effect.strength then
+			str = str .. " * " .. tostring(effect.strength);
+		end
 	end
 
 	return str;
