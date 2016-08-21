@@ -6,19 +6,28 @@ minetest.register_privilege("caste_admin", {
 local CLASS_SELECT_FORMSPEC_NAME = "caste.class.selection";
 local function gen_class_formspec()
 	local classes = Caste.class.class_data;
-	local ret = "size[8," .. tostring(#classes + 1) .. "]";
 	local y_pos = 1;
-	if #classes == 0 then
-		return;
-	end
+
+	local class_len = 0;
+	local ret = "";
 	for name, def in pairs(classes) do
+		class_len = class_len + 1;
 		ret = ret .. "button_exit[0," .. tostring(y_pos) .. ";3,1;" .. name ..
 				";" .. name .. "]";
+		if def.description then
+			ret = ret .. "label[3," .. tostring(y_pos + 0.2) .. ";" ..
+					def.description .. "]";
+		end
 		y_pos = y_pos + 1;
 	end
-	-- "button_exit[0,1;3,1;aaa;A]" ..
-	-- "button_exit[0,2;3,1;bbb;B]" ..
-	-- "button_exit[0,3;3,1;ccc;C]";
+
+	if class_len == 0 then
+		return;
+	end
+
+	ret = "size[8," .. tostring(class_len + 1) .. "]" ..
+			"label[3,0.2;Select a class]" ..
+			ret;
 
 	return ret;
 end
@@ -28,8 +37,16 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		return
 	end
 
-	for k,v in pairs(fields) do
-		minetest.chat_send_all(tostring(k) .. ": " .. tostring(v));
+	local player_name = player:get_player_name();
+	if not player_name then
+		return
+	end
+
+	for k, class in pairs(fields) do
+		if k == class and Caste.class.exists(class) then
+			Caste.player.join(player_name, class);
+			return;
+		end
 	end
 end)
 
@@ -42,6 +59,15 @@ jutil.cmd.register("casteadmin",
 		function(_, name)
 			return Caste.class.register(name);
 		end, "Creates a new class"),
+
+		describe = jutil.cmd.command({"class:string", "description:text"},
+		function(_, class, description)
+			local class_def = Caste.class.get(class);
+			if not class_def then
+				return false, "No such class!"
+			end
+			class_def.description = description;
+		end, "Describes a class for class selection."),
 
 		item = {
 			add = jutil.cmd.command({"class:string", "item:string", "count:?number"},
