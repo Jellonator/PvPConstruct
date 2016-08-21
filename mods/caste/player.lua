@@ -31,6 +31,9 @@ function Player.reset(player)
 					effect.strength, {infinite=true})
 		end
 	end
+	if Teammake then
+		Teammake.reset_player(player);
+	end
 end
 
 function Player.leave(player)
@@ -39,6 +42,7 @@ function Player.leave(player)
 	end
 	Player.player_data[player] = nil;
 	Player.reset(player);
+	Caste._increment_id();
 
 	return true, "Player successfully had their class removed!";
 end
@@ -53,8 +57,19 @@ function Player.join(player, class)
 
 	Player.player_data[player] = class;
 	Player.reset(player);
+	Caste._increment_id();
 
 	return true, "Player's class was set successfully!"
 end
+
+function Player.get_player_class(player)
+	return Player.player_data[player];
+end
+
+-- reset a dead player's items and status effects
+minetest.register_on_respawnplayer(function(player)
+	if not player:is_player() then return false end
+	Player.reset(player);
+end)
 
 return Player;

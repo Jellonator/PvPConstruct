@@ -46,7 +46,6 @@ local function loadteams()
 	if version ~= TEAM_FILE_VERSION then return end
 
 	-- load teams
-	local team_def;
 	while team_file:read(0) do
 		local line = team_file:read("*l");
 		if line == ":players:" then break end
@@ -123,7 +122,7 @@ local function set_player_nametag_color(player, team)
 	player:hud_set_hotbar_image(hotbar_image);
 end
 
-local function reset_player(player)
+function Teammake.reset_player(player)
 	local player_name = player:get_player_name();
 	local player_team = Teammake.player_get_team(player_name);
 	set_player_nametag_color(player, player_team);
@@ -181,7 +180,7 @@ function Teammake.player_leave(player)
 	team_players[player] = nil;
 	local playerent = minetest.get_player_by_name(player);
 	if playerent then
-		reset_player(playerent)
+		Teammake.reset_player(playerent)
 	end
 	minetest.chat_send_all(string.format("Player %s left their team!", player))
 	increment_id()
@@ -199,7 +198,7 @@ function Teammake.player_join(team, player)
 	team_players[player] = team;
 	local playerent = minetest.get_player_by_name(player);
 	if playerent then
-		reset_player(playerent);
+		Teammake.reset_player(playerent);
 	end
 	minetest.chat_send_all(string.format("Player %s joined team %s!", player, team));
 	increment_id()
@@ -249,7 +248,7 @@ function Teammake.respawn(team)
 		local player = minetest.get_player_by_name(player_name);
 		-- reset all players on team, or all players if team is nil
 		if (not team or player_team == team) and player_team and player then
-			reset_player(player);
+			Teammake.reset_player(player);
 		end
 	end
 end
@@ -263,13 +262,13 @@ minetest.register_on_joinplayer(function(player)
 			Teammake.player_leave(player:get_player_name());
 		end
 	end
-	return reset_player(player);
+	return Teammake.reset_player(player);
 end)
 
 -- respawn players who have died
 minetest.register_on_respawnplayer(function(player)
 	if not player:is_player() then return false end
-	return reset_player(player);
+	return Teammake.reset_player(player);
 end)
 
 -- disable damage between members of team
@@ -288,9 +287,8 @@ tool_capabilities, dir, damage)
 end)
 
 
+loadteams();
 minetest.register_on_shutdown(saveteams);
 minetest.after(10, saveteams_timer);
-
-loadteams();
 
 dofile(minetest.get_modpath("teammake") .. "/commands.lua");

@@ -167,7 +167,7 @@ function Class.list_effects(class, p)
 		if i ~= 1 then str = str .. '\n' end
 		str = str .. p .. effect.name
 		if effect.strength then
-			str = str .. " * " .. tostring(effect.strength);
+			str = str .. " " .. tostring(effect.strength);
 		end
 	end
 
