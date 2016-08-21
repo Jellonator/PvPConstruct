@@ -119,6 +119,9 @@ jutil.cmd.register("caste",
 				return false, "No such class!";
 			end
 			local ret = "Name: " .. class;
+			if class_data.description then
+				ret = ret .. '\n' .. class_data.description;
+			end
 			local class_items = Caste.class.list_items(class, '\t');
 			if class_items then
 				ret = ret .. '\nItems:\n' .. class_items;
