@@ -1,11 +1,8 @@
 Teammake = {
 	NONE_TEAM = "__NONE__"
 };
--- players are given Teams by key, not value
--- players not listed are not in a team
--- e.g. {jellonator="red",bob="blue"}
 
-local TEAM_FILE_NAME = minetest.get_worldpath() .. "/scoreboard_teams"
+local TEAM_FILE_NAME = minetest.get_worldpath() .. "/teammake.dat";
 local TEAM_FILE_VERSION = "1";
 
 local team_players = {}
@@ -15,6 +12,7 @@ local team_data = {
 local incremental_id = 0;
 local prev_incremental_id = incremental_id;
 
+--TODO: document this please
 local function get_team_spawn(team)
 	local teamdata = Teammake.get_team(team);
 	if teamdata and teamdata.spawn then
@@ -258,6 +256,7 @@ end
 
 -- respawn players who join
 minetest.register_on_joinplayer(function(player)
+	player:set_properties({max_hp=6})
 	local team = Teammake.player_get_team(player:get_player_name());
 	if team then
 		if not Teammake.team_exists(team) then

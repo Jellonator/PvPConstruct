@@ -218,3 +218,4 @@ jutil.raycast = dofile(minetest.get_modpath("jutil") .. "/raycast.lua");
 jutil.string = dofile(minetest.get_modpath("jutil") .. "/string.lua");
 jutil.table = dofile(minetest.get_modpath("jutil") .. "/table.lua");
 jutil.node = dofile(minetest.get_modpath("jutil") .. "/node.lua");
+jutil.player = dofile(minetest.get_modpath("jutil") .. "/player.lua");

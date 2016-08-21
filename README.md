@@ -42,6 +42,9 @@ Adds signs that can be clicked to activate commands on a player
 Mod that adds functions for defining weapons. This mod is intended for use by
 other mods, yet it also defines a small set of default weapons.
 
+### caste
+A mod that adds classes to the game.
+
 ### team_fort
 A mod based on Team Fortess 2; provides many tf2-style utilities, such as
 health packs, ammo boxes, payloads, etc.
