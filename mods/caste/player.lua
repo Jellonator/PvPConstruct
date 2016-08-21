@@ -22,6 +22,9 @@ function Player.reset(player)
 			local list = player:get_wield_list();
 			inv:add_item(list, v.name .. " " .. tostring(v.count));
 		end
+		if designer_weapons then
+			designer_weapons.restock_ammo(player)
+		end
 	end
 	local effects = Caste.class.get_effects(class);
 	status_effect.clear_effects(player);
@@ -68,6 +71,12 @@ end
 
 -- reset a dead player's items and status effects
 minetest.register_on_respawnplayer(function(player)
+	if not player:is_player() then return false end
+	Player.reset(player);
+end)
+
+-- reset a dead player's items and status effects
+minetest.register_on_joinplayer(function(player)
 	if not player:is_player() then return false end
 	Player.reset(player);
 end)

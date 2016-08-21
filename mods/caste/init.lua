@@ -1,7 +1,7 @@
 Caste = {}
 
 local CASTE_FILE_NAME = minetest.get_worldpath() .. "/caste.dat"
-local CASTE_FILE_VERSION = 1;
+local CASTE_FILE_VERSION = '1';
 
 local incremental_id = 0;
 local prev_incremental_id = incremental_id;

@@ -7,8 +7,14 @@ local CLASS_SELECT_FORMSPEC_NAME = "caste.class.selection";
 local function gen_class_formspec()
 	local classes = Caste.class.class_data;
 	local ret = "size[8," .. tostring(#classes + 1) .. "]";
+	local y_pos = 1;
+	if #classes == 0 then
+		return;
+	end
 	for name, def in pairs(classes) do
-		
+		ret = ret .. "button_exit[0," .. tostring(y_pos) .. ";3,1;" .. name ..
+				";" .. name .. "]";
+		y_pos = y_pos + 1;
 	end
 	-- "button_exit[0,1;3,1;aaa;A]" ..
 	-- "button_exit[0,2;3,1;bbb;B]" ..
@@ -106,7 +112,12 @@ jutil.cmd.register("caste",
 			if not player then
 				return false, "That player is not online!"
 			end
-			minetest.show_formspec(player_name, CLASS_SELECT_FORMSPEC_NAME, gen_class_formspec());
+			local form = gen_class_formspec();
+			if form then
+				minetest.show_formspec(player_name, CLASS_SELECT_FORMSPEC_NAME, form);
+			else
+				return false, "No classes to select from!"
+			end
 		end)
 	}
 )

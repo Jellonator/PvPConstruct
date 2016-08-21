@@ -274,6 +274,9 @@ end)
 -- disable damage between members of team
 minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch,
 tool_capabilities, dir, damage)
+	if hitter == player then
+		return false;
+	end
 	if not hitter:is_player() or not player:is_player() then
 		return false;
 	end
