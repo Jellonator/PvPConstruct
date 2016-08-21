@@ -42,7 +42,7 @@ local designer_weapon_funcs = {
 					dmg = def.damage_headshot;
 				end
 			end
-			damage_entity(self, user, entity, dmg);
+			damage_entity(def, user, entity, dmg);
 
 		elseif entity_pos and axis and def.decal then
 			-- place decal

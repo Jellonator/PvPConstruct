@@ -32,7 +32,7 @@ designer_weapons.register_weapon("designer_weapons:bow", "projectile", {
 	entity_name = "designer_weapons:arrow",
 	description = "Bow and Arrow",
 	inventory_image = "dweapon_bow.png",
-	delay = 0.5,
+	delay = 0.6,
 	ammo = "designer_weapons:arrow",
 	ammo_max = 16,
 })
@@ -52,12 +52,12 @@ minetest.register_craftitem("designer_weapons:bullet_standard", {
 designer_weapons.register_weapon("designer_weapons:gun", "hitscan", {
 	description = "Basic pistol",
 	inventory_image = "dweapon_pistol.png",
-	rate = 3,
+	rate = 2.5,
 	damage = 3,
 	sound_shoot = "dweapon_shoot",
 	decal = "designer_weapons:decal_bullet",
 	ammo = "designer_weapons:bullet_standard",
-	ammo_max = 18,
+	ammo_max = 24,
 })
 
 designer_weapons.register_decal("designer_weapons:decal_bullet", {
@@ -80,15 +80,15 @@ minetest.register_craftitem("designer_weapons:bullet_shell", {
 designer_weapons.register_weapon("designer_weapons:shotgun", "hitscan", {
 	description = "Basic shotgun",
 	inventory_image = "dweapon_shotgun.png",
-	delay = 0.7,
+	delay = 0.8,
 	damage = 7,
 	damage_min = 2,
-	falloff = 25,
-	falloff_min = 4,
+	falloff = 8,
+	falloff_min = 2,
 	sound_shoot = "dweapon_shotgun",
 	decal = "designer_weapons:decal_shotgun",
 	ammo = "designer_weapons:bullet_shell",
-	ammo_max = 12,
+	ammo_max = 16,
 })
 
 designer_weapons.register_decal("designer_weapons:decal_shotgun", {
@@ -111,11 +111,11 @@ minetest.register_craftitem("designer_weapons:bullet_rifle", {
 designer_weapons.register_weapon("designer_weapons:rifle", "hitscan", {
 	description = "Basic rifle",
 	inventory_image = "dweapon_rifle.png",
-	delay = 1.2,
+	delay = 1.4,
 	damage = 8,
 	damage_headshot = 12,
 	sound_shoot = "dweapon_shoot",
 	decal = "designer_weapons:decal_bullet",
 	ammo = "designer_weapons:bullet_rifle",
-	ammo_max = 8,
+	ammo_max = 12,
 })

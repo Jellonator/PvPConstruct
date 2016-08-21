@@ -3,19 +3,24 @@ Attempts to recreate some of the weapons found in team fortress 2
 --]]
 
 -- rocket launcher
+local ROCKET_LAUNCHER_BOOST = 1;
 status_effect.register_effect("team_fort:rocket_jump", {
 	applies_to = "player",
 	duplicate_method = "override",
 	on_activate = function(self, player, speed)
 		local speed = speed or 1;
+		self.speed = speed;
+
 		local override = player:get_physics_override();
 		self.pgrav = override.gravity;
+		override.speed = override.speed * (ROCKET_LAUNCHER_BOOST + self.speed * 0.5);
 		override.gravity = -speed;
 		player:set_physics_override(override);
 	end,
 	on_deactivate = function(self, player)
 		local override = player:get_physics_override();
 		override.gravity = self.pgrav;
+		override.speed = override.speed / (ROCKET_LAUNCHER_BOOST + self.speed * 0.5);
 		player:set_physics_override(override);
 	end
 })
@@ -53,9 +58,9 @@ designer_weapons.register_weapon("team_fort:rocket_launcher", "projectile", {
 	entity_name = "team_fort:rocket",
 	description = "Rocket Launcher",
 	inventory_image = "teamf_weapon_rocketlauncher.png",
-	delay = 0.9,
+	delay = 1.0,
 	ammo = "team_fort:rocket",
-	ammo_max = 8
+	ammo_max = 12
 })
 
 designer_weapons.register_decal("team_fort:decal_explosion", {

@@ -70,6 +70,11 @@ minetest.register_node(clicky_sign_name, {
 		for i,value in ipairs(string.split(cmd, ';')) do
 			jutil.run_command(player_name, value, owner_name);
 		end
+	end,
+	can_dig = function(pos, player)
+		if not player:is_player() then return false end;
+		local meta = minetest.get_meta(pos);
+		return has_clicky_privelege(meta, player);
 	end
 })
 
