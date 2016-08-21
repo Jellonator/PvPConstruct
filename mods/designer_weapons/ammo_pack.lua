@@ -30,7 +30,8 @@ function ammo.on_step(self, dtime)
 	if not self.original_position then
 		self.original_position = self.object:getpos();
 	end
-	self.object:setyaw(self.object:getyaw() + dtime*AMMO_ROT);
+	local nyaw = self.object:getyaw() + dtime*AMMO_ROT;
+	self.object:setyaw(jutil.math.mod(nyaw, math.pi*2));
 	if self.wait > 0 then
 		self.wait = self.wait - dtime;
 		if self.wait <= 0 then

@@ -48,7 +48,7 @@ local function edit_entity(player_name, object)
 		elseif type(v) == "string" then
 			formspec = formspec .. string.format(
 				"field[1,%d;%d,1;s%s;%s;%s]", pos_y, width-2,
-				tostring(k), tostring(k) .. ":String", v:sanatize());
+				tostring(k), tostring(k) .. ":String", jutil.string.sanatize(v));
 		elseif type(v) == "boolean" then
 			formspec = formspec .. string.format(
 				"field[1,%d;%d,1;b%s;%s;%s]", pos_y, width-2,
