@@ -44,7 +44,10 @@ function Player.leave(player)
 	Player.reset(player);
 	Caste._increment_id();
 	if Teammake then
-		Teammake.reset_player(player);
+		local playerent = minetest.get_player_by_name(player);
+		if playerent then
+			Teammake.reset_player(playerent);
+		end
 	end
 	return true, "Player successfully had their class removed!";
 end

@@ -69,7 +69,7 @@ Returns true if any value in the given table matches a given filter
 --]]
 function Filter.match_table(filter, t, ...)
 	for k, v in pairs(t) do
-		if Filter.match_filter(filter, v, ...) then
+		if Filter.match(filter, v, ...) then
 			return true;
 		end
 	end
@@ -79,7 +79,7 @@ end
 
 function Filter.find(filter, t, ...)
 	for k,v in pairs(t) do
-		if Filter.match_filter(filter, v, ...) then
+		if Filter.match(filter, v, ...) then
 			return v;
 		end
 	end

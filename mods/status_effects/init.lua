@@ -259,7 +259,7 @@ minetest.register_globalstep(function(dtime)
 end)
 
 minetest.register_on_dieplayer(function(player)
-	local player_effects = effect_data[player:get_player_name()];
+	local player_effects = status_effect.get_object_data(player);
 	jutil.table.filter_inplace(jutil.filter.CALL_FUNC, player_effects,
 			disable_effect, match_def_value, "remove_on_death", true);
 end)

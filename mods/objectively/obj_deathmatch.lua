@@ -47,6 +47,7 @@ local deathmatch = {
 	end,
 
 	on_dieplayer = function(self, player, killer)
+		if not killer or not player then return end;
 		local killer_name = killer:get_player_name()
 		if not killer_name then return end
 		local killer_team = Teammake.player_get_team(killer_name);
