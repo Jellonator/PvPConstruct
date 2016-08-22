@@ -77,4 +77,13 @@ function Filter.match_table(filter, t, ...)
 	return false;
 end
 
+function Filter.find(filter, t, ...)
+	for k,v in pairs(t) do
+		if Filter.match_filter(filter, v, ...) then
+			return v;
+		end
+	end
+	return nil;
+end
+
 return Filter;

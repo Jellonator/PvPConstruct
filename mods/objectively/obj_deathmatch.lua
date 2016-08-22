@@ -47,26 +47,13 @@ local deathmatch = {
 	end,
 
 	on_dieplayer = function(self, player, killer)
-		print("DIE ", self, player, killer)
 		local killer_name = killer:get_player_name()
 		if not killer_name then return end
 		local killer_team = Teammake.player_get_team(killer_name);
 		if not killer_team then return end
-		print("GOOD");
 
-		-- self.team_data[killer_team] = self.team_data[killer_team] or
-		-- 		{team=killer_team, count=0};
-
-		-- self.team_data[killer_team].count = self.team_data[killer_team].count + 1;
-
-		local team_def;
-
-		for _, def in ipairs(self.team_data) do
-			if def.team == killer_team then
-				team_def = def;
-				break;
-			end
-		end
+		local team_def = jutil.filter.find(jutil.filter.MATCH_KEY_VALUE,
+				self.team_data, 'team', killer_team);
 
 		if not team_def then
 			team_def = {team=killer_team, count=0};
