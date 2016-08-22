@@ -12,7 +12,6 @@ local healthpack = {
 
 	timer = 0,
 	wait = 0,
-	original_position,
 };
 
 local function heal_player(player)

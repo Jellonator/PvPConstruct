@@ -71,7 +71,7 @@ local function savecaste_timer()
 		prev_incremental_id = incremental_id;
 	end
 
-	minetest.after(10, savecaste_timer);
+	minetest.after(30, savecaste_timer);
 end
 
 Caste.class  = dofile(minetest.get_modpath('caste') .. "/class.lua");
@@ -80,4 +80,4 @@ dofile(minetest.get_modpath('caste') .. "/commands.lua");
 
 loadcaste();
 minetest.register_on_shutdown(savecaste);
-minetest.after(10, savecaste_timer);
+minetest.after(15, savecaste_timer);

@@ -98,7 +98,7 @@ local function saveteams_timer()
 		prev_incremental_id = incremental_id;
 	end
 
-	minetest.after(10, saveteams_timer);
+	minetest.after(30, saveteams_timer);
 end
 
 local function set_player_nametag_color(player, team)
@@ -218,7 +218,8 @@ end
 
 function Teammake.register_team(team, def)
 	if team:find("[^%w_]") then
-		return false, "Team name \"" .. team .. "\" must only contain alphanumeric characters and underscores!";
+		return false, "Team name \"" .. team ..
+			"\" must only contain alphanumeric characters and underscores!";
 	end
 	if Teammake.get_team(team) then
 		return false, "Team " .. team .. " already exists!"
@@ -255,7 +256,6 @@ end
 
 -- respawn players who join
 minetest.register_on_joinplayer(function(player)
-	player:set_properties({max_hp=6})
 	local team = Teammake.player_get_team(player:get_player_name());
 	if team then
 		if not Teammake.team_exists(team) then
@@ -292,6 +292,6 @@ end)
 
 loadteams();
 minetest.register_on_shutdown(saveteams);
-minetest.after(10, saveteams_timer);
+minetest.after(30, saveteams_timer);
 
 dofile(minetest.get_modpath("teammake") .. "/commands.lua");

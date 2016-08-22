@@ -12,7 +12,6 @@ local ammo = {
 
 	timer = 0,
 	wait = 0,
-	original_position,
 };
 
 function ammo.on_activate(self, staticdata)

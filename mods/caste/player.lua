@@ -34,9 +34,6 @@ function Player.reset(player)
 					effect.strength, {infinite=true})
 		end
 	end
-	if Teammake then
-		Teammake.reset_player(player);
-	end
 end
 
 function Player.leave(player)
@@ -46,7 +43,9 @@ function Player.leave(player)
 	Player.player_data[player] = nil;
 	Player.reset(player);
 	Caste._increment_id();
-
+	if Teammake then
+		Teammake.reset_player(player);
+	end
 	return true, "Player successfully had their class removed!";
 end
 
@@ -61,7 +60,12 @@ function Player.join(player, class)
 	Player.player_data[player] = class;
 	Player.reset(player);
 	Caste._increment_id();
-
+	if Teammake then
+		local playerent = minetest.get_player_by_name(player);
+		if playerent then
+			Teammake.reset_player(playerent);
+		end
+	end
 	return true, "Player's class was set successfully!"
 end
 

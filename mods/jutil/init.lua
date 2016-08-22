@@ -37,9 +37,9 @@ end
 
 function jutil.gen_uuid(bytes)
 	local bytes = bytes or 16;
-	local ret = '0x';
-	for i = 1, bytes*2 do
-		ret = ret .. string.format("%X", math.random(0, 15));
+	local ret = '';
+	for i = 1, bytes do
+		ret = ret .. string.char(math.random(0, 255));
 	end
 	return ret;
 end
