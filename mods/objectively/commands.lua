@@ -25,7 +25,9 @@ jutil.cmd.register("objectively",
 		function()
 			local ret = "Objectives:";
 			for name, _ in pairs(Objectively.registered_objectives) do
-				ret = ret .. '\n\t' .. name;
+				if name:sub(1,1) ~= "_" then
+					ret = ret .. '\n\t' .. name;
+				end
 			end
 			return true, ret
 		end, "Lists off all available objectives.");
