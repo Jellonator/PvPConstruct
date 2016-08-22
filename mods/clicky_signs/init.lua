@@ -73,6 +73,7 @@ minetest.register_node(clicky_sign_name, {
 	end,
 	can_dig = function(pos, player)
 		if not player:is_player() then return false end;
+		if not player:get_player_control().sneak then return false end
 		local meta = minetest.get_meta(pos);
 		return has_clicky_privelege(meta, player);
 	end
