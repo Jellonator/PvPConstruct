@@ -30,6 +30,11 @@ jutil.cmd.register("objectively",
 				end
 			end
 			return true, ret
-		end, "Lists off all available objectives.");
+		end, "Lists off all available objectives."),
+
+		reset = jutil.cmd.command({},
+		function()
+			return Objectively.reset();
+		end, "Resets the current objective.")
 	}
 )

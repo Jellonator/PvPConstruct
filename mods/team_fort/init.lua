@@ -7,11 +7,11 @@ TEAM_COLOR = {
 
 -- register some basic teams
 Teammake.set_team("red", {
-	nametag_color = 0xFFFF0000,
+	color = 0xFFFF0000,
 	gui_hotbar_image = "teamf_gui_hotbar_red.png"
 })
 Teammake.set_team("blue", {
-	nametag_color = 0xFF0000FF,
+	color = 0xFF0000FF,
 	gui_hotbar_image = "teamf_gui_hotbar_blue.png"
 })
 

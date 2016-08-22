@@ -152,7 +152,7 @@ end)
 
 local last_hitter = setmetatable({}, {__mode = "kv"})
 minetest.register_on_punchplayer(function(player, hitter)
-	if player == nil then
+	if not player or not hitter then
 		return
 	end
 	last_hitter[player] = hitter;
