@@ -3,6 +3,7 @@ status_effect.register_effect("default:speed", {
 	duplicate_method = "both",
 	on_activate = function(self, player, speed)
 		self.speed = speed or 2;
+		self.speed = math.max(0.1, self.speed);
 		local override = player:get_physics_override();
 		override.speed = override.speed * self.speed;
 		player:set_physics_override(override);

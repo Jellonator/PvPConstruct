@@ -12,6 +12,20 @@ function String.sanatize(str)
 	return str;
 end
 
+local rand_chars = "abcdefghijklmnopqrstuvwxyz";
+rand_chars = rand_chars .. rand_chars:upper();
+rand_chars = rand_chars .. "0123456789_-";
+function String.random(num, chars)
+	local chars = chars or rand_chars;
+	local ret = '';
+	local num = num or 8;
+	for i = 1, num do
+		local rng = math.random(chars:len());
+		ret = ret .. chars:sub(rng, rng);
+	end
+	return ret;
+end
+
 function String.fmt_seconds(seconds, digits)
 	local is_negative = seconds < 0;
 	local seconds = math.abs(seconds);

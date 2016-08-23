@@ -41,10 +41,12 @@ local function loadobjective()
 			Objectively.set_objective(line);
 		elseif ckey == ':data:' then
 			local data = minetest.deserialize(line);
-			for name,def in pairs(data) do
-				local obj = Objectively.registered_objectives[name];
-				if obj.on_loaddata then
-					obj.on_loaddata(obj, def);
+			if data then
+				for name,def in pairs(data) do
+					local obj = Objectively.registered_objectives[name];
+					if obj.on_loaddata then
+						obj.on_loaddata(obj, def);
+					end
 				end
 			end
 		end

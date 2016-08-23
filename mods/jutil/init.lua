@@ -17,6 +17,25 @@ jutil.color = {
 	grey    = 0xff666666,
 }
 
+function jutil.get_color_num(color)
+	if type(color) == "number" then
+		return color;
+	elseif type(color) == "string" then
+		return jutil.color[color] or 0;
+	elseif type(color) == "table" then
+		local c = 0;
+		c = c + (color.a or 255);
+		c = c * 255;
+		c = c + (color.r or 255);
+		c = c * 255;
+		c = c + (color.g or 255);
+		c = c * 255;
+		c = c + (color.b or 255);
+		return c;
+	end
+	return 0;
+end
+
 function jutil.register_entitytool(name, entity, def, offset)
 	local offset = offset or 0;
 	def.on_place = function(itemstack, placer, pointed_thing)
@@ -75,11 +94,14 @@ end
 --[[
 Safely serialize a string, ignoring any unrecognized types
 --]]
-function jutil.serialize_safe(obj, ignore)
+function jutil.serialize_safe(obj, ignore, ignore_func)
+	if ignore_func == nil then
+		ignore_func = true;
+	end
 	local ignore = ignore or {}
 	local val = {}
 	for k,v in pairs(obj) do
-		if type(v) ~= "userdata" then
+		if type(v) ~= "userdata" and (type(v) ~= "function" or not ignore_func) then
 			local is_ignore = false;
 			for _, ignore_val in pairs(ignore) do
 				if ignore_val == k then
