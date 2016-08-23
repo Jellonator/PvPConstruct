@@ -377,6 +377,7 @@ function point_obj.on_reset(self)
 	self.objective_id = Objectively.get_id();
 	self.timer = CONTROL_POINT_TIMER_MAX;
 	self.is_overtime = false;
+	Teammake.respawn();
 end
 
 function point_obj.on_loaddata(self, data)
