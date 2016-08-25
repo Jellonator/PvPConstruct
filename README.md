@@ -63,6 +63,6 @@ As with any mod, there is so much to do and so much to see. Here I will compile
 a list of generally what and where this mod is going.
 
  - Payload objective
- - Control point objective
+ - king of the hill objective
  - More weapons and abilities
  - team_fort classes

@@ -1,3 +1,5 @@
+team_fort = {};
+
 TEAM_COLOR = {
 	NEUTRAL = 1,
 	RED = 2,

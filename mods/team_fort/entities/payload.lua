@@ -6,6 +6,24 @@ local YAW_CHANGE_SPEED = math.pi;
 local PAYLOAD_GRAVITY = 6.0;
 local PAYLOAD_MAXFALL = 12.0;
 
+local PAYLOAD_TIMER_MAX = 1 * 60;
+local PAYLOAD_HUD_TIMER = {
+	hud_elem_type = "text",
+	text = "",
+	position = {x=0.5,y=0},
+	alignment = {x=0,y=1},
+	offset = {x=0,y=1},
+};
+
+local obj_payload = {
+	winner = NO_TEAM,
+	objective_id = Objectively.get_id(),
+	timer = PAYLOAD_TIMER_MAX,
+	reset_time = false,
+	hud_elements = {},
+	is_overtime = false,
+}
+
 local payload = {
 	collisionbox = {-0.45, 0.0, -0.45, 0.45, 1.0, 0.45},
 	visual = "mesh",
@@ -25,6 +43,7 @@ local payload = {
 	initialize = false
 };
 
+local max_payload_speed = 0;
 function payload.on_activate(self, staticdata)
 	if staticdata then
 		jutil.deserialize_to(staticdata, self);
@@ -48,18 +67,7 @@ local function filter_player(t)
 	end
 end
 
-function payload.on_step(self, dtime)
-	if not self.initialize then
-		self.initialize = true;
-		self.start_pos = self.object:getpos()
-		self.start_yaw = self.object:getyaw();
-	end
-	-- minetest.chat_send_all(string.format("Rot: %f", math.deg(self.object:getyaw())))
-	-- Using self.self_pos instead of actual object position
-	-- This is because using the actual position can lead to strange behavior,
-	-- including players standing on the payload to push it through the ground
-	if not self.self_pos then self.self_pos = self.object:getpos() end
-
+function payload.check_players(self, dtime)
 	-- check once every once in a while if there are teammates close enough
 	-- to the payload to push it
 	self.check_time = self.check_time + dtime;
@@ -83,7 +91,42 @@ function payload.on_step(self, dtime)
 			self.move_speed = 0
 		end
 	end
+end
 
+function payload.reset(self, is_win)
+	self.object:setpos(self.start_pos);
+	self.object:setyaw(self.start_yaw);
+	self.self_pos = self.object:getpos();
+	self.objective_id = obj_payload.objective_id;
+end
+
+function payload.update_objective(self)
+	if not self.objective_id or self.objective_id == '' then
+		self.objective_id = obj_payload.objective_id;
+	elseif self.objective_id  ~= obj_payload.objective_id then
+		payload.reset(self);
+		return true;
+	end
+	return false;
+end
+
+-- stupid monolithic 200 line function alert
+function payload.on_step(self, dtime)
+	max_payload_speed = math.max(max_payload_speed, self.move_speed)
+	if not self.initialize then
+		self.initialize = true;
+		self.start_pos = self.object:getpos()
+		self.start_yaw = self.object:getyaw();
+	end
+	-- Using self.self_pos instead of actual object position
+	-- This is because using the actual position can lead to strange behavior,
+	-- including players standing on the payload to push it through the ground
+	if not self.self_pos then self.self_pos = self.object:getpos() end
+	if payload.update_objective(self) then return end;
+
+	payload.check_players(self, dtime);
+
+	-- check for new positions
 	if (self.move_speed > 0 or self.falling >= 0) and not self.target_pos then
 		-- check for targets in front and below
 		local current_pos = self.self_pos;
@@ -94,10 +137,8 @@ function payload.on_step(self, dtime)
 				current_pos.y - 0.5, current_pos.z) or jutil.node.check_name(
 				"team_fort:cart_target", current_pos.x + dirx, current_pos.y,
 				current_pos.z + dirz) then
-			self.object:setpos(self.start_pos);
-			self.object:setyaw(self.start_yaw);
-			self.self_pos = self.object:getpos();
-			Teammake.respawn();
+			-- payload.reset(self, true);
+			obj_payload.winner = "blue";
 			return;
 		end
 		self.target_yaw = self.object:getyaw();
@@ -203,6 +244,7 @@ function payload.on_step(self, dtime)
 		end
 	end
 
+	-- Actual movement
 	if (self.move_speed > 0 or self.falling >= 0) and self.target_pos then
 		local mspeed = self.move_speed * dtime;
 		if self.falling >= 0 then
@@ -264,3 +306,93 @@ minetest.register_craftitem("team_fort:payload", {
 		return itemstack
 	end,
 })
+
+-- Objective
+function obj_payload.on_joinplayer(self, player)
+	local hud = {
+		timer = player:hud_add(PAYLOAD_HUD_TIMER)
+	}
+	self.hud_elements[player:get_player_name()] = hud;
+end
+
+function obj_payload.on_leaveplayer(self, player)
+	local hud = self.hud_elements[player:get_player_name()];
+	for _, v in pairs(hud) do
+		player:hud_remove(v);
+	end
+	self.hud_elements[player:get_player_name()] = nil;
+end
+
+function obj_payload.on_globalstep(self, dtime)
+	if not self.timer then
+		-- self.timer = PAYLOAD_TIMER_MAX;
+	end
+	-- announce winner if payload is winner
+	if self.winner ~= NO_TEAM and self.winner ~= "neutral" then
+		minetest.chat_send_all(self.winner .. " team wins!");
+		Objectively.set_objective("_wait", 30, "team_fort:payload");
+	end
+
+	-- manage timer
+	self.timer = self.timer - dtime;
+	if self.reset_time then
+		self.reset_time = false;
+		self.timer = PAYLOAD_TIMER_MAX;
+	end
+
+	-- red whens when timer hits 0
+	if self.timer <= 0 and max_payload_speed <= 0 then
+		-- Assumedly red team is the winner when time runs out.
+		self.winner = "red";
+	elseif self.timer <= 0 then
+		self.is_overtime = true;
+	end
+
+	-- update text
+	local ptext = PAYLOAD_HUD_TIMER.text;
+	if not self.is_overtime then
+		PAYLOAD_HUD_TIMER.text = jutil.string.fmt_seconds(self.timer, self.timer <= 9.9 and 1 or 0)
+	else
+		PAYLOAD_HUD_TIMER.text = "Overtime";
+	end
+
+	-- update hud
+	if ptext ~= PAYLOAD_HUD_TIMER.text then
+		for name, ids in pairs(self.hud_elements) do
+			local player = minetest.get_player_by_name(name);
+			if player then
+				player:hud_change(ids.timer, 'text', PAYLOAD_HUD_TIMER.text);
+			else
+				self.hud_elements[name] = nil;
+			end
+		end
+	end
+
+	max_payload_speed = 0;
+end
+
+function obj_payload.on_enable(self)
+	self.on_reset(self);
+end
+
+function obj_payload.on_disable(self)
+	-- nothing
+end
+
+function obj_payload.on_reset(self)
+	self.winner = NO_TEAM;
+	self.objective_id = Objectively.get_id();
+	self.timer = PAYLOAD_TIMER_MAX;
+	self.is_overtime = false;
+	Teammake.respawn();
+end
+
+function obj_payload.on_loaddata(self, data)
+	jutil.deserialize_to(data, self);
+end
+
+function obj_payload.get_staticdata(self)
+	return jutil.serialize_safe(self);
+end
+
+Objectively.register_objective('team_fort:payload', obj_payload);

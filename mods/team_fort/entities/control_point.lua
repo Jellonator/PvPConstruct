@@ -52,6 +52,37 @@ local point_obj = {
 	is_overtime = false,
 }
 
+-- export a few functions so further control point gamemodes can be created
+team_fort.cp = {
+	NO_TEAM = NO_TEAM
+};
+
+function team_fort.cp.get_lock()
+	return point_obj.lock_data;
+end
+
+function team_fort.cp.get_points()
+	return point_obj.point_data;
+end
+
+function team_fort.cp.get_winner()
+	return point_obj.winner;
+end
+
+function team_fort.cp.set_winner(winner)
+	point_obj.winner = winner;
+end
+
+function team_fort.cp.reset_winner()
+	point_obj.winner = NO_TEAM;
+end
+
+function team_fort.cp.pop_newpoints()
+	local ret = point_obj.new_points;
+	point_obj.new_points = false;
+	return ret;
+end
+
 local control_point_textures = {
 	neutral = "teamf_cp_neutral.png",
 	red     = "teamf_cp_red.png",
