@@ -13,6 +13,14 @@ local DM_HUD_LIST = {
 	alignment = {x=-1,y=1},
 	offset = {x=-4,y=0},
 };
+local DM_HUD_TIMERTAB = {
+	hud_elem_type = "image",
+	text = "objectively_timetab.png",
+	scale = {x=1,y=1},
+	position = {x=0.5,y=0},
+	alignment = {x=0,y=1},
+	offset = {x, y=0},
+};
 local function cmp_scores(a, b)
 	return a.value < b.value;
 end
@@ -33,6 +41,7 @@ local deathmatch = {
 
 	on_joinplayer = function(self, player)
 		self.hud_elements[player:get_player_name()] = {
+			timertab = player:hud_add(DM_HUD_TIMERTAB),
 			timer = player:hud_add(DM_HUD_TIMER),
 			list = player:hud_add(DM_HUD_LIST)
 		}
@@ -41,6 +50,7 @@ local deathmatch = {
 	on_leaveplayer = function(self, player)
 		local hud = self.hud_elements[player:get_player_name()];
 		player:hud_remove(hud.timer);
+		player:hud_remove(hud.timertab);
 		player:hud_remove(hud.list);
 		self.hud_elements[player:get_player_name()] = nil;
 	end,

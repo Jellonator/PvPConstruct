@@ -13,6 +13,14 @@ local PAYLOAD_HUD_TIMER = {
 	alignment = {x=0,y=1},
 	offset = {x=0,y=1},
 };
+local PAYLOAD_HUD_TIMERTAB = {
+	hud_elem_type = "image",
+	text = "objectively_timetab.png",
+	scale = {x=1,y=1},
+	position = {x=0.5,y=0},
+	alignment = {x=0,y=1},
+	offset = {x, y=0},
+};
 
 local obj_payload = {
 	winner = NO_TEAM,
@@ -309,7 +317,8 @@ minetest.register_craftitem("team_fort:payload", {
 -- Objective
 function obj_payload.on_joinplayer(self, player)
 	local hud = {
-		timer = player:hud_add(PAYLOAD_HUD_TIMER)
+		timertab = player:hud_add(PAYLOAD_HUD_TIMERTAB),
+		timer = player:hud_add(PAYLOAD_HUD_TIMER),
 	}
 	self.hud_elements[player:get_player_name()] = hud;
 end

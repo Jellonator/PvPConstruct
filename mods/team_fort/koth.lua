@@ -1,4 +1,4 @@
-local function KOTH_HUD_POINT(xpos, color)
+local function KOTH_HUD_POINT(xpos, color, starttime)
 	color = jutil.get_color_num(color);
 	local color_num = jutil.get_color_num(color);
 	color = color % 0x01000000
@@ -8,7 +8,7 @@ local function KOTH_HUD_POINT(xpos, color)
 	color = "#" .. color:sub(3);
 	return {
 		hud_elem_type = "text",
-		text = "6:00.00",
+		text = starttime,
 		number = color_num,
 		position = {x=0.5,y=0},
 		alignment = {x=0,y=1},
@@ -46,7 +46,7 @@ end
 
 function obj_koth.reset_hud(self, team)
 	local str = self.team_timers[team];
-	str = jutil.string.fmt_seconds(str);
+	str = jutil.string.fmt_seconds(str, str < 10 and 1 or 0);
 
 	for name, ids in pairs(self.hud_elements) do
 		local player = minetest.get_player_by_name(name);
@@ -66,9 +66,12 @@ function obj_koth.on_joinplayer(self, player)
 	local cur = -(num-1) * WIDTH / 2;
 	print("POINT", cur, num)
 	for k,v in pairs(self.team_timers) do
+		local str = v or 0;
+		str = jutil.string.fmt_seconds(str, str < 10 and 1 or 0);
+
 		local team = Teammake.get_team(k);
 		local color = team and team.color or 0x777777;
-		local time, tab = KOTH_HUD_POINT(cur, color)
+		local time, tab = KOTH_HUD_POINT(cur, color, str)
 		hud['!' .. k] = player:hud_add(tab);
 		hud[k] = player:hud_add(time);
 		cur = cur + WIDTH;

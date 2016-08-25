@@ -12,6 +12,14 @@ local POINT_HUD_TIMER = {
 	alignment = {x=0,y=1},
 	offset = {x=0,y=1},
 };
+local POINT_HUD_TIMERTAB = {
+	hud_elem_type = "image",
+	text = "objectively_timetab.png",
+	scale = {x=1,y=1},
+	position = {x=0.5,y=0},
+	alignment = {x=0,y=1},
+	offset = {x, y=0},
+};
 local function POINT_HUD_POINT(n, pointid, color)
 	color = jutil.get_color_num(color);
 	local color_num = jutil.get_color_num(color);
@@ -306,7 +314,8 @@ register_control_point_item("blue", "teamf_cp_blue_item.png", "blue")
 -- Objective
 function point_obj.on_joinplayer(self, player)
 	local hud = {
-		timer = player:hud_add(POINT_HUD_TIMER)
+		timertab = player:hud_add(POINT_HUD_TIMERTAB),
+		timer = player:hud_add(POINT_HUD_TIMER),
 	}
 	local i = 0;
 	for id, val in pairs(self.point_data) do
