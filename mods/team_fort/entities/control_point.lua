@@ -129,6 +129,7 @@ local control_point = {
 	capturer = NO_TEAM,
 	holder = NO_TEAM,
 	holder_count = 0,
+	cant_capture = NO_TEAM,
 
 	-- lock data
 	lock = NO_TEAM,
@@ -142,6 +143,7 @@ local control_point = {
 		lock = true,
 		id = true,
 		is_final = true,
+		cant_capture = true,
 	}
 };
 
@@ -227,12 +229,22 @@ function control_point.on_step(self, dtime)
 		-- control point is locked and the team trying to capture this point
 		-- does not own the locking point, then don't allow capture of this
 		-- point
+		local lock_match = false;
 		if self.lock ~= NO_TEAM then
-			local lock_team = point_obj.lock_data[self.lock];
-			if lock_team ~= team_majority then
-				team_majority = nil;
-				team_count = 0;
+			local team_locks = string.split(self.lock, '|');
+			for _, lock in pairs(team_locks) do
+				if point_obj.lock_data[lock] == team_majority then
+					lock_match = true;
+					break;
+				end
 			end
+		end
+		if self.lock ~= NO_TEAM and not lock_match then
+			team_majority = nil;
+			team_count = 0;
+		elseif self.cant_capture ~= NO_TEAM and self.cant_capture == team_majority then
+			team_majority = nil;
+			team_count = 0;
 		elseif self.holder ~= team_majority then
 			if not team_majority or team_majority == NO_TEAM and self.timer > 0 then
 				minetest.chat_send_all(string.format(
