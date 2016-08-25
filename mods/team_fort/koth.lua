@@ -1,4 +1,3 @@
-local KOTH_MAX_TIMER = 1 * 60;
 local function KOTH_HUD_POINT(xpos, color)
 	color = jutil.get_color_num(color);
 	local color_num = jutil.get_color_num(color);
@@ -38,7 +37,7 @@ function obj_koth.on_reset(self)
 	self.current_team = team_fort.cp.NO_TEAM
 	self.team_timers = {}
 	for k,v in pairs(Teammake.get_team_list()) do
-		self.team_timers[v] = KOTH_MAX_TIMER;
+		self.team_timers[v] = Objectively.get_global_timer();
 		obj_koth.reset_hud(self, v);
 	end
 	team_fort.cp.set_id();

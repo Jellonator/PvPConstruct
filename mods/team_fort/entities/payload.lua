@@ -6,7 +6,6 @@ local YAW_CHANGE_SPEED = math.pi;
 local PAYLOAD_GRAVITY = 6.0;
 local PAYLOAD_MAXFALL = 12.0;
 
-local PAYLOAD_TIMER_MAX = 1 * 60;
 local PAYLOAD_HUD_TIMER = {
 	hud_elem_type = "text",
 	text = "",
@@ -18,7 +17,7 @@ local PAYLOAD_HUD_TIMER = {
 local obj_payload = {
 	winner = NO_TEAM,
 	objective_id = Objectively.get_id(),
-	timer = PAYLOAD_TIMER_MAX,
+	timer = Objectively.get_global_timer(),
 	reset_time = false,
 	hud_elements = {},
 	is_overtime = false,
@@ -325,7 +324,7 @@ end
 
 function obj_payload.on_globalstep(self, dtime)
 	if not self.timer then
-		-- self.timer = PAYLOAD_TIMER_MAX;
+		-- self.timer = Objectively.get_global_timer();
 	end
 	-- announce winner if payload is winner
 	if self.winner ~= NO_TEAM and self.winner ~= "neutral" then
@@ -337,7 +336,7 @@ function obj_payload.on_globalstep(self, dtime)
 	self.timer = self.timer - dtime;
 	if self.reset_time then
 		self.reset_time = false;
-		self.timer = PAYLOAD_TIMER_MAX;
+		self.timer = Objectively.get_global_timer();
 	end
 
 	-- red whens when timer hits 0
@@ -382,7 +381,7 @@ end
 function obj_payload.on_reset(self)
 	self.winner = NO_TEAM;
 	self.objective_id = Objectively.get_id();
-	self.timer = PAYLOAD_TIMER_MAX;
+	self.timer = Objectively.get_global_timer();
 	self.is_overtime = false;
 	Teammake.respawn();
 end

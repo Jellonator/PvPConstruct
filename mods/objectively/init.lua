@@ -1,7 +1,8 @@
 Objectively = {
 	objective_id = "",
 	registered_objectives = {},
-	current_objective = ""
+	current_objective = "",
+	global_timer = 300,
 }
 
 local staticdatas = {}
@@ -22,6 +23,7 @@ local function saveobjective()
 	-- current should always come first
 	file:write(":current:\n", Objectively.current_objective, '\n');
 	file:write(":data:\n", jutil.serialize_safe(objective_data), '\n');
+	file:write(":timer:\n", tostring(Objectively.get_global_timer()), '\n');
 	file:close();
 end
 
@@ -49,6 +51,9 @@ local function loadobjective()
 					end
 				end
 			end
+		elseif ckey == ':timer:' then
+			local t = tonumber(line) or Objectively.get_global_timer();
+			Objectively.set_global_timer(t);
 		end
 	end
 
@@ -129,6 +134,22 @@ end
 
 function Objectively.get_objective()
 	return Objectively.registered_objectives[Objectively.current_objective];
+end
+
+--[[
+global timer functions
+--]]
+function Objectively.get_global_timer()
+	return Objectively.global_timer;
+end
+
+function Objectively.set_global_timer(value)
+	if value >= 1 then
+		Objectively.global_timer = value;
+		return true, "Successfully set global timer!"
+	else
+		return false, "Timer must be at least 1 second!"
+	end
 end
 
 minetest.register_on_joinplayer(function(player)

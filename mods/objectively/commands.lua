@@ -35,6 +35,11 @@ jutil.cmd.register("objectively",
 		reset = jutil.cmd.command({},
 		function()
 			return Objectively.reset();
-		end, "Resets the current objective.")
+		end, "Resets the current objective."),
+
+		settimer = jutil.cmd.command({"time:number"},
+		function(_, timer)
+			return Objectively.set_global_timer(timer);
+		end)
 	}
 )

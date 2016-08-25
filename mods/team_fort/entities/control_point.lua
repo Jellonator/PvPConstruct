@@ -5,7 +5,6 @@ local CONTROL_POINT_CAPTURE_BASE = 0.6;
 local CONTROL_POINT_CAPTURE_MULT = 0.4;
 local NO_TEAM = "$NONE";
 
-local CONTROL_POINT_TIMER_MAX = 5 * 60;
 local POINT_HUD_TIMER = {
 	hud_elem_type = "text",
 	text = "",
@@ -46,7 +45,7 @@ local point_obj = {
 	new_points = false,
 	winner = NO_TEAM,
 	objective_id = Objectively.get_id(),
-	timer = CONTROL_POINT_TIMER_MAX,
+	timer = Objectively.get_global_timer(),
 	reset_time = false,
 	hud_elements = {},
 	is_overtime = false,
@@ -356,7 +355,7 @@ function point_obj.on_globalstep(self, dtime)
 	self.timer = self.timer - dtime;
 	if self.reset_time then
 		self.reset_time = false;
-		self.timer = CONTROL_POINT_TIMER_MAX;
+		self.timer = Objectively.get_global_timer();
 	end
 
 	-- red whens when timer hits 0
@@ -414,7 +413,7 @@ end
 function point_obj.on_reset(self)
 	self.winner = NO_TEAM;
 	self.objective_id = Objectively.get_id();
-	self.timer = CONTROL_POINT_TIMER_MAX;
+	self.timer = Objectively.get_global_timer();
 	self.is_overtime = false;
 	Teammake.respawn();
 end

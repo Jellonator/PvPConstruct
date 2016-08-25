@@ -1,4 +1,3 @@
-local DEATHMATCH_MAX_TIME =  5 * 60;
 local SCORE_TEXT = "Scoreboard\n=========="
 local DM_HUD_TIMER = {
 	hud_elem_type = "text",
@@ -87,7 +86,7 @@ local deathmatch = {
 	end,
 
 	on_reset = function(self)
-		self.timer = DEATHMATCH_MAX_TIME;
+		self.timer = Objectively.get_global_timer();
 		self.team_data = {}
 		self.is_overtime = false;
 		Teammake.respawn();
@@ -99,7 +98,7 @@ local deathmatch = {
 
 	on_loaddata = function(self, data)
 		local data = minetest.deserialize(data) or {};
-		self.timer = data.timer or DEATHMATCH_MAX_TIME;
+		self.timer = data.timer or Objectively.get_global_timer();
 		self.team_data = data.team_data or self.team_data or {};
 	end,
 
