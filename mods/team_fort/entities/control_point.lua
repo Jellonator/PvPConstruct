@@ -52,10 +52,15 @@ local point_obj = {
 	is_overtime = false,
 }
 
+local max_point_time = 0;
 -- export a few functions so further control point gamemodes can be created
 team_fort.cp = {
 	NO_TEAM = NO_TEAM
 };
+
+function team_fort.cp.set_id(id)
+	point_obj.objective_id = id or Objectively.get_id();
+end
 
 function team_fort.cp.get_lock()
 	return point_obj.lock_data;
@@ -70,7 +75,7 @@ function team_fort.cp.get_winner()
 end
 
 function team_fort.cp.set_winner(winner)
-	point_obj.winner = winner;
+	point_obj.winner = winner or NO_TEAM;
 end
 
 function team_fort.cp.reset_winner()
@@ -81,6 +86,10 @@ function team_fort.cp.pop_newpoints()
 	local ret = point_obj.new_points;
 	point_obj.new_points = false;
 	return ret;
+end
+
+function team_fort.cp.get_max_point_time()
+	return max_point_time
 end
 
 local control_point_textures = {
@@ -129,7 +138,6 @@ local control_point = {
 	}
 };
 
-local max_point_time = 0;
 function control_point.on_activate(self, staticdata)
 	if staticdata then
 		jutil.deserialize_to(staticdata, self);

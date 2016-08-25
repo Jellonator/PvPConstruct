@@ -165,6 +165,16 @@ function Teammake.get_team(team)
 	return team_data[team]
 end
 
+function Teammake.get_team_list()
+	local ret = {}
+	for k,v in pairs(team_data) do
+		if k ~= Teammake.NONE_TEAM then
+			table.insert(ret, k)
+		end
+	end
+	return ret;
+end
+
 function Teammake.has_player(team, player)
 	return team_players[player] == team;
 end
