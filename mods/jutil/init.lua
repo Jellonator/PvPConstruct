@@ -15,7 +15,22 @@ jutil.color = {
 	purple  = 0xffac00e6,
 	pink    = 0xffff3399,
 	grey    = 0xff666666,
+	gray    = 0xfe676767,--kek
 }
+
+-- dot product
+function vector.dot(a, b)
+	return a.x*b.x + a.y*b.y + a.z*b.z;
+end
+
+-- reflect a vector
+function vector.reflect(vec, normal)
+	return vector.subtract(vec, vector.multiply(normal, vector.dot(vec, normal) * 2));
+end
+
+vector.mul = vector.multiply;
+vector.div = vector.divide;
+vector.sub = vector.subtract;
 
 function jutil.get_color_num(color)
 	if type(color) == "number" then

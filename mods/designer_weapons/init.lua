@@ -337,8 +337,20 @@ local function projectile_on_step(self, dtime)
 	local vdiff = vector.subtract(vector.add(self.prev, vector.multiply(
 			self.object:getacceleration(), dtime)), self.object:getvelocity())
 	if vector.length(vdiff) > 0.01 then
-		projectile_explode(self, nil, vdiff);
-		return
+		self.is_currently_rolling = true;
+		-- self.object:setvelocity(vector.multiply(self.prev, -self.bounce))
+		local normal = vector.normalize(vector.subtract(self.prev, self.object:getvelocity()));
+		local dir = vector.normalize(vector.reflect(self.prev, normal));
+		local speed = vector.length(self.prev) * self.bounce;
+		self.object:setvelocity(vector.multiply(dir, speed))
+	end
+
+	if self.is_currently_rolling then
+		self.roll_time = self.roll_time - dtime;
+		if self.roll_time <= 0 then
+			projectile_explode(self, nil, vdiff);
+			return
+		end
 	end
 
 	self.prev = self.object:getvelocity()
@@ -357,6 +369,9 @@ function designer_weapons.register_projectile(name, def)
 	def.visual_size = def.visual_size or {x=2,y=2};
 	def.blast_radius = def.blast_radius or 0;
 	def.damage_min = def.damage_min or 0;
+	def.roll_time = def.roll_time or 0;
+	def.is_currently_rolling = false;
+	def.bounce = def.bounce or 0;
 	if def.backface_culling == nil then
 		def.backface_culling = false;
 	end
@@ -384,8 +399,10 @@ function designer_weapons.shoot_projectile(name, from, dir, speed_mult,
 		error("No such projectile of name " .. name);
 	end
 	local velocity = vector.multiply(dir, speed_mult * def.speed);
+	local grav = {x=0,y=def.gravity,z=0}
+	velocity = vector.add(velocity, vector.multiply(grav, -0.25))
 	local object = minetest.add_entity(from, name);
-	object:setacceleration({x=0,y=def.gravity,z=0});
+	object:setacceleration(grav);
 	object:setvelocity(velocity);
 	local lua_entity = object:get_luaentity();
 	lua_entity.damage = lua_entity.damage * damage_mult;

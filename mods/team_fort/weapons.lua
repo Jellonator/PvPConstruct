@@ -67,3 +67,36 @@ designer_weapons.register_decal("team_fort:decal_explosion", {
 	description = "Remains of an explosion long past",
 	tiles = {"teamf_decal_explosion.png"},
 });
+
+
+-- grenade launcher
+minetest.register_craftitem("team_fort:grenade_ammo", {
+	description = "A grenade",
+	inventory_image = "teamf_projectile_grenade.png"
+})
+
+designer_weapons.register_projectile("team_fort:grenade", {
+	collisionbox = {-0.2,-0.2,-0.2, 0.2,0.2,0.2},
+	textures = {"teamf_projectile_grenade.png"},
+	gravity = -8,
+	speed = 7,
+	life = 4,
+	damage = 8,
+	damage_min = 2,
+	blast_radius = 2.5,
+	explode = true,
+	sound_hit = "tnt_explode",
+	decal = "team_fort:decal_explosion",
+	status_effects = {"team_fort:rocket_jump 0.1 3"},
+	roll_time = 1.0,
+	bounce = 0.5,
+})
+
+designer_weapons.register_weapon("team_fort:grenade_launcher", "projectile", {
+	entity_name = "team_fort:grenade",
+	description = "Grenade Launcher",
+	inventory_image = "teamf_weapon_grenadelauncher.png",
+	delay = 1.0,
+	ammo = "team_fort:grenade_ammo",
+	ammo_max = 10
+})

@@ -46,7 +46,7 @@ function Class.remove(class)
 	end
 	Class.class_data[class] = nil;
 	Caste._increment_id();
-	return true, "Successfully removed a player's class!";
+	return true, "Successfully removed the class!";
 end
 
 -- Items

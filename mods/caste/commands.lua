@@ -60,6 +60,11 @@ jutil.cmd.register("casteadmin",
 			return Caste.class.register(name);
 		end, "Creates a new class"),
 
+		remove = jutil.cmd.command({"name:string"},
+		function(_, name)
+			return Caste.class.remove(name);
+		end, "Deletes a class"),
+
 		describe = jutil.cmd.command({"class:string", "description:text"},
 		function(_, class, description)
 			local class_def = Caste.class.get(class);
