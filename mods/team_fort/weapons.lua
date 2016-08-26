@@ -78,11 +78,11 @@ minetest.register_craftitem("team_fort:grenade_ammo", {
 designer_weapons.register_projectile("team_fort:grenade", {
 	collisionbox = {-0.2,-0.2,-0.2, 0.2,0.2,0.2},
 	textures = {"teamf_projectile_grenade.png"},
-	gravity = -8,
-	speed = 7,
+	gravity = -9.8,
+	speed = 8,
 	life = 4,
 	damage = 8,
-	damage_min = 2,
+	damage_min = 4,
 	blast_radius = 2.5,
 	explode = true,
 	sound_hit = "tnt_explode",
@@ -96,7 +96,48 @@ designer_weapons.register_weapon("team_fort:grenade_launcher", "projectile", {
 	entity_name = "team_fort:grenade",
 	description = "Grenade Launcher",
 	inventory_image = "teamf_weapon_grenadelauncher.png",
-	delay = 1.0,
+	delay = 1.1,
 	ammo = "team_fort:grenade_ammo",
 	ammo_max = 10
+})
+
+-- healing crossbow
+minetest.register_craftitem("team_fort:healing_arrow", {
+	description = "A healing arrow",
+	inventory_image = "teamf_projectile_healingarrow.png"
+})
+
+designer_weapons.register_projectile("team_fort:healing_arrow", {
+	collisionbox = {-0.15,-0.15,-0.15, 0.15,0.15,0.15},
+	textures = {"teamf_projectile_healingarrow.png"},
+	gravity = -8,
+	speed = 20,
+	life = 10,
+	damage = 4,
+	healing = 5,
+	on_hit = function(self, owner, entity, damage)
+		if not owner:is_player() or not entity:is_player() then
+			return damage;
+		end
+		local owner_name = owner:get_player_name();
+		local entity_name = entity:get_player_name();
+		local owner_team = Teammake.player_get_team(owner_name);
+		local entity_team = Teammake.player_get_team(entity_name);
+		-- when shooter is not on a team or both the player and the entity are
+		-- on the same team, use healing
+		if not owner_team or entity_team == owner_team then
+			entity:set_hp(entity:get_hp() + self.healing);
+			return;
+		end
+		return damage;
+	end,
+})
+
+designer_weapons.register_weapon("team_fort:healing_crossbow", "projectile", {
+	entity_name = "team_fort:healing_arrow",
+	description = "Healing Crossbow",
+	inventory_image = "teamf_weapon_healingcrossbow.png",
+	delay = 1.2,
+	ammo = "team_fort:healing_arrow",
+	ammo_max = 8
 })

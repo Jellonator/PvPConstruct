@@ -11,10 +11,15 @@ designer_weapons = {
 
 local function damage_entity(self, owner, entity, damage)
 	local dmgdata = {damage_groups={fleshy=damage}}
-	entity:punch(owner, 10, dmgdata);
-	if self.status_effects then
-		for k,v in pairs(self.status_effects) do
-			status_effect.apply_effect(entity, status_effect.parse(v));
+	if self.on_hit then
+		damage = self.on_hit(self, owner, entity, damage);
+	end
+	if damage then
+		entity:punch(owner, 10, dmgdata);
+		if self.status_effects then
+			for k,v in pairs(self.status_effects) do
+				status_effect.apply_effect(entity, status_effect.parse(v));
+			end
 		end
 	end
 end
