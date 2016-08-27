@@ -1,7 +1,7 @@
 local PAYLOAD_CHECK_RATE = 0.5;
 local PAYLOAD_RANGE = 4.0;
 local PAYLOAD_SPEED_EXP = 0.2;
-local PAYLOAD_SPEED_BASE = 0.2;
+local PAYLOAD_SPEED_BASE = 0.3;
 local YAW_CHANGE_SPEED = math.pi;
 local PAYLOAD_GRAVITY = 6.0;
 local PAYLOAD_MAXFALL = 12.0;
@@ -105,6 +105,10 @@ function payload.reset(self, is_win)
 	self.object:setyaw(self.start_yaw);
 	self.self_pos = self.object:getpos();
 	self.objective_id = obj_payload.objective_id;
+	self.move_speed = 0;
+	self.target_pos = false;
+	self.target_yaw = 0;
+	self.falling = -1;
 end
 
 function payload.update_objective(self)

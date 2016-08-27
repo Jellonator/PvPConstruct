@@ -230,14 +230,22 @@ minetest.register_abm({
 })
 
 local function projectile_activate(self, staticdata)
-	if staticdata then
-		jutil.deserialize_to(staticdata, self);
+	minetest.chat_send_all("ACTIVATE")
+	if staticdata ~= "" or self._i_am_activated_yes_edboy then
+		self.object:remove();
+		minetest.chat_send_all("Projectile is Kill")
 	end
-	self.object:set_armor_groups({fleshy=1})
 end
 
 local function projectile_get_staticdata(self)
-	return jutil.serialize_safe(self);
+	-- kill projectiles when outside world
+	if self._i_am_activated_yes_edboy then
+		self.object:remove();
+		minetest.chat_send_all("Projectile is Kill")
+	end
+	self._i_am_activated_yes_edboy = true;
+
+	return "a"
 end
 
 minetest.register_entity("designer_weapons:explosion", {
@@ -248,12 +256,8 @@ minetest.register_entity("designer_weapons:explosion", {
 	visual_size = {x=4,y=4},
 	physical = false,
 	collide_with_objects = false,
-	on_activate = function(self, staticdata)
-		if staticdata == "a" then
-			self.object:remove()
-		end
-	end,
-	get_staticdata = function() return "a" end,
+	on_activate = projectile_activate,
+	get_staticdata = projectile_get_staticdata,
 	on_step = function(self, dtime)
 		self.frame = self.frame + dtime * 15;
 		local aframe = math.floor(self.frame);

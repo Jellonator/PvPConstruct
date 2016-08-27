@@ -49,9 +49,11 @@ function String.fmt_seconds(seconds, digits)
 		end
 	end
 	if digits and digits > 0 then
+		local div = math.pow(10, digits);
+		seconds = math.floor(seconds * div) / div;
 		ret = ret .. string.format("%." .. digits .. "f", seconds)
 	else
-		ret = ret .. string.format("%d", seconds)
+		ret = ret .. string.format("%d", math.floor(seconds))
 	end
 
 	return ret;
