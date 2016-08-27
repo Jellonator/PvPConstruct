@@ -132,6 +132,9 @@ function Teammake.reset_player(player)
 	if yaw then
 		player:set_look_yaw(math.rad(yaw));
 	end
+	if Caste then
+		Caste.player.reset(player)
+	end
 	if spawn then
 		player:setpos(spawn);
 		return true;
@@ -258,7 +261,7 @@ function Teammake.respawn(team)
 	for player_name, player_team in pairs(team_players) do
 		local player = minetest.get_player_by_name(player_name);
 		-- reset all players on team, or all players if team is nil
-		if (not team or player_team == team) and player_team and player then
+		if (not team or player_team == team) and player then
 			Teammake.reset_player(player);
 		end
 	end
