@@ -10,11 +10,15 @@ TEAM_COLOR = {
 -- register some basic teams
 Teammake.set_team("red", {
 	color = 0xFFFF0000,
-	gui_hotbar_image = "teamf_gui_hotbar_red.png"
+	gui_hotbar_image = "teamf_gui_hotbar_red.png",
+	reset_on_join = true,
+	autobalance = true,
 })
 Teammake.set_team("blue", {
 	color = 0xFF0000FF,
-	gui_hotbar_image = "teamf_gui_hotbar_blue.png"
+	gui_hotbar_image = "teamf_gui_hotbar_blue.png",
+	reset_on_join = true,
+	autobalance = true,
 })
 
 -- Load all objects

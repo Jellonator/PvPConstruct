@@ -143,11 +143,7 @@ function jutil.deserialize_to(str, obj)
 	end
 end
 
---[[
-Run a command 'command' for player 'player', optionally using priveledges for
-the 'owner'
---]]
-function jutil.run_command(player, command, owner)
+local function _run_command(player, command, owner)
 	command = string.trim(command)
 	command = command:gsub("@", player)
 	if command:sub(1, 1) == '/' then
@@ -175,7 +171,23 @@ function jutil.run_command(player, command, owner)
 		return
 	end
 
-	command_table.func(player, cmd_value);
+	return command_table.func(player, cmd_value);
+end
+
+--[[
+Run a command 'command' for player 'player', optionally using priveledges for
+the 'owner'
+--]]
+function jutil.run_command(player, command, owner)
+	for i,value in ipairs(string.split(command, ';')) do
+		local ret = _run_command(player, value, owner);
+		-- break out when error occurs
+		if ret == false then
+			return false;
+		end
+	end
+
+	return true;
 end
 
 --[[

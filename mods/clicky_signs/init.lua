@@ -67,9 +67,7 @@ minetest.register_node(clicky_sign_name, {
 		local cmd = meta:get_string("cmd");
 		print("Running command: ", cmd)
 
-		for i,value in ipairs(string.split(cmd, ';')) do
-			jutil.run_command(player_name, value, owner_name);
-		end
+		local ret = jutil.run_command(player_name, cmd, owner_name);
 	end,
 	can_dig = function(pos, player)
 		if not player:is_player() then return false end;

@@ -273,6 +273,14 @@ minetest.register_on_joinplayer(function(player)
 	if team then
 		if not Teammake.team_exists(team) then
 			Teammake.player_leave(player:get_player_name());
+		else
+			local teamdef = Teammake.get_team(team);
+			if teamdef.reset_on_join then
+				if Caste then
+					Caste.player.leave(player:get_player_name())
+				end
+				return Teammake.player_leave(player:get_player_name());
+			end
 		end
 	end
 	return Teammake.reset_player(player);
