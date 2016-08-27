@@ -141,3 +141,19 @@ designer_weapons.register_weapon("team_fort:healing_crossbow", "projectile", {
 	ammo = "team_fort:healing_arrow",
 	ammo_max = 8
 })
+
+-- minigun
+designer_weapons.register_weapon("team_fort:minigun", "hitscan", {
+	description = "Minigun",
+	inventory_image = "dweapon_shotgun.png",
+	rate = 10,
+	damage = 4,
+	damage_min = 1,
+	falloff = 9,
+	falloff_min = 2,
+	sound_shoot = "dweapon_shoot",
+	decal = "designer_weapons:decal_bullet",
+	ammo = "designer_weapons:bullet_standard",
+	ammo_max = 50,
+	automatic = true,
+})

@@ -28,6 +28,7 @@ dofile(minetest.get_modpath("team_fort") .. "/commands.lua");
 dofile(minetest.get_modpath("team_fort") .. "/nodes.lua");
 dofile(minetest.get_modpath("team_fort") .. "/weapons.lua");
 dofile(minetest.get_modpath("team_fort") .. "/koth.lua");
+dofile(minetest.get_modpath("team_fort") .. "/classes.lua");
 
 local creative_mode = minetest.setting_getbool("creative_mode")
 if not creative_mode and not minetest.is_singleplayer() then
