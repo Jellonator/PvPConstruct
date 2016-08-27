@@ -122,6 +122,46 @@ local function set_player_nametag_color(player, team)
 	player:hud_set_hotbar_image(hotbar_image);
 end
 
+function Teammake.update_autobalance()
+	local autoteams = {}
+	for name, def in pairs(team_data) do
+		if def.autobalance then
+			autoteams[name] = {};
+		end
+	end
+	for player, player_team in pairs(team_players) do
+		if autoteams[player_team] and minetest.get_player_by_name(player) then
+			table.insert(autoteams[player_team], player)
+		end
+	end
+	while true do
+		local min_players = math.huge;
+		local max_players = -math.huge;
+		local min_team;
+		local max_team;
+		for name, players in pairs(autoteams) do
+			min_players = math.min(min_players, #players);
+			max_players = math.max(max_players, #players);
+			if min_players == #players then
+				min_team = name;
+			end
+			if max_players == #players then
+				max_team = name;
+			end
+		end
+		-- 2 vs 1 would be fine, but 3 vs 1 would not
+		if max_players > min_players + 1 and min_team and max_team and min_team ~= max_team then
+			-- take a random player from max_team and assign them to the min_team
+			local max_team_players = autoteams[max_team];
+			local rand_player = max_team_players[math.random(#max_team_players)]
+
+			Teammake.player_join(min_team, rand_player);
+		else
+			break;
+		end
+	end
+end
+
 function Teammake.reset_player(player)
 	local player_name = player:get_player_name();
 	local player_team = Teammake.player_get_team(player_name);
@@ -135,6 +175,7 @@ function Teammake.reset_player(player)
 	if Caste then
 		Caste.player.reset(player)
 	end
+	player:set_hp(1000);
 	if spawn then
 		player:setpos(spawn);
 		return true;
@@ -197,7 +238,7 @@ function Teammake.player_leave(player)
 	end
 	minetest.chat_send_all(string.format("Player %s left their team!", player))
 	increment_id()
-
+	Teammake.update_autobalance();
 	return true
 end
 
@@ -207,6 +248,29 @@ function Teammake.player_join(team, player)
 	end
 	if Teammake.has_player(team, player) then
 		return false, string.format("Player %s is already on team %s!", player, team);
+	end
+	if Teammake.get_team(team).autobalance then
+		local cur_players = 0;
+		local min_players = math.huge;
+		local autoteams = {}
+		for player_name,player_team in pairs(team_players) do
+			if minetest.get_player_by_name(player_name) then
+				if player_team == team then
+					cur_players = cur_players + 1;
+				elseif Teammake.get_team(player_team).autobalance then
+					autoteams[player_team] = autoteams[player_team] or 0;
+					autoteams[player_team] = autoteams[player_team] + 1;
+				end
+			end
+		end
+		for k,v in pairs(autoteams) do
+			min_players = math.min(min_players, v);
+		end
+		-- if the team the player is joining has more players than the team
+		-- with the lowest number of players, do not join this team.
+		if cur_players > min_players then
+			return false, "Team has to much players!"
+		end
 	end
 	team_players[player] = team;
 	local playerent = minetest.get_player_by_name(player);
