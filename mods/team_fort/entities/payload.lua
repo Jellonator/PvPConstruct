@@ -5,6 +5,7 @@ local PAYLOAD_SPEED_BASE = 0.3;
 local YAW_CHANGE_SPEED = math.pi;
 local PAYLOAD_GRAVITY = 6.0;
 local PAYLOAD_MAXFALL = 12.0;
+local PAYLOAD_HEAL_TICKS = 4;
 
 local PAYLOAD_HUD_TIMER = {
 	hud_elem_type = "text",
@@ -47,7 +48,8 @@ local payload = {
 	falling = -1,
 	start_pos = nil,
 	start_yaw = nil,
-	initialize = false
+	initialize = false,
+	heal_ticks = 0
 };
 
 local max_payload_speed = 0;
@@ -79,6 +81,7 @@ function payload.check_players(self, dtime)
 	-- to the payload to push it
 	self.check_time = self.check_time + dtime;
 	if self.check_time >= PAYLOAD_CHECK_RATE then
+		self.heal_ticks = self.heal_ticks - 1;
 		self.check_time = self.check_time - PAYLOAD_CHECK_RATE
 		local objects = minetest.get_objects_inside_radius(
 				self.object:getpos(), PAYLOAD_RANGE);
@@ -86,16 +89,23 @@ function payload.check_players(self, dtime)
 		local blu_num = 0;
 		for k,v in pairs(objects) do
 			if Teammake.has_player("blue", v:get_player_name()) then
-				blu_num = blu_num + 1;
+				if blu_num >= 0 then
+					blu_num = blu_num + 1;
+				end
+				if self.heal_ticks == 0 then
+					v:set_hp(v:get_hp() + 1);
+				end
 			elseif Teammake.has_player("red", v:get_player_name()) then
-				blu_num = 0;
-				break;
+				blu_num = -1;
 			end
 		end
 		if blu_num > 0 then
 			self.move_speed = blu_num * PAYLOAD_SPEED_EXP + PAYLOAD_SPEED_BASE
 		else
 			self.move_speed = 0
+		end
+		if self.heal_ticks <= 0 then
+			self.heal_ticks = PAYLOAD_HEAL_TICKS;
 		end
 	end
 end
