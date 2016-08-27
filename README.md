@@ -1,6 +1,6 @@
 PvP Construct
 =============
-
+Version 1.0.0
 Created by Jellonator
 
 What is this?
@@ -9,11 +9,9 @@ This is a set of mods created to aid in the creation of minigames,
 specifically PvP games. Many of these mods are based off of popular multiplayer
 games such as DOTA, Team Fortress 2, Overwatch, Counter Strike, etc.
 
-Please note that this mod is currently nowhere near complete. There is still a
-lot of work to be done. As such, it is currently recommended to *not* download
-this mod unless you plan on contributing, or if it does get complete and I
-forget to remove this notice from the readme. The only reason this is on github
-is so that I can sync this project between my laptop and desktop.
+Please note that this mod is currently in beta. Use at your own risk, and make
+sure to keep backups of your worlds. Some of these mods, especially team_fort
+and objectively, don't work very well in other subgames.
 
 Mods bundled with this subgame
 ------------------------------

@@ -230,10 +230,8 @@ minetest.register_abm({
 })
 
 local function projectile_activate(self, staticdata)
-	minetest.chat_send_all("ACTIVATE")
 	if staticdata ~= "" or self._i_am_activated_yes_edboy then
 		self.object:remove();
-		minetest.chat_send_all("Projectile is Kill")
 	end
 end
 
@@ -241,7 +239,6 @@ local function projectile_get_staticdata(self)
 	-- kill projectiles when outside world
 	if self._i_am_activated_yes_edboy then
 		self.object:remove();
-		minetest.chat_send_all("Projectile is Kill")
 	end
 	self._i_am_activated_yes_edboy = true;
 
